@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function()? onTap;
-  LoginScreen({super.key, required this.onTap});
+  const LoginScreen({super.key, required this.onTap});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -25,26 +25,42 @@ class _LoginScreenState extends State<LoginScreen> {
     },);
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: emailController.text, 
-      password: passwordController.text);
-      Navigator.pop(context);
+      if(emailController.text.isEmpty || passwordController.text.isEmpty){
+        if (mounted) {
+          Navigator.pop(context);
+        }
+        errorMess('Merci de remplir tous les champs');
+      }
+      else{
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text, 
+        password: passwordController.text);
+        if (mounted) {
+            Navigator.pop(context);
+        }
+      }
     } on FirebaseAuthException catch(e){
-      Navigator.pop(context);
-      if (e.code == 'invalid-email' || e.code == 'invalid-credential'){
-          invalidVredentialErrorMess();
-      }else{
-        print('FirebaseAuth error: ${e.code}');}
+      if (mounted) {
+          Navigator.pop(context);
+      }
+      if (e.code == 'invalid-credential'){
+          errorMess('Email ou mot de passe incorect');
+      } else if(e.code == 'invalid-email'){
+        errorMess("Email non valide");
+      }
+      //}else{
+      //  print('FirebaseAuth error: ${e.code}');
+      
     }
   }
 
-  void invalidVredentialErrorMess(){
+  void errorMess(String message){
     showDialog(
       context: context, 
       builder: (context){
         return AlertDialog(
-          title: Text('Erreur de connexion'),
-          content: Text('Email ou mot de passe incorect'),
+          title: const Text('Erreur de connexion'),
+          content: Text(message),
           actions: [
             TextButton(onPressed: () {
               Navigator.pop(context);
@@ -52,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: const Text('OK'),
             ),
           ]
-          );
+        );
     },);
   }
 
@@ -107,7 +123,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 //creer un compte
                 GestureDetector(
                   onTap: widget.onTap,
-                  child: const Text('Créer un compte')
+                  child: const Text('Créer un compte', 
+                    style: TextStyle(
+                    fontSize: 20.0,)
+                  ,)
                 ),
             
               ],

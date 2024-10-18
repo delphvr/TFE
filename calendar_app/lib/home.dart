@@ -15,7 +15,7 @@ class HomePage extends StatelessWidget{
     return Scaffold(
       appBar: AppBar(actions: [IconButton(onPressed: logout, icon: const Icon(Icons.logout, size: 40,))],),
       body: Center(
-        child: Text('Bienvenue ( '+ user.email! +')'),
+        child: Text('Bienvenue ( ${user.email!})'),
       ),
     );
   }

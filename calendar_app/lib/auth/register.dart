@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class Register extends StatefulWidget {
   final Function()? onTap;
-  Register({super.key, required this.onTap});
+  const Register({super.key, required this.onTap});
 
   @override
   State<Register> createState() => _RegisterState();
@@ -25,30 +25,46 @@ class _RegisterState extends State<Register> {
     },);
 
     try {
-      if(passwordController.text == confirmpasswordController.text){
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text, 
-          password: passwordController.text);
+      if(emailController.text.isEmpty || passwordController.text.isEmpty || confirmpasswordController.text.isEmpty){
         if (mounted) {
           Navigator.pop(context);
         }
-      } else {
-        Navigator.pop(context);
-        ErrorMess('Les mots de passe ne correspondent pas');
+        errorMess('Merci de remplir tous les champs');
+      }else{
+        if(passwordController.text == confirmpasswordController.text){
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: emailController.text, 
+            password: passwordController.text);
+          if (mounted) {
+            Navigator.pop(context);
+          }
+        } else {
+          if (mounted) {
+            Navigator.pop(context);
+          }
+          errorMess('Les mots de passe ne correspondent pas');
+        }
       }
-      //Navigator.pop(context);
     } on FirebaseAuthException catch(e){
-      Navigator.pop(context);
-      ErrorMess(e.code);
+      if (mounted) {
+          Navigator.pop(context);
+      }
+      if(e.code == "weak-password"){
+        errorMess("Le mot de passe doit faire au moins 6 caractères.");
+      }if(e.code == "invalid-email"){
+        errorMess("Email non valide");
+      }else{
+        errorMess(e.code);
+      }
     }
   }
 
-  void ErrorMess(String message){
+  void errorMess(String message){
     showDialog(
       context: context, 
       builder: (context){
         return AlertDialog(
-          title: Text('Erreur lors de la création du compte'),
+          title: const Text('Erreur lors de la création du compte'),
           content: Text(message),
           actions: [
             TextButton(onPressed: () {
@@ -110,7 +126,10 @@ class _RegisterState extends State<Register> {
                 //creer un compte
                 GestureDetector(
                   onTap: widget.onTap,
-                  child: const Text('A déjà un compte, se connecter')
+                  child: const Text('A déjà un compte, se connecter',
+                                    style: TextStyle(
+                                    fontSize: 17.0,)
+                    )
                 ),
             
               ],
