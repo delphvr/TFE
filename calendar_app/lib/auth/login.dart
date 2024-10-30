@@ -31,6 +31,12 @@ class _LoginScreenState extends State<LoginScreen> {
         }
         errorMess('Merci de remplir tous les champs');
       }
+      else if(!isValidEmail(emailController.text)){
+        if (mounted) {
+          Navigator.pop(context);
+        }
+        errorMess('Email non Valide.');
+      }
       else{
         await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text, 
@@ -45,13 +51,17 @@ class _LoginScreenState extends State<LoginScreen> {
       }
       if (e.code == 'invalid-credential'){
           errorMess('Email ou mot de passe incorect');
-      } else if(e.code == 'invalid-email'){
-        errorMess("Email non valide");
-      }
-      //}else{
-      //  print('FirebaseAuth error: ${e.code}');
-      
+      } else {
+        errorMess(e.code);
+      }      
     }
+  }
+
+  //Source: https://stackoverflow.com/questions/16800540/how-should-i-check-if-the-input-is-an-email-address-in-flutter
+  bool isValidEmail(String email) {
+    return RegExp(
+            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+        .hasMatch(email);
   }
 
   void errorMess(String message){

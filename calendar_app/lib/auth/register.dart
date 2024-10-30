@@ -25,12 +25,25 @@ class _RegisterState extends State<Register> {
     },);
 
     try {
-      if(emailController.text.isEmpty || passwordController.text.isEmpty || confirmpasswordController.text.isEmpty){
+      if (!isValidEmail(emailController.text)){
+        if (mounted) {
+          Navigator.pop(context);
+        }
+        errorMess('Email non Valide');
+      }
+      else if(emailController.text.isEmpty || passwordController.text.isEmpty || confirmpasswordController.text.isEmpty){
         if (mounted) {
           Navigator.pop(context);
         }
         errorMess('Merci de remplir tous les champs');
-      }else{
+      }
+      else if(passwordController.text.length < 6){
+          if (mounted) {
+          Navigator.pop(context);
+        }
+        errorMess('Le mot de passe doit faire au moins 6 caractères.');
+      }
+      else{
         if(passwordController.text == confirmpasswordController.text){
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
             email: emailController.text, 
@@ -49,14 +62,15 @@ class _RegisterState extends State<Register> {
       if (mounted) {
           Navigator.pop(context);
       }
-      if(e.code == "weak-password"){
-        errorMess("Le mot de passe doit faire au moins 6 caractères.");
-      }if(e.code == "invalid-email"){
-        errorMess("Email non valide");
-      }else{
         errorMess(e.code);
-      }
     }
+  }
+  
+  //Source: https://stackoverflow.com/questions/16800540/how-should-i-check-if-the-input-is-an-email-address-in-flutter
+  bool isValidEmail(String email) {
+    return RegExp(
+            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+        .hasMatch(email);
   }
 
   void errorMess(String message){
