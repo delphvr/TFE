@@ -87,22 +87,97 @@ public class Database {
         }
     }
 
-    void addUser(String firstName, String lastName, String email){
+    Integer addToUsersTable(String firstName, String lastName, String email){
         String statement = "INSERT INTO users (first_name, last_name, email) VALUES (?, ?, ?)";
+        Integer userId = null;
         try {
             c.setAutoCommit(false);
             
-            PreparedStatement pstmt = c.prepareStatement(statement);
-            pstmt.setString(1, firstName);  
-            pstmt.setString(2, lastName); 
-            pstmt.setString(3, email);     
+            PreparedStatement stmt = c.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
+            stmt.setString(1, firstName);  
+            stmt.setString(2, lastName); 
+            stmt.setString(3, email);     
 
-            pstmt.executeUpdate();
-            pstmt.close();
+            //https://stackoverflow.com/questions/1915166/how-to-get-the-insert-id-in-jdbc
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new Exception("Creating user failed, no rows affected.");
+            }
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    userId = generatedKeys.getInt(1);
+                }
+                else {
+                    throw new Exception("Creating user failed, no ID obtained.");
+                }
+            }
+            //System.out.println(userId);
             c.commit();
+            stmt.close();
         } catch (Exception e) {
             error(e);
         }
+        return userId;
+    }
+
+    void addToOrganizerTable(int userId){
+        String statement = "INSERT INTO organizers (user_id) VALUES (?)";
+        try{
+            c.setAutoCommit(false);
+            
+            PreparedStatement stmt = c.prepareStatement(statement);
+            stmt.setInt(1, userId); 
+            stmt.executeUpdate();
+            c.commit();
+            stmt.close();
+        } catch (Exception e) {
+            error(e);
+        }
+    }
+
+    void addToUserProfessionsTable(int userId, ArrayList<String> professions){
+        String statement = "INSERT INTO user_professions (user_id, profession) VALUES (?, ?)";
+        try{
+            c.setAutoCommit(false);
+            PreparedStatement stmt = c.prepareStatement(statement);
+
+            for (String profession : professions) { 
+                stmt.setInt(1, userId); 
+                stmt.setString(2, profession); 
+                stmt.executeUpdate(); 
+            }
+
+            c.commit(); 
+            stmt.close(); 
+        } catch (Exception e) {
+            error(e);
+        }
+    }
+
+    void addToProfessionValuesTable(ArrayList<String> professions){
+        String statement = "INSERT INTO profession_values (profession) VALUES (?)";
+        try{
+            c.setAutoCommit(false);
+            PreparedStatement stmt = c.prepareStatement(statement);
+
+            for (String profession : professions) { 
+                stmt.setString(1, profession); 
+                stmt.executeUpdate(); 
+            }
+
+            c.commit(); 
+            stmt.close(); 
+        } catch (Exception e) {
+            error(e);
+        }
+    }
+
+    void addUser(String firstName, String lastName, String email, Boolean isOrganizer, ArrayList<String> professions){
+        int userId = addToUsersTable(firstName, lastName, email);
+        if(isOrganizer){
+            addToOrganizerTable(userId);
+        }
+        addToUserProfessionsTable(userId, professions);
     }
 
     void closeConnexion(){
