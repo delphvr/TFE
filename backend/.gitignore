@@ -40,3 +40,4 @@ build/
 
 
 dbconfig.properties
+application.properties

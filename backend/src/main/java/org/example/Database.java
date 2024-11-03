@@ -11,13 +11,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.springframework.stereotype.Component;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 //base on: https://www.tutorialspoint.com/postgresql/postgresql_java.htm
 
+@Component
 public class Database {
 
     Connection c = null;
     Statement stmt = null;
 
+    @PostConstruct
+    private void init() {
+        getConnection(); // Call getConnection when the bean is created
+    }
+    
     void getConnection(){
         Properties props = new Properties();
         try {
@@ -180,18 +191,21 @@ public class Database {
         addToUserProfessionsTable(userId, professions);
     }
 
-    void closeConnexion(){
-        try {
-            c.close();
-        } catch (Exception e) {
-            error(e);
-        }
-    }
-
     void error(Exception e){
         e.printStackTrace();
         System.err.println(e.getClass().getName()+": "+e.getMessage());
         System.exit(0);
+    }
+
+    @PreDestroy  // This method will be called when the application is shutting down
+    public void closeConnexion() {
+        if (c != null) {
+            try {
+                c.close();
+            } catch (Exception e) {
+                error(e);
+            }
+        }
     }
     
 }
