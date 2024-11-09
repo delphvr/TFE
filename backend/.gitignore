@@ -39,5 +39,4 @@ build/
 .DS_Store
 
 
-dbconfig.properties
 application.properties
