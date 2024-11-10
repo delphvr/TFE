@@ -1,4 +1,4 @@
-package calendarapp.entity;
+package calendarapp.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GenerationType;
@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
-public class Users {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,9 +23,9 @@ public class Users {
     @Column(name = "email", nullable=false, unique=true)
     private String email;
 
-    public Users() {}
+    public User() {}
 
-    public Users(Long id, String firstName, String lastName, String email) {
+    public User(Long id, String firstName, String lastName, String email) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
