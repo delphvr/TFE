@@ -6,7 +6,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 
-//curl -X POST http://localhost:8080/api/users -H "Content-Type: application/json" -d "{\"firstName\":\"Del\", \"lastName\":\"Vr\", \"email\":\"d.vr@mail.com\"}"
+//curl -X POST "http://localhost:8080/api/users" -H "Content-Type: application/json" -d "{\"firstName\": \"Del\", \"lastName\": \"vr\", \"email\": \"del.vr@mail.com\", \"professions\": [\"Danseur\"], \"isOrganizer\": true}" 
+//curl -X POST "http://localhost:8080/api/professions" -H "Content-Type: application/json" -d "{\"profession\": \"Danseur\"}"
 
 
 @SpringBootApplication
