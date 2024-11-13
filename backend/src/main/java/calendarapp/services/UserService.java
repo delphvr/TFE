@@ -11,8 +11,6 @@ import calendarapp.repository.UserRepository;
 import calendarapp.request.CreateUserRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +42,6 @@ public class UserService {
 
     @Transactional
     public User createUser(CreateUserRequest request) {
-        System.out.println("Request: " + request);
         User user = new User(null, request.getFirstName(), request.getLastName(), request.getEmail());
         user = userRepository.save(user);
 
@@ -62,7 +59,7 @@ public class UserService {
         }
 
         if (request.getIsOrganizer()) {
-            Organizer organizer = new Organizer(user);
+            Organizer organizer = new Organizer(user.getId());
             organizerRepository.save(organizer);
         }
 
