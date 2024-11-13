@@ -1,17 +1,12 @@
 package calendarapp.controller;
 
-import calendarapp.model.Organizer;
-import calendarapp.model.Profession;
 import calendarapp.model.User;
-import calendarapp.model.UserProfession;
-import calendarapp.repository.OrganizerRepository;
-import calendarapp.repository.ProfessionRepository;
-import calendarapp.repository.UserProfessionRepository;
 import calendarapp.repository.UserRepository;
 import calendarapp.request.CreateUserRequest;
+import calendarapp.services.UserService;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,93 +32,58 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private OrganizerRepository organizerRepository;
-
-    @Autowired
-    private UserProfessionRepository userProfessionRepository;
-
 	@Autowired
-	private ProfessionRepository professionRepository;
+    private UserService userService;
 
     @GetMapping("/users")
 	public ResponseEntity<List<User>> getAllUsers() {
 		try {
-			List<User> users = new ArrayList<User>();
-            userRepository.findAll().forEach(users::add);
-			if (users.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-			}
+			List<User> users = userService.getAllUsers();
 			return new ResponseEntity<>(users, HttpStatus.OK);
-		} catch (Exception e) {
+		}catch (NoSuchElementException e) {
+			return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+		}catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@GetMapping("/users/{id}")
 	public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
-		Optional<User> userData = userRepository.findById(id);
-
-		if (userData.isPresent()) {
-			return new ResponseEntity<>(userData.get(), HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		try {
+			Optional<User> userData = userRepository.findById(id);
+			if (userData.isPresent()) {
+				return new ResponseEntity<>(userData.get(), HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+		} catch (Exception e){
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@PostMapping("/users")
-	public ResponseEntity<User> createUser(@RequestBody CreateUserRequest request) {
-		try {
-			System.out.println("Received request: " + request);
-			User user = new User(null, request.getFirstName(), request.getLastName(), request.getEmail());
-			user = userRepository.save(user);
-
-			if (request.getProfessions() != null && !request.getProfessions().isEmpty()) {
-				for (String profession : request.getProfessions()) {
-					Optional<Profession> existingProfession = professionRepository.findById(profession);
-					if (existingProfession.isPresent()){
-						UserProfession userProfession = new UserProfession(user.getId(), profession);
-						userProfession.setUser(user);  
-						userProfessionRepository.save(userProfession);
-					}else{
-						return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-					}
-				}
-			}
-
-			if (request.getIsOrganizer()) {
-				System.out.println(user.getId());
-				System.out.println(user);
-
-				Organizer organizer = new Organizer(user);
-				//organizer.setUser(user);  
-				System.out.println(organizer);
-				organizerRepository.save(organizer);
-			}else{
-				System.out.println("no\n");
-				System.out.println("Request: " + request);
-			}
-
-			return new ResponseEntity<>(user, HttpStatus.CREATED);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+    public ResponseEntity<User> createUser(@RequestBody CreateUserRequest request) {
+        try {
+            User createdUser = userService.createUser(request);
+            return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 	@PutMapping("/users/{id}")
 	public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody User user) {
-		Optional<User> userData = userRepository.findById(id);
-
-		if (userData.isPresent()) {
-			User _user = userData.get();
-            _user.setFirstName(user.getFirstName());
-			_user.setLastName(user.getLastName());
-            _user.setEmail(user.getEmail());
-			return new ResponseEntity<>(userRepository.save(_user), HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-	}
+        try {
+            User updatedUser = userService.updateUser(id, user);
+            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 	@DeleteMapping("/users/{id}")
 	public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") long id) {
