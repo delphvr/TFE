@@ -42,27 +42,30 @@ public class UserService {
 
     @Transactional
     public User createUser(CreateUserRequest request) {
+        Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
+        if (existingUser.isPresent()) {
+            throw new IllegalArgumentException("A user with email " + request.getEmail() + " already exists.");
+        }
+        
         User user = new User(null, request.getFirstName(), request.getLastName(), request.getEmail());
         user = userRepository.save(user);
 
         if (request.getProfessions() != null && !request.getProfessions().isEmpty()) {
             for (String profession : request.getProfessions()) {
                 Optional<Profession> existingProfession = professionRepository.findById(profession);
-                if (existingProfession.isPresent()) {
-                    UserProfession userProfession = new UserProfession(user.getId(), profession);
-                    userProfession.setUser(user);
-                    userProfessionRepository.save(userProfession);
-                } else {
-                    throw new IllegalArgumentException("Invalid profession: " + profession);
+                if (!existingProfession.isPresent()){
+                    Profession prof = new Profession(profession);
+                    professionRepository.save(prof);
                 }
+               UserProfession userProfession = new UserProfession(user.getId(), profession);
+                userProfession.setUser(user);
+                userProfessionRepository.save(userProfession);
             }
         }
-
         if (request.getIsOrganizer()) {
             Organizer organizer = new Organizer(user.getId());
             organizerRepository.save(organizer);
         }
-
         return user;
     }
 

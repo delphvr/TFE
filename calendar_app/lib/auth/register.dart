@@ -21,11 +21,10 @@ class _RegisterState extends State<Register> {
   final firstnameController = TextEditingController();
   final lastnameController = TextEditingController();
   bool isOrganizer = false;
+  String url = 'http://192.168.129.6:8080/api/users'; //TODO: recup dans un .env?
 
   Future<int> pushUserToBackend(
-      String email, String firstName, String lastName) async {
-    const String url = 'http://192.168.0.169:8080/api/users';
-
+    String email, String firstName, String lastName) async {
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -40,15 +39,63 @@ class _RegisterState extends State<Register> {
       );
 
       if (response.statusCode == 201) {
-        return 0;
-      } else {
-        print(response.statusCode);
+        print(response.body);
+        Map<String, dynamic> parsedJson = json.decode(response.body);
+        return parsedJson["id"];
+      } else if(response.statusCode == 409){
+        if (mounted) {
+          Navigator.pop(context);
+        }
+        errorMess("Adresse email déjà utilisé");
+        return -1;
+      }
+      else {
+        //print(response.statusCode);
+        if (mounted) {
+          Navigator.pop(context);
+        }
+        errorMess("Echecs de l'envoie des données au server");
         return -1;
       }
     } catch (e) {
-      print(e);
+      //print(e);
+      if (mounted) {
+          Navigator.pop(context);
+        }
+        errorMess("Echecs de l'envoie des données au server");
       return -1;
     }
+  }
+
+  int checkInput() {
+    if (emailController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmpasswordController.text.isEmpty) {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+      errorMess('Merci de remplir tous les champs');
+      return -1;
+    }else if (!isValidEmail(emailController.text)) {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+      errorMess('Email non Valide');
+      return -1;
+    } else if (passwordController.text.length < 6) {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+      errorMess('Le mot de passe doit faire au moins 6 caractères.');
+      return -1;
+    } else if (passwordController.text != confirmpasswordController.text) {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+      errorMess('Les mots de passe ne correspondent pas');
+      return -1;
+    }
+    return 1;
   }
 
   void login() async {
@@ -60,51 +107,23 @@ class _RegisterState extends State<Register> {
         );
       },
     );
-    //TODO: les check if dans une fonction aux?
-    if (!isValidEmail(emailController.text)) {
-      if (mounted) {
-        Navigator.pop(context);
-      }
-      errorMess('Email non Valide');
-    } else if (emailController.text.isEmpty ||
-        passwordController.text.isEmpty ||
-        confirmpasswordController.text.isEmpty) {
-      if (mounted) {
-        Navigator.pop(context);
-      }
-      errorMess('Merci de remplir tous les champs');
-    } else if (passwordController.text.length < 6) {
-      if (mounted) {
-        Navigator.pop(context);
-      }
-      errorMess('Le mot de passe doit faire au moins 6 caractères.');
-    } else if (passwordController.text != confirmpasswordController.text) {
-      if (mounted) {
-        Navigator.pop(context);
-      }
-      errorMess('Les mots de passe ne correspondent pas');
-    } else {
-      int error = await pushUserToBackend(
-        emailController.text,
-        firstnameController.text,
-        lastnameController.text,
+    if(checkInput() == 1){
+      int userId = await pushUserToBackend(
+        emailController.text.trim(),
+        firstnameController.text.trim(),
+        lastnameController.text.trim(),
       );
-      //TODO: if erreur car email alredy in use put better error message indication
-      //TODO: if erreur firebase dois rolback les changement à la db
-      if (error == -1) {
-        if (mounted) {
-          Navigator.pop(context);
-        }
-        errorMess("Echecs de l'envoie des données au backend");
-      } else {
+      if (userId != -1) {
         try {
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
               email: emailController.text, password: passwordController.text);
-
           if (mounted) {
             Navigator.pop(context);
           }
         } on FirebaseAuthException catch (e) {
+          final response = await http.delete(
+            Uri.parse("$url/$userId"),
+          );
           if (mounted) {
             Navigator.pop(context);
           }

@@ -67,7 +67,10 @@ public class UserController {
             User createdUser = userService.createUser(request);
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            if (e.getMessage().contains("already exists")) {
+				return new ResponseEntity<>(null, HttpStatus.CONFLICT); 
+			}
+			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
