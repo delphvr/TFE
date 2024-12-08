@@ -29,20 +29,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/api")
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
 
 	@Autowired
-    private UserService userService;
+	private UserService userService;
 
-    @GetMapping("/users")
+	@GetMapping("/users")
 	public ResponseEntity<List<User>> getAllUsers() {
 		try {
 			List<User> users = userService.getAllUsers();
 			return new ResponseEntity<>(users, HttpStatus.OK);
-		}catch (NoSuchElementException e) {
+		} catch (NoSuchElementException e) {
 			return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -56,37 +56,53 @@ public class UserController {
 			} else {
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			}
-		} catch (Exception e){
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/users/email/{email}")
+	public ResponseEntity<User> getUserByEmail(@PathVariable("email") String email) {
+		System.out.println("Received email: " + email);
+		try {
+			Optional<User> userData = userRepository.findByEmail(email);
+			if (userData.isPresent()) {
+				return new ResponseEntity<>(userData.get(), HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody CreateUserRequest request) {
-        try {
-            User createdUser = userService.createUser(request);
-            return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("already exists")) {
-				return new ResponseEntity<>(null, HttpStatus.CONFLICT); 
+	public ResponseEntity<User> createUser(@RequestBody CreateUserRequest request) {
+		try {
+			User createdUser = userService.createUser(request);
+			return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+		} catch (IllegalArgumentException e) {
+			if (e.getMessage().contains("already exists")) {
+				return new ResponseEntity<>(null, HttpStatus.CONFLICT);
 			}
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 	@PutMapping("/users/{id}")
 	public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody User user) {
-        try {
-            User updatedUser = userService.updateUser(id, user);
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+		try {
+			User updatedUser = userService.updateUser(id, user);
+			return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+		} catch (IllegalArgumentException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 	@DeleteMapping("/users/{id}")
 	public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") long id) {
@@ -103,6 +119,18 @@ public class UserController {
 		try {
 			userRepository.deleteAll();
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/users/organizer/{email}")
+	public ResponseEntity<Boolean> isUserOrganizer(@PathVariable("email") String email) {
+		try {
+			boolean isOrganizer = userService.isUserOrganizer(email);
+			return new ResponseEntity<>(isOrganizer, HttpStatus.OK);
+		} catch (IllegalArgumentException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}

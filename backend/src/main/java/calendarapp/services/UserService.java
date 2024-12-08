@@ -38,7 +38,7 @@ public class UserService {
             throw new NoSuchElementException("No users found in the database.");
         }
         return users;
-	}
+    }
 
     @Transactional
     public User createUser(CreateUserRequest request) {
@@ -46,18 +46,18 @@ public class UserService {
         if (existingUser.isPresent()) {
             throw new IllegalArgumentException("A user with email " + request.getEmail() + " already exists.");
         }
-        
+
         User user = new User(null, request.getFirstName(), request.getLastName(), request.getEmail());
         user = userRepository.save(user);
 
         if (request.getProfessions() != null && !request.getProfessions().isEmpty()) {
             for (String profession : request.getProfessions()) {
                 Optional<Profession> existingProfession = professionRepository.findById(profession);
-                if (!existingProfession.isPresent()){
+                if (!existingProfession.isPresent()) {
                     Profession prof = new Profession(profession);
                     professionRepository.save(prof);
                 }
-               UserProfession userProfession = new UserProfession(user.getId(), profession);
+                UserProfession userProfession = new UserProfession(user.getId(), profession);
                 userProfession.setUser(user);
                 userProfessionRepository.save(userProfession);
             }
@@ -88,6 +88,15 @@ public class UserService {
 
     public void deleteAllUsers() {
         userRepository.deleteAll();
+    }
+
+    public boolean isUserOrganizer(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent()) {
+            return organizerRepository.existsById(user.get().getId());
+        } else {
+            throw new IllegalArgumentException("User not found with email " + email);
+        }
     }
 
 }

@@ -3,11 +3,9 @@ import 'package:calendar_app/auth/auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
-    );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -19,8 +17,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        // This is the theme of your application.
-        //colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: const ColorScheme(
+          brightness: Brightness.light, 
+          primary: Colors.black, // Main color used in buttons, text, etc.
+          onPrimary: Colors.white, // Color for text/icons on primary
+          secondary: Color(0xFFF2F2F2), // Secondary color for accents
+          onSecondary: Colors.black,
+          surface: Color(0xFFF2F2F2), // Color for app bars, etc.
+          onSurface: Colors.black,
+          error: Colors.red,
+          onError: Colors.white,
+        ),
         useMaterial3: true,
       ),
       home: const Auth(),

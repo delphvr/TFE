@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 //source: https://www.youtube.com/watch?v=qlVj-0vpaW0
 
 class Profession {
@@ -100,7 +101,6 @@ class _RegisterState extends State<Register> {
       );
 
       if (response.statusCode == 201) {
-        print(response.body);
         Map<String, dynamic> parsedJson = json.decode(response.body);
         return parsedJson["id"];
       } else if (response.statusCode == 409) {
@@ -110,7 +110,6 @@ class _RegisterState extends State<Register> {
         errorMess("Adresse email déjà utilisé");
         return -1;
       } else {
-        //print(response.statusCode);
         if (mounted) {
           Navigator.pop(context);
         }
@@ -118,7 +117,6 @@ class _RegisterState extends State<Register> {
         return -1;
       }
     } catch (e) {
-      //print(e);
       if (mounted) {
         Navigator.pop(context);
       }
@@ -173,6 +171,8 @@ class _RegisterState extends State<Register> {
         firstnameController.text.trim(),
         lastnameController.text.trim(),
       );
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setBool('isOrganizer', isOrganizer);
       if (userId != -1) {
         try {
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -181,7 +181,7 @@ class _RegisterState extends State<Register> {
             Navigator.pop(context);
           }
         } on FirebaseAuthException catch (e) {
-          final response = await http.delete(
+          await http.delete(
             Uri.parse("$url/$userId"),
           );
           if (mounted) {
@@ -201,7 +201,6 @@ class _RegisterState extends State<Register> {
   }
 
   void errorMess(String message) {
-    print(message);
     showDialog(
       context: context,
       builder: (context) {

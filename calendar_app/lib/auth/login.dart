@@ -2,6 +2,8 @@ import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 //source: https://www.youtube.com/watch?v=Dh-cTQJgM-Q
 
 class LoginScreen extends StatefulWidget {
@@ -17,43 +19,69 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final passwordController = TextEditingController();
 
-  void login() async{
-    showDialog(context: context, builder: (context){
-      return const Center(
-        child: CircularProgressIndicator(),
+  Future<bool> isOrganizer(String email) async {
+    String url = 'http://192.168.129.6:8080/api/users/organizer/$email';
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {"Content-Type": "application/json"},
       );
-    },);
+
+      if (response.statusCode == 200) {
+        //Map<String, dynamic> parsedJson = json.decode(response.body);
+        //print(parsedJson);
+        return response.body == "true";
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
+
+  void login() async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
 
     try {
-      if(emailController.text.isEmpty || passwordController.text.isEmpty){
+      if (emailController.text.isEmpty || passwordController.text.isEmpty) {
         if (mounted) {
           Navigator.pop(context);
         }
         errorMess('Merci de remplir tous les champs');
-      }
-      else if(!isValidEmail(emailController.text)){
+      } else if (!isValidEmail(emailController.text)) {
         if (mounted) {
           Navigator.pop(context);
         }
         errorMess('Email non Valide.');
-      }
-      else{
+      } else {
+        print("herrrrreeee");
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        bool isOrga = await isOrganizer(emailController.text);
+        prefs.setBool('isOrganizer', isOrga);
         await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text, 
-        password: passwordController.text);
+          email: emailController.text,
+          password: passwordController.text,
+        );
         if (mounted) {
-            Navigator.pop(context);
+          Navigator.pop(context);
         }
       }
-    } on FirebaseAuthException catch(e){
+    } on FirebaseAuthException catch (e) {
       if (mounted) {
-          Navigator.pop(context);
+        Navigator.pop(context);
       }
-      if (e.code == 'invalid-credential'){
-          errorMess('Email ou mot de passe incorect');
+      if (e.code == 'invalid-credential') {
+        errorMess('Email ou mot de passe incorect');
       } else {
         errorMess(e.code);
-      }      
+      }
     }
   }
 
@@ -64,86 +92,93 @@ class _LoginScreenState extends State<LoginScreen> {
         .hasMatch(email);
   }
 
-  void errorMess(String message){
+  void errorMess(String message) {
     showDialog(
-      context: context, 
-      builder: (context){
+      context: context,
+      builder: (context) {
         return AlertDialog(
-          title: const Text('Erreur de connexion'),
-          content: Text(message),
-          actions: [
-            TextButton(onPressed: () {
-              Navigator.pop(context);
-              }, 
-              child: const Text('OK'),
-            ),
-          ]
-        );
-    },);
+            title: const Text('Erreur de connexion'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ]);
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-            
-                //const SizedBox(height:50),
-                
-                //S identifier
-                const Text(
-                  'S\'identifier',
-                  style: TextStyle(
-                    fontSize: 30,
-                  ),
-                  ),
-            
-                  const SizedBox(height:50),
-            
-                //email
-                TextFieldcustom(labelText: 'Email', controller: emailController, obscureText: false,),
-            
-                const SizedBox(height:25),
-              
-                //mot de passe
-                TextFieldcustom(labelText: 'Mot de passe', controller: passwordController, obscureText: true,),
-            
-                const SizedBox(height:5),
-            
-                //mot de passe oublie
-                //const Text(
-                //  'Mot de passe oublié ?'
-                //),
-            
-                const SizedBox(height:25),
-            
-                //button se connecter
-                ButtonCustom(
-                  text: 'Se connecter',
-                  onTap: login,
-                  ),
-            
-                const SizedBox(height:25),
-            
-                //creer un compte
-                GestureDetector(
-                  onTap: widget.onTap,
-                  child: const Text('Créer un compte', 
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  //const SizedBox(height:50),
+
+                  //S identifier
+                  const Text(
+                    'S\'identifier',
                     style: TextStyle(
-                    fontSize: 20.0,)
-                  ,)
-                ),
-            
-              ],
+                      fontSize: 30,
+                    ),
+                  ),
+
+                  const SizedBox(height: 50),
+
+                  //email
+                  TextFieldcustom(
+                    labelText: 'Email',
+                    controller: emailController,
+                    obscureText: false,
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  //mot de passe
+                  TextFieldcustom(
+                    labelText: 'Mot de passe',
+                    controller: passwordController,
+                    obscureText: true,
+                  ),
+
+                  const SizedBox(height: 5),
+
+                  //mot de passe oublie
+                  //const Text(
+                  //  'Mot de passe oublié ?'
+                  //),
+
+                  const SizedBox(height: 25),
+
+                  //button se connecter
+                  ButtonCustom(
+                    text: 'Se connecter',
+                    onTap: login,
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  //creer un compte
+                  GestureDetector(
+                      onTap: widget.onTap,
+                      child: const Text(
+                        'Créer un compte',
+                        style: TextStyle(
+                          fontSize: 20.0,
+                        ),
+                      )),
+                ],
+              ),
             ),
           ),
-        ),
-        )
-    );
+        ));
   }
 }
