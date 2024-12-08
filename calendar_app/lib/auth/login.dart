@@ -61,7 +61,6 @@ class _LoginScreenState extends State<LoginScreen> {
         }
         errorMess('Email non Valide.');
       } else {
-        print("herrrrreeee");
         SharedPreferences prefs = await SharedPreferences.getInstance();
         bool isOrga = await isOrganizer(emailController.text);
         prefs.setBool('isOrganizer', isOrga);
@@ -138,6 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     labelText: 'Email',
                     controller: emailController,
                     obscureText: false,
+                    keyboardType: TextInputType.emailAddress,
                   ),
 
                   const SizedBox(height: 25),
@@ -147,6 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     labelText: 'Mot de passe',
                     controller: passwordController,
                     obscureText: true,
+                    keyboardType: TextInputType.text,
                   ),
 
                   const SizedBox(height: 5),

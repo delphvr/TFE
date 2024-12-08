@@ -304,6 +304,7 @@ class _RegisterState extends State<Register> {
                   labelText: 'Prénom',
                   controller: firstnameController,
                   obscureText: false,
+                  keyboardType: TextInputType.text,
                 ),
 
                 const SizedBox(height: 20),
@@ -312,6 +313,7 @@ class _RegisterState extends State<Register> {
                   labelText: 'Nom de famille',
                   controller: lastnameController,
                   obscureText: false,
+                  keyboardType: TextInputType.text,
                 ),
 
                 const SizedBox(height: 20),
@@ -321,6 +323,7 @@ class _RegisterState extends State<Register> {
                   labelText: 'Email',
                   controller: emailController,
                   obscureText: false,
+                  keyboardType: TextInputType.emailAddress,
                 ),
 
                 const SizedBox(height: 20),
@@ -330,6 +333,7 @@ class _RegisterState extends State<Register> {
                   labelText: 'Mot de passe',
                   controller: passwordController,
                   obscureText: true,
+                  keyboardType: TextInputType.text,
                 ),
 
                 const SizedBox(height: 20),
@@ -338,6 +342,7 @@ class _RegisterState extends State<Register> {
                   labelText: 'Confirmer le mot de passe',
                   controller: confirmpasswordController,
                   obscureText: true,
+                  keyboardType: TextInputType.text,
                 ),
 
                 const SizedBox(height: 20),
