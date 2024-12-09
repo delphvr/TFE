@@ -7,6 +7,15 @@ public class CreateUserRoleRequest {
     private Long projectId;
     private List<String> roles;
 
+    public CreateUserRoleRequest() {
+    }
+
+    public CreateUserRoleRequest(Long userId, Long projectId, List<String> roles) {
+        this.userId = userId;
+        this.projectId = projectId;
+        this.roles = roles;
+    }
+
     public Long getUserId() {
         return userId;
     }

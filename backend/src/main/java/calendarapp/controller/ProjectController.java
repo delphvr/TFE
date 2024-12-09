@@ -2,6 +2,7 @@ package calendarapp.controller;
 
 import calendarapp.model.Project;
 import calendarapp.repository.ProjectRepository;
+import calendarapp.request.CreateProjectRequest;
 import calendarapp.services.ProjectService;
 
 import java.util.List;
@@ -56,14 +57,11 @@ public class ProjectController {
     }
 
     @PostMapping("/projects")
-    public ResponseEntity<Project> createProject(@RequestBody Project request) {
+    public ResponseEntity<Project> createProject(@RequestBody CreateProjectRequest request) {
         try {
             Project createdProject = projectService.createProject(request);
             return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("already exists")) {
-                return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-            }
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

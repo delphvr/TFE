@@ -1,7 +1,11 @@
 package calendarapp.services;
 
 import calendarapp.model.Project;
+import calendarapp.model.User;
 import calendarapp.repository.ProjectRepository;
+import calendarapp.repository.UserRepository;
+import calendarapp.request.CreateProjectRequest;
+import calendarapp.request.CreateUserRoleRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +21,15 @@ public class ProjectService {
     @Autowired
     private ProjectRepository projectRepository;
 
+    @Autowired
+    private UserProjectService userProjectService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
+
     public List<Project> getAllProjects() {
         List<Project> projects = new ArrayList<Project>();
         projectRepository.findAll().forEach(projects::add);
@@ -26,10 +39,21 @@ public class ProjectService {
         return projects;
     }
 
-    public Project createProject(Project request) {
+    public Project createProject(CreateProjectRequest request) {
+        Optional<User> user = userRepository.findByEmail(request.getOrganizerEmail());
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found with email " + request.getOrganizerEmail());
+        }
+        if (!userService.isUserOrganizer(request.getOrganizerEmail())) {
+            throw new IllegalArgumentException("User needs to be an organizer to create a project");
+        }
         Project project = new Project(null, request.getName(), request.getDescription(), request.getBeginningDate(),
                 request.getEndingDate());
         project = projectRepository.save(project);
+        ArrayList<String> role = new ArrayList<>();
+        role.add("Organizer");
+        CreateUserRoleRequest userPRojectRequest = new CreateUserRoleRequest(user.get().getId(), project.getId(), role);
+        userProjectService.createUserProject(userPRojectRequest);
         return project;
     }
 
