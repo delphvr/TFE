@@ -14,16 +14,14 @@ public class UserProfessionId implements Serializable {
     @Column(name = "profession", nullable = false)
     private String profession;
 
-    // Default constructor
-    public UserProfessionId() {}
+    public UserProfessionId() {
+    }
 
-    // Parameterized constructor
     public UserProfessionId(Long userId, String profession) {
         this.userId = userId;
         this.profession = profession;
     }
 
-    // Getters and setters
     public Long getUserId() {
         return userId;
     }
@@ -43,8 +41,10 @@ public class UserProfessionId implements Serializable {
     // Override equals and hashCode for composite key
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         UserProfessionId that = (UserProfessionId) o;
         return Objects.equals(userId, that.userId) && Objects.equals(profession, that.profession);
     }

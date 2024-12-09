@@ -21,14 +21,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RestController
 @RequestMapping("/api")
 public class ProfessionController {
-    @Autowired
-    private ProfessionRepository professionRepository;
+	@Autowired
+	private ProfessionRepository professionRepository;
 
-    @GetMapping("/professions")
+	@GetMapping("/professions")
 	public ResponseEntity<List<Profession>> getAllProfessions() {
 		try {
 			List<Profession> professions = new ArrayList<Profession>();
-            professionRepository.findAll().forEach(professions::add);
+			professionRepository.findAll().forEach(professions::add);
 			if (professions.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
@@ -60,7 +60,7 @@ public class ProfessionController {
 	}
 
 	@DeleteMapping("/professions")
-	public ResponseEntity<HttpStatus> deleteAllProfession() {
+	public ResponseEntity<HttpStatus> deleteAllProfessions() {
 		try {
 			professionRepository.deleteAll();
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -68,5 +68,5 @@ public class ProfessionController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-    
+
 }
