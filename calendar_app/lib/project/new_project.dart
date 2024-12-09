@@ -15,8 +15,11 @@ class _NewProjectPageState extends State<NewProjectPage> {
   final user = FirebaseAuth.instance.currentUser!;
 
   final projectNameController = TextEditingController();
-
   final descriptionController = TextEditingController();
+  final beginingDateController = TextEditingController();
+  final endingDateController = TextEditingController();
+
+  DateTime? _selectedDate;
 
   void logout(Function onLogoutSuccess) async {
     await FirebaseAuth.instance.signOut();
@@ -52,10 +55,25 @@ class _NewProjectPageState extends State<NewProjectPage> {
       return;
     }
 
-    // Example save logic (e.g., sending data to a database)
-    // After saving, navigate back to the previous page
-    Navigator.pop(
-        context, {'projectName': projectName, 'description': description});
+    Navigator.pop(context);
+  }
+
+  //Done with the help of chatgpt
+  Future<void> _selectDate(
+      BuildContext context, TextEditingController controller) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+        controller.text =
+            "${picked.toLocal()}".split(' ')[0]; // Format as yyyy-MM-dd
+      });
+    }
   }
 
   @override
@@ -100,7 +118,6 @@ class _NewProjectPageState extends State<NewProjectPage> {
             keyboardType: TextInputType.text,
           ),
           const SizedBox(height: 25),
-
           SizedBox(
             width: 250,
             child: TextField(
@@ -112,6 +129,42 @@ class _NewProjectPageState extends State<NewProjectPage> {
                 labelText: 'Description',
                 fillColor: Color(0xFFF2F2F2),
                 filled: true,
+              ),
+            ),
+          ),
+          const SizedBox(height: 25),
+          SizedBox(
+            width: 250,
+            child: TextField(
+              controller: beginingDateController,
+              readOnly: true,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelText: 'Date de début',
+                fillColor: const Color(0xFFF2F2F2),
+                filled: true,
+                prefixIcon: IconButton(
+                  icon: const Icon(Icons.calendar_today),
+                  onPressed: () => _selectDate(context, beginingDateController),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 25),
+          SizedBox(
+            width: 250,
+            child: TextField(
+              controller: beginingDateController,
+              readOnly: true,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelText: 'Date de fin',
+                fillColor: const Color(0xFFF2F2F2),
+                filled: true,
+                prefixIcon: IconButton(
+                  icon: const Icon(Icons.calendar_today),
+                  onPressed: () => _selectDate(context, endingDateController),
+                ),
               ),
             ),
           ),
