@@ -20,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
 
   Future<bool> isOrganizer(String email) async {
-    String url = 'http://192.168.129.6:8080/api/users/organizer/$email';
+    String url = 'http://192.168.228.246:8080/api/users/organizer/$email'; //TODO .env
     try {
       final response = await http.get(
         Uri.parse(url),

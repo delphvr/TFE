@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class NewProjectPage extends StatefulWidget {
   NewProjectPage({super.key});
@@ -16,7 +18,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
 
   final projectNameController = TextEditingController();
   final descriptionController = TextEditingController();
-  final beginingDateController = TextEditingController();
+  final beginningDateController = TextEditingController();
   final endingDateController = TextEditingController();
 
   DateTime? _selectedDate;
@@ -46,16 +48,50 @@ class _NewProjectPageState extends State<NewProjectPage> {
     );
   }
 
-  void save(BuildContext context) {
+  void save(BuildContext context) async {
     final projectName = projectNameController.text;
     final description = descriptionController.text;
+    final beginningDate = beginningDateController.text;
+    final endingDate = endingDateController.text;
 
     if (projectName.isEmpty) {
       errorMess('Veuillez donner un nom au project.');
       return;
     }
 
-    Navigator.pop(context);
+    const String apiUrl =
+        'http://192.168.228.246:8080/api/projects'; //TODO .env
+
+    final Map<String, dynamic> requestBody = {
+      "name": projectName,
+      "description": description,
+      "beginningDate": beginningDate,
+      "endingDate": endingDate,
+      "organizerEmail": user.email!
+    };
+
+    try {
+      // Send POST request
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 201) {
+        print("statusCode: 201");
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } else if (response.statusCode == 409) {
+        errorMess('Un projet avec ce nom existe déjà.');
+      } else {
+        errorMess(
+            'Erreur lors de la création du projet. Merci de réessayez plus tard.');
+      }
+    } catch (e) {
+      errorMess('Impossible de se connecter au serveur.');
+    }
   }
 
   //Done with the help of chatgpt
@@ -136,7 +172,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
           SizedBox(
             width: 250,
             child: TextField(
-              controller: beginingDateController,
+              controller: beginningDateController,
               readOnly: true,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
@@ -145,7 +181,8 @@ class _NewProjectPageState extends State<NewProjectPage> {
                 filled: true,
                 prefixIcon: IconButton(
                   icon: const Icon(Icons.calendar_today),
-                  onPressed: () => _selectDate(context, beginingDateController),
+                  onPressed: () =>
+                      _selectDate(context, beginningDateController),
                 ),
               ),
             ),
@@ -154,7 +191,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
           SizedBox(
             width: 250,
             child: TextField(
-              controller: beginingDateController,
+              controller: endingDateController,
               readOnly: true,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),

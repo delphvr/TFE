@@ -36,7 +36,7 @@ class _RegisterState extends State<Register> {
   final lastnameController = TextEditingController();
   bool isOrganizer = false;
   String url =
-      'http://192.168.129.6:8080/api/users'; //TODO: recup dans un .env?
+      'http://192.168.228.246:8080/api/users'; //TODO: recup dans un .env?
   List<Profession> professions = [];
   List<Profession> selectedProfessions = [];
   List<MultiSelectItem<Profession>> items = [];
@@ -48,7 +48,7 @@ class _RegisterState extends State<Register> {
   }
 
   Future<List<Profession>> getProfessions() async {
-    const String url = 'http://192.168.129.6:8080/api/professions';
+    const String url = 'http://192.168.228.246:8080/api/professions';
     try {
       final response = await http.get(Uri.parse(url));
 
