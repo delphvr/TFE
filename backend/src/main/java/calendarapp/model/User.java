@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -24,6 +25,7 @@ public class User {
 
     @NotNull
     @Email
+    @NotBlank(message = "Email cannot be empty")
     @Column(name = "email", nullable=false, unique=true)
     private String email;
 
