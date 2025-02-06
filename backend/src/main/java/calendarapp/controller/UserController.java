@@ -4,6 +4,7 @@ import calendarapp.model.User;
 import calendarapp.repository.UserRepository;
 import calendarapp.request.CreateUserRequest;
 import calendarapp.services.UserService;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -72,24 +73,14 @@ public class UserController {
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@PostMapping("/users")
-	public ResponseEntity<User> createUser(@RequestBody CreateUserRequest request) {
-		try {
-			User createdUser = userService.createUser(request);
-			return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
-		} catch (IllegalArgumentException e) {
-			if (e.getMessage().contains("already exists")) {
-				return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-			}
-			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+	public ResponseEntity<User> createUser(@Valid @RequestBody CreateUserRequest request) {
+		User createdUser = userService.createUser(request);
+		return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
 	}
 
 	@PutMapping("/users/{id}")
