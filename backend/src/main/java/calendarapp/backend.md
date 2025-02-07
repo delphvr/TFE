@@ -12,7 +12,9 @@ calendar_app=# \dt
 
 # API 
 
-## Create a User
+## User
+
+### Create a User
 
 ```
 POST "http://localhost:8080/api/users"
@@ -46,7 +48,7 @@ POST "http://localhost:8080/api/users"
 - `409 Conflict`: Email already exists.
 - `400 Bad Request`: Invalid request body, email field does not contains an email format string, ... .
 
-## Get is User an Organizer
+### Get is User an Organizer
 
 ```
 GET "/api/users/organizer/{mail}"
@@ -61,3 +63,24 @@ true
 
 - `200 OK`: Value successfully retreived.
 - `404 Not Found`: No user found with that email address.
+
+## Profession
+
+### Get all the professions
+
+```
+GET "/api/professions"
+```
+
+**If successful return all the professions** e.g: 
+```
+[
+    {"profession":"Directeur artistique"},
+    {"profession":"Danseur"}
+]
+```
+
+**Possible Response Codes:**
+
+- `200 OK`: Value successfully retreived.
+- `204 No Content`: No professions present in the database.

@@ -26,47 +26,31 @@ public class ProfessionController {
 
 	@GetMapping("/professions")
 	public ResponseEntity<List<Profession>> getAllProfessions() {
-		try {
-			List<Profession> professions = new ArrayList<Profession>();
-			professionRepository.findAll().forEach(professions::add);
-			if (professions.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-			}
-			return new ResponseEntity<>(professions, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		List<Profession> professions = new ArrayList<Profession>();
+		professionRepository.findAll().forEach(professions::add);
+		if (professions.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
+		return new ResponseEntity<>(professions, HttpStatus.OK);
 	}
 
 	@PostMapping("/professions")
 	public ResponseEntity<Profession> createProfession(@RequestBody Profession profession) {
-		try {
-			Profession _profession = professionRepository
-					.save(new Profession(profession.getProfession()));
-			return new ResponseEntity<>(_profession, HttpStatus.CREATED);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		Profession _profession = professionRepository
+				.save(new Profession(profession.getProfession()));
+		return new ResponseEntity<>(_profession, HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/professions/{profession}")
 	public ResponseEntity<HttpStatus> deleteProfession(@PathVariable("profession") String profession) {
-		try {
-			professionRepository.deleteById(profession);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		professionRepository.deleteById(profession);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@DeleteMapping("/professions")
 	public ResponseEntity<HttpStatus> deleteAllProfessions() {
-		try {
-			professionRepository.deleteAll();
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		professionRepository.deleteAll();
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 }
