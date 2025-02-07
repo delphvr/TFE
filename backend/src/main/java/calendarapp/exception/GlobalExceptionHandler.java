@@ -21,6 +21,9 @@ public class GlobalExceptionHandler {
         if (e.getMessage().contains("already exists")) {
             return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         }
+        if (e.getMessage().contains("not found")) {
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 

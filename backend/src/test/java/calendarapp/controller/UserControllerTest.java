@@ -35,17 +35,17 @@ public class UserControllerTest {
     @Test
     public void testCreateUserOk() {
         String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
-                .replace('\'', '"');
+            .replace('\'', '"');
 
         webTestClient.post().uri("/api/users")
-                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                .bodyValue(userJson)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody()
-                .jsonPath("$.firstName").isEqualTo("Del")
-                .jsonPath("$.lastName").isEqualTo("vr")
-                .jsonPath("$.email").isEqualTo("del.vr@mail.com");
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJson)
+            .exchange()
+            .expectStatus().isCreated()
+            .expectBody()
+            .jsonPath("$.firstName").isEqualTo("Del")
+            .jsonPath("$.lastName").isEqualTo("vr")
+            .jsonPath("$.email").isEqualTo("del.vr@mail.com");
     }
 
     @Test
@@ -54,10 +54,10 @@ public class UserControllerTest {
                 .replace('\'', '"');
 
         webTestClient.post().uri("/api/users")
-                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                .bodyValue(userJson)
-                .exchange()
-                .expectStatus().isBadRequest();
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJson)
+            .exchange()
+            .expectStatus().isBadRequest();
     }
 
     @Test
@@ -66,10 +66,10 @@ public class UserControllerTest {
                 .replace('\'', '"');
 
         webTestClient.post().uri("/api/users")
-                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                .bodyValue(userJson)
-                .exchange()
-                .expectStatus().isBadRequest();
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJson)
+            .exchange()
+            .expectStatus().isBadRequest();
     }
 
     @Test
@@ -78,32 +78,73 @@ public class UserControllerTest {
                 .replace('\'', '"');
 
         webTestClient.post().uri("/api/users")
-                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                .bodyValue(userJson)
-                .exchange()
-                .expectStatus().isBadRequest();
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJson)
+            .exchange()
+            .expectStatus().isBadRequest();
     }
 
     @Test
     public void testCreateUserMailConflit() throws Exception {
         String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'd@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
-                .replace('\'', '"');
+            .replace('\'', '"');
 
         webTestClient.post().uri("/api/users")
-                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                .bodyValue(userJson)
-                .exchange();
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJson)
+            .exchange();
 
         String userJsonbis = "{'firstName': 'F', 'lastName': 'l', 'email': 'd@mail.com', 'professions': ['Danseur'], 'isOrganizer': false}"
                 .replace('\'', '"');
 
         webTestClient.post().uri("/api/users")
-                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                .bodyValue(userJsonbis)
-                .exchange()
-                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJsonbis)
+            .exchange()
+            .expectStatus().isEqualTo(HttpStatus.CONFLICT);
     }
 
+    /*
+     * Test isOrganizer based on user email
+     */
 
+    @Test
+    public void testIsOrganizerT() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+                .replace('\'', '"');
+
+        webTestClient.post().uri("/api/users")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJson)
+            .exchange();
+
+        webTestClient.get().uri("/api/users/organizer/del.vr@mail.com")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Boolean.class).isEqualTo(true);
+    }
+
+    @Test
+    public void testIsOrganizerNotFound() {
+        webTestClient.get().uri("/api/users/organizer/del.vr@mail.com")
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+
+    @Test
+    public void testIsOrganizerF() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': false}"
+                .replace('\'', '"');
+
+        webTestClient.post().uri("/api/users")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJson)
+            .exchange();
+
+        webTestClient.get().uri("/api/users/organizer/del.vr@mail.com")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(Boolean.class).isEqualTo(false);
+    }
 
 }

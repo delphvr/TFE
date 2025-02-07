@@ -117,13 +117,7 @@ public class UserController {
 
 	@GetMapping("/users/organizer/{email}")
 	public ResponseEntity<Boolean> isUserOrganizer(@PathVariable("email") String email) {
-		try {
-			boolean isOrganizer = userService.isUserOrganizer(email);
-			return new ResponseEntity<>(isOrganizer, HttpStatus.OK);
-		} catch (IllegalArgumentException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		boolean isOrganizer = userService.isUserOrganizer(email);
+		return new ResponseEntity<>(isOrganizer, HttpStatus.OK);
 	}
 }
