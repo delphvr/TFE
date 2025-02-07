@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -22,10 +23,10 @@ public class UserControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-    //@BeforeEach
-    //public void cleanUpDatabase() {
-    //    userRepository.deleteAll();
-    //}
+    @BeforeEach
+    public void cleanUpDatabase() {
+        userRepository.deleteAll();
+    }
 
     /*
      * Tests post creation users
@@ -82,5 +83,27 @@ public class UserControllerTest {
                 .exchange()
                 .expectStatus().isBadRequest();
     }
+
+    @Test
+    public void testCreateUserMailConflit() throws Exception {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'd@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+                .replace('\'', '"');
+
+        webTestClient.post().uri("/api/users")
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .bodyValue(userJson)
+                .exchange();
+
+        String userJsonbis = "{'firstName': 'F', 'lastName': 'l', 'email': 'd@mail.com', 'professions': ['Danseur'], 'isOrganizer': false}"
+                .replace('\'', '"');
+
+        webTestClient.post().uri("/api/users")
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .bodyValue(userJsonbis)
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
+    }
+
+
 
 }
