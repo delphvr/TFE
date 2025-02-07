@@ -6,12 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import calendarapp.repository.UserRepository;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
+@ActiveProfiles("test") 
 public class UserControllerTest {
 
     @Autowired
@@ -20,10 +22,14 @@ public class UserControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-    @BeforeEach
-    public void cleanUpDatabase() {
-        userRepository.deleteAll();
-    }
+    //@BeforeEach
+    //public void cleanUpDatabase() {
+    //    userRepository.deleteAll();
+    //}
+
+    /*
+     * Tests post creation users
+     */
 
     @Test
     public void testCreateUserOk() {
@@ -44,6 +50,30 @@ public class UserControllerTest {
     @Test
     public void testCreateUserWrongMail() throws Exception {
         String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'wrong', 'professions': ['Danseur'], 'isOrganizer': true}"
+                .replace('\'', '"');
+
+        webTestClient.post().uri("/api/users")
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .bodyValue(userJson)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testCreateUserMailNull() throws Exception {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': null, 'professions': ['Danseur'], 'isOrganizer': true}"
+                .replace('\'', '"');
+
+        webTestClient.post().uri("/api/users")
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .bodyValue(userJson)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testCreateUserMailBlank() throws Exception {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': '', 'professions': ['Danseur'], 'isOrganizer': true}"
                 .replace('\'', '"');
 
         webTestClient.post().uri("/api/users")
