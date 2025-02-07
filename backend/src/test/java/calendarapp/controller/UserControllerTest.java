@@ -1,38 +1,56 @@
 package calendarapp.controller;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.http.MediaType;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import calendarapp.repository.UserRepository;
 
-import calendarapp.services.UserService;
-
-@SpringBootTest
-@AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@AutoConfigureWebTestClient
 public class UserControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private WebTestClient webTestClient;
 
-    @MockBean
-    private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
+
+    @BeforeEach
+    public void cleanUpDatabase() {
+        userRepository.deleteAll();
+    }
 
     @Test
-    public void testCreateUser() throws Exception {
-
+    public void testCreateUserOk() {
         String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
                 .replace('\'', '"');
 
-        mockMvc.perform(post("/api/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(userJson))
-                .andExpect(status().isCreated());
+        webTestClient.post().uri("/api/users")
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .bodyValue(userJson)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody()
+                .jsonPath("$.firstName").isEqualTo("Del")
+                .jsonPath("$.lastName").isEqualTo("vr")
+                .jsonPath("$.email").isEqualTo("del.vr@mail.com");
+    }
+
+    @Test
+    public void testCreateUserWrongMail() throws Exception {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'wrong', 'professions': ['Danseur'], 'isOrganizer': true}"
+                .replace('\'', '"');
+
+        webTestClient.post().uri("/api/users")
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .bodyValue(userJson)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
 }
