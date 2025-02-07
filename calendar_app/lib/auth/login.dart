@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 //source: https://www.youtube.com/watch?v=Dh-cTQJgM-Q
 
 class LoginScreen extends StatefulWidget {
@@ -20,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
 
   Future<bool> isOrganizer(String email) async {
-    String url = 'http://192.168.228.246:8080/api/users/organizer/$email'; //TODO .env
+    String url = '${dotenv.env['API_BASE_URL']}/users/organizer/$email'; 
     try {
       final response = await http.get(
         Uri.parse(url),

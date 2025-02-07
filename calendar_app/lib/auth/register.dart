@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 //source: https://www.youtube.com/watch?v=qlVj-0vpaW0
 
 class Profession {
@@ -36,7 +37,7 @@ class _RegisterState extends State<Register> {
   final lastnameController = TextEditingController();
   bool isOrganizer = false;
   String url =
-      'http://192.168.228.246:8080/api/users'; //TODO: recup dans un .env?
+      '${dotenv.env['API_BASE_URL']}/users';
   List<Profession> professions = [];
   List<Profession> selectedProfessions = [];
   List<MultiSelectItem<Profession>> items = [];
@@ -48,7 +49,7 @@ class _RegisterState extends State<Register> {
   }
 
   Future<List<Profession>> getProfessions() async {
-    const String url = 'http://192.168.228.246:8080/api/professions';
+    String url = '${dotenv.env['API_BASE_URL']}/professions';
     try {
       final response = await http.get(Uri.parse(url));
 

@@ -5,6 +5,7 @@ import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class NewProjectPage extends StatefulWidget {
   NewProjectPage({super.key});
@@ -59,8 +60,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
       return;
     }
 
-    const String apiUrl =
-        'http://192.168.228.246:8080/api/projects'; //TODO .env
+    final String apiUrl = '${dotenv.env['API_BASE_URL']}/projects';
 
     final Map<String, dynamic> requestBody = {
       "name": projectName,
