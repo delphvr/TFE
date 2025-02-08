@@ -48,6 +48,17 @@ POST "http://localhost:8080/api/users"
 - `409 Conflict`: Email already exists.
 - `400 Bad Request`: Invalid request body, email field does not contains an email format string, ... .
 
+### Delete User based on its id
+
+```
+DELETE "/api/users/{id}"
+```
+
+**Possible Response Codes:**
+
+- `204 No Content`: User delete successfully.
+- `404 Not Found`: No user found with that id.
+
 ### Get is User an Organizer
 
 ```

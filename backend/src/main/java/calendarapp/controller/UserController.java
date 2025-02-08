@@ -97,12 +97,11 @@ public class UserController {
 
 	@DeleteMapping("/users/{id}")
 	public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") long id) {
-		try {
-			userRepository.deleteById(id);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		if (!userRepository.existsById(id)) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+		userRepository.deleteById(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@DeleteMapping("/users")

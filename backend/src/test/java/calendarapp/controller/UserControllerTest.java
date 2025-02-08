@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import calendarapp.model.User;
 import calendarapp.repository.UserRepository;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -146,5 +147,59 @@ public class UserControllerTest {
             .expectStatus().isOk()
             .expectBody(Boolean.class).isEqualTo(false);
     }
+
+    /*
+     * Tests delete user based on id
+     */
+
+    @Test
+    public void testDeleteUser() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+                .replace('\'', '"');
+
+        User user = webTestClient.post().uri("/api/users")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJson)
+            .exchange()
+            .expectBody(User.class)
+            .returnResult()
+            .getResponseBody();
+
+        webTestClient.delete().uri("/api/users/" + user.getId())
+            .exchange()
+            .expectStatus().isNoContent();
+
+        webTestClient.get().uri("/api/users")
+            .exchange()
+            .expectStatus().isNoContent();
+    }
+
+    @Test
+    public void testDeleteUserNotFound() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+                .replace('\'', '"');
+
+        User user = webTestClient.post().uri("/api/users")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJson)
+            .exchange()
+            .expectBody(User.class)
+            .returnResult()
+            .getResponseBody();
+
+        webTestClient.delete().uri("/api/users/" + (user.getId()+1))
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+
+    /*
+     * Pour tester le get ? : 
+     * List<User> users = webTestClient.get().uri("/api/users")
+            .exchange()
+            .expectBody(new ParameterizedTypeReference<List<User>>() {})
+            .returnResult()
+            .getResponseBody();
+        System.out.println("USER : " + users);
+     */
 
 }
