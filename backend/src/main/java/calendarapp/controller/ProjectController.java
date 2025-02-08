@@ -4,6 +4,7 @@ import calendarapp.model.Project;
 import calendarapp.repository.ProjectRepository;
 import calendarapp.request.CreateProjectRequest;
 import calendarapp.services.ProjectService;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,28 +46,18 @@ public class ProjectController {
 
     @GetMapping("/projects/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable("id") long id) {
-        try {
-            Optional<Project> projectData = projectRepository.findById(id);
-            if (projectData.isPresent()) {
-                return new ResponseEntity<>(projectData.get(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        Optional<Project> projectData = projectRepository.findById(id);
+        if (projectData.isPresent()) {
+            return new ResponseEntity<>(projectData.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping("/projects")
-    public ResponseEntity<Project> createProject(@RequestBody CreateProjectRequest request) {
-        try {
-            Project createdProject = projectService.createProject(request);
-            return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<Project> createProject(@Valid @RequestBody CreateProjectRequest request) {
+        Project createdProject = projectService.createProject(request);
+        return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
 
     @PutMapping("/projects/{id}")
@@ -82,21 +74,13 @@ public class ProjectController {
 
     @DeleteMapping("/projects/{id}")
     public ResponseEntity<HttpStatus> deleteProject(@PathVariable("id") long id) {
-        try {
             projectRepository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @DeleteMapping("/projects")
     public ResponseEntity<HttpStatus> deleteAllProjects() {
-        try {
-            projectRepository.deleteAll();
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        projectRepository.deleteAll();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

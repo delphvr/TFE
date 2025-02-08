@@ -1,21 +1,26 @@
 package calendarapp.model;
 
 import java.time.LocalDate;
+
+import calendarapp.validator.ProjectDate;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "projects")
+@ProjectDate
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name", nullable = false)
+    @NotBlank()
     private String name;
 
     @Column(name = "description", nullable = true)

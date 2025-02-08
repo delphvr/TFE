@@ -34,7 +34,7 @@ public class UserControllerTest {
      */
 
     @Test
-    public void testCreateUserOk() {
+    public void testCreateUser() {
         String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
             .replace('\'', '"');
 

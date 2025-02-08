@@ -24,10 +24,10 @@ POST "http://localhost:8080/api/users"
 
 ```
 {
-    firstName: Del, 
-    lastName: vr, 
-    email: del.vr@mail.com,
-    professions: [Danseur], 
+    firstName: "Del", 
+    lastName: "vr", 
+    email: "del.vr@mail.com",
+    professions: ["Danseur"], 
     isOrganizer: true
 }
 ```
@@ -36,9 +36,9 @@ POST "http://localhost:8080/api/users"
 ```
 {
     id : 23,
-    firstName: Del, 
-    lastName: vr, 
-    email: del.vr@mail.com,
+    firstName: "Del", 
+    lastName: "vr", 
+    email: "del.vr@mail.com"
 }
 ```
 
@@ -86,8 +86,8 @@ GET "/api/professions"
 **If successful return all the professions** e.g: 
 ```
 [
-    {"profession":"Directeur artistique"},
-    {"profession":"Danseur"}
+    {profession: "Directeur artistique"},
+    {profession: "Danseur"}
 ]
 ```
 
@@ -95,3 +95,39 @@ GET "/api/professions"
 
 - `200 OK`: Value successfully retreived.
 - `204 No Content`: No professions present in the database.
+
+## Project
+
+### Create a project
+
+```
+POST "http://localhost:8080/api/projects"
+```
+
+**Request Body Example**:
+
+```
+{
+    name: "Christmas show",
+    "description": "Winter show with santa...",
+    "beginningDate": "2020-07-01",
+    "endingDate": "2020-12-26",
+    "organizerEmail": "del.vr@mail.com"
+}
+```
+
+**If successful return newly created project** e.g: 
+```
+{
+    id : 3,
+    name: "Christmas show", 
+    description: "Winter show with santa...", 
+    beginningDate: "2020-07-01",
+    endingDate: "2020-12-26"
+}
+```
+
+**Possible Response Codes:**
+
+- `201 Created`: Project successfully created.
+- `400 Bad Request`: Invalid request body, invalid email, ending date befor begining date, ... .

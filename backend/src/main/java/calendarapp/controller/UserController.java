@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 //source: https://www.bezkoder.com/spring-boot-postgresql-example/
 
-//@CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/api")
 public class UserController {
@@ -50,30 +48,21 @@ public class UserController {
 
 	@GetMapping("/users/{id}")
 	public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
-		try {
-			Optional<User> userData = userRepository.findById(id);
-			if (userData.isPresent()) {
-				return new ResponseEntity<>(userData.get(), HttpStatus.OK);
-			} else {
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			}
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		Optional<User> userData = userRepository.findById(id);
+		if (userData.isPresent()) {
+			return new ResponseEntity<>(userData.get(), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
 
 	@GetMapping("/users/email/{email}")
 	public ResponseEntity<User> getUserByEmail(@PathVariable("email") String email) {
-		System.out.println("Received email: " + email);
-		try {
-			Optional<User> userData = userRepository.findByEmail(email);
-			if (userData.isPresent()) {
-				return new ResponseEntity<>(userData.get(), HttpStatus.OK);
-			} else {
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			}
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		Optional<User> userData = userRepository.findByEmail(email);
+		if (userData.isPresent()) {
+			return new ResponseEntity<>(userData.get(), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -106,12 +95,8 @@ public class UserController {
 
 	@DeleteMapping("/users")
 	public ResponseEntity<HttpStatus> deleteAllUsers() {
-		try {
-			userRepository.deleteAll();
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		userRepository.deleteAll();
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@GetMapping("/users/organizer/{email}")

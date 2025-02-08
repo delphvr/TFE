@@ -97,7 +97,7 @@ class _RegisterState extends State<Register> {
           "lastName": lastName,
           "email": email,
           "isOrganizer": isOrganizer,
-          "professions": [],
+          "professions": [], //TODO normal que ce soit une list vide ???
         }),
       );
 

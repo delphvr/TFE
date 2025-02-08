@@ -60,7 +60,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
       return;
     }
 
-    final String apiUrl = '${dotenv.env['API_BASE_URL']}/projects';
+    final String url = '${dotenv.env['API_BASE_URL']}/projects';
 
     final Map<String, dynamic> requestBody = {
       "name": projectName,
@@ -71,15 +71,13 @@ class _NewProjectPageState extends State<NewProjectPage> {
     };
 
     try {
-      // Send POST request
       final response = await http.post(
-        Uri.parse(apiUrl),
+        Uri.parse(url),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(requestBody),
       );
 
       if (response.statusCode == 201) {
-        print("statusCode: 201");
         if (mounted) {
           Navigator.pop(context);
         }
