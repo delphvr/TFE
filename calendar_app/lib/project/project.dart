@@ -1,15 +1,76 @@
 import 'package:calendar_app/project/new_project.dart';
+import 'package:calendar_app/project/project_element.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/components/button_custom.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:convert';
 
-class ProjectPage extends StatelessWidget {
-  ProjectPage({super.key});
+class ProjectPage extends StatefulWidget {
+  const ProjectPage({super.key});
 
+  @override
+  State<ProjectPage> createState() => _ProjectPageState();
+}
+
+class _ProjectPageState extends State<ProjectPage> {
   final user = FirebaseAuth.instance.currentUser!;
 
   void logout() {
     FirebaseAuth.instance.signOut();
+  }
+
+  //TODO: mettre ça dans function auxilliaire?
+  void errorMess(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+            title: const Text('Erreur lors de la création du project'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ]);
+      },
+    );
+  }
+
+  Future<List> getProjects(BuildContext context) async {
+    final email = user.email;
+    final String url = '${dotenv.env['API_BASE_URL']}/projects/user/$email';
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        final List<dynamic> userProjects = data.map((item) {
+          return {
+            'name': item['name'],
+            'description': item['description'],
+            'beginningDate': item['beginningDate'],
+            'endingDate': item['endingDate'],
+          };
+        }).toList();
+        print("DEBUG: $userProjects");
+
+        //if (mounted) {
+        //  Navigator.pop(context);
+        //}
+        return userProjects;
+      } else {
+        errorMess(context, 'Une erreur c\'est produite');
+        return [];
+      }
+    } catch (e) {
+      errorMess(context, 'Une erreur c\'est produite');
+      return [];
+    }
   }
 
   @override
@@ -28,21 +89,56 @@ class ProjectPage extends StatelessWidget {
         ],
       ),
       body: Center(
-          child: SingleChildScrollView(
-              child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ButtonCustom(
-            text: "New project",
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NewProjectPage()),
-              );
-            },
-          ),
-        ],
-      ))),
+        child: Column(
+          children: [
+            const SizedBox(height:25),
+
+            SizedBox(
+              width: 250,
+              child: ButtonCustom(
+                text: "Nouveau projet",
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => NewProjectPage()),
+                  ).then((_) {
+                    setState(() {});
+                  });
+                },
+              ),
+            ),
+
+            const SizedBox(height:25),
+
+            Expanded(
+              child: FutureBuilder<List>(
+                future: getProjects(context),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final projects = snapshot.data!;
+
+                    return ListView.builder(
+                      itemCount: projects.length,
+                      itemBuilder: (context, index) {
+                        return ProjectElement(
+                          name: projects[index]['name'],
+                          description: projects[index]['description'],
+                          beginningDate: projects[index]['beginningDate'],
+                          endingDate: projects[index]['endingDate'],
+                        );
+                      },
+                    );
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -17,15 +17,17 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @NotBlank
     @Column(name = "first_name", nullable=false)
     private String firstName;
 
+    @NotBlank
     @Column(name = "last_name", nullable=false)
     private String lastName;
 
     @NotNull
     @Email
-    @NotBlank(message = "Email cannot be empty")
+    @NotBlank
     @Column(name = "email", nullable=false, unique=true)
     private String email;
 

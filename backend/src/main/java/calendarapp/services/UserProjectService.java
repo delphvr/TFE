@@ -86,4 +86,21 @@ public class UserProjectService {
         }
         return res;
     }
+
+    public List<Long> getUserProjects(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found with email " + email);
+        }
+        Long userId = user.get().getId();
+        List<Long> res = new ArrayList<>();
+        List<UserProject> userProjects = userProjectRepository.findByUserId(userId);
+        if (userProjects.isEmpty()) {
+            return res;
+        }
+        for (UserProject userProject : userProjects) {
+            res.add(userProject.getProjectId());
+        }
+        return res;
+    }
 }

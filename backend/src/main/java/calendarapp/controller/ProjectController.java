@@ -53,6 +53,12 @@ public class ProjectController {
         }
     }
 
+    @GetMapping("/projects/user/{email}")
+    public ResponseEntity<List<Project>> getProjectByEmail(@PathVariable("email") String email) {
+        List<Project> projects = projectService.getProjectOfUser(email);
+        return new ResponseEntity<>(projects, HttpStatus.OK);
+    }
+
     @PostMapping("/projects")
     public ResponseEntity<Project> createProject(@Valid @RequestBody CreateProjectRequest request) {
         Project createdProject = projectService.createProject(request);

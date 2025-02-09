@@ -131,3 +131,27 @@ POST "http://localhost:8080/api/projects"
 
 - `201 Created`: Project successfully created.
 - `400 Bad Request`: Invalid request body, invalid email, ending date befor begining date, ... .
+
+### Get the projects of a user
+
+```
+GET "http://localhost:8080/api/projects/user/{email}"
+```
+
+**If successful return the list of projects of the user** e.g: 
+```
+[
+    {
+        "id": 1,
+        "name": "Christmas show",
+        "description": "Winter show with santa...",
+        "beginningDate": "2020-07-01",
+        "endingDate": "2020-12-26"
+    }
+]
+```
+
+**Possible Response Codes:**
+
+- `200 OK`: Successfully retreive the list of projects of that user.
+- `404 Not Found`: No user found with the given email.

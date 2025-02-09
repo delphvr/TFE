@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException e) {
         Map<String, String> response = new HashMap<>();
-        response.put("message", e.getMessage());
+        response.put("error", e.getMessage());
         if (e.getMessage().contains("already exists")) {
             return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         }
@@ -32,9 +32,9 @@ public class GlobalExceptionHandler {
         Map<String, String> response = new HashMap<>();
         ConstraintViolation<?> violation = e.getConstraintViolations().stream().findFirst().orElse(null);
         if (violation != null) {
-            response.put("message", violation.getMessage());
+            response.put("error", violation.getMessage());
         } else {
-            response.put("message", "Unknown validation error.");
+            response.put("error", "Unknown validation error.");
         }
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGeneralException(Exception e) {
         Map<String, String> response = new HashMap<>();
-        response.put("message", e.getMessage());
+        response.put("error", e.getMessage());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -39,6 +39,16 @@ public class ProjectService {
         return projects;
     }
 
+    public List<Project> getProjectOfUser(String email){
+        List<Project> projects = new ArrayList<Project>();
+        List<Long> projectsId= userProjectService.getUserProjects(email);
+        for (Long projectId : projectsId){
+            Optional<Project> project = projectRepository.findById(projectId);
+            project.ifPresent(projects::add);
+        }
+        return projects;
+    }
+
     public Project createProject(CreateProjectRequest request) {
         Optional<User> user = userRepository.findByEmail(request.getOrganizerEmail());
         if (!user.isPresent()) {

@@ -60,6 +60,14 @@ class _NewProjectPageState extends State<NewProjectPage> {
       return;
     }
 
+    if (beginningDate.isNotEmpty && endingDate.isNotEmpty) {
+      if (DateTime.parse(beginningDate).isAfter(DateTime.parse(endingDate))) {
+        errorMess(
+            'La date de fin du projet ne peut pas avoir lieu avant la date de début.');
+        return;
+      }
+    }
+
     final String url = '${dotenv.env['API_BASE_URL']}/projects';
 
     final Map<String, dynamic> requestBody = {
@@ -146,7 +154,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
           ),
           const SizedBox(height: 25),
           TextFieldcustom(
-            labelText: 'Nom du projet',
+            labelText: 'Nom du projet*',
             controller: projectNameController,
             obscureText: false,
             keyboardType: TextInputType.text,
@@ -169,18 +177,19 @@ class _NewProjectPageState extends State<NewProjectPage> {
           const SizedBox(height: 25),
           SizedBox(
             width: 250,
-            child: TextField(
-              controller: beginningDateController,
-              readOnly: true,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: 'Date de début',
-                fillColor: const Color(0xFFF2F2F2),
-                filled: true,
-                prefixIcon: IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () =>
-                      _selectDate(context, beginningDateController),
+            child: GestureDetector(
+              onTap: () => _selectDate(context, beginningDateController),
+              child: AbsorbPointer(
+                child: TextField(
+                  controller: beginningDateController,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Date de début',
+                    fillColor: Color(0xFFF2F2F2),
+                    filled: true,
+                    prefixIcon: Icon(Icons.calendar_today),
+                  ),
                 ),
               ),
             ),
@@ -188,17 +197,19 @@ class _NewProjectPageState extends State<NewProjectPage> {
           const SizedBox(height: 25),
           SizedBox(
             width: 250,
-            child: TextField(
-              controller: endingDateController,
-              readOnly: true,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: 'Date de fin',
-                fillColor: const Color(0xFFF2F2F2),
-                filled: true,
-                prefixIcon: IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () => _selectDate(context, endingDateController),
+            child: GestureDetector(
+              onTap: () => _selectDate(context, endingDateController),
+              child: AbsorbPointer(
+                child: TextField(
+                  controller: endingDateController,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Date de fin',
+                    fillColor: Color(0xFFF2F2F2),
+                    filled: true,
+                    prefixIcon: Icon(Icons.calendar_today),
+                  ),
                 ),
               ),
             ),
