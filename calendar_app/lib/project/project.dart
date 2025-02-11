@@ -27,7 +27,7 @@ class _ProjectPageState extends State<ProjectPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-            title: const Text('Erreur lors de la création du project'),
+            title: const Text('Erreur lors de la récupérations des projects'),
             content: Text(message),
             actions: [
               TextButton(
@@ -51,6 +51,7 @@ class _ProjectPageState extends State<ProjectPage> {
         final List<dynamic> data = json.decode(response.body);
         final List<dynamic> userProjects = data.map((item) {
           return {
+            'id': item['id'],
             'name': item['name'],
             'description': item['description'],
             'beginningDate': item['beginningDate'],
@@ -121,6 +122,7 @@ class _ProjectPageState extends State<ProjectPage> {
                       itemCount: projects.length,
                       itemBuilder: (context, index) {
                         return ProjectElement(
+                          id: projects[index]['id'],
                           name: projects[index]['name'],
                           description: projects[index]['description'],
                           beginningDate: projects[index]['beginningDate'],
