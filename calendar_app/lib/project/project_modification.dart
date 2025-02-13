@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:calendar_app/auth/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -29,8 +31,7 @@ class ProjectModificationPage extends StatefulWidget {
 
 class _ProjectModificationPage extends State<ProjectModificationPage> {
   final user = FirebaseAuth.instance.currentUser!;
-
-   //String name;
+  bool modification = false;
 
   DateTime? _selectedDate;
 
@@ -60,6 +61,7 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
   }
 
   //Done with the help of chatgpt
+  //TODO: dans fichier utils?
   Future<void> _selectDate(
       BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
@@ -76,10 +78,18 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
       });
     }
   }
-  
-  void save(BuildContext context) async {
+
+  void save(BuildContext context) async {}
+
+  //TODO: dans fichier utils?
+  String formatDate(String? date) {
+    List<String> parts = date!.split('-');
+    if (parts.length == 3) {
+      return "${parts[2]}-${parts[1]}-${parts[0]}";
+    }
+    return date;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,26 +113,56 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
           ),
         ],
       ),
-      body:  Align(
+      body: Align(
           alignment: Alignment.topCenter,
           child: SingleChildScrollView(
               child: Column(
-        children: [
-          Text(
-            widget.name,
-            style: const TextStyle(
-              fontSize: 30,
-            ),
-          ),
-          const SizedBox(height: 25),
-          
-          const SizedBox(height: 25),
-          ButtonCustom(
-            text: 'Enregistrer',
-            onTap: () => save(context),
-          ),
-        ],
-      ))),
+            children: [
+              Text(
+                widget.name,
+                style: const TextStyle(
+                  fontSize: 30,
+                ),
+              ),
+              const SizedBox(height: 25),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 35),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Description: ${widget.description != null && widget.description != '' ? widget.description : "-"}",
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Date de début: ${widget.beginningDate != null ? formatDate(widget.beginningDate) : "-"}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Date de fin: ${widget.endingDate != null ? formatDate(widget.endingDate) : "-"}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 25),
+              ButtonCustom(
+                text: 'Enregistrer',
+                onTap: () => save(context),
+              ),
+            ],
+          ))),
     );
   }
 }

@@ -1,4 +1,3 @@
-import 'package:calendar_app/project/new_project.dart';
 import 'package:calendar_app/project/project_modification.dart';
 import 'package:flutter/material.dart';
 
