@@ -67,14 +67,8 @@ public class ProjectController {
 
     @PutMapping("/projects/{id}")
     public ResponseEntity<Project> updateProject(@PathVariable("id") long id, @RequestBody Project project) {
-        try {
-            Project updatedProject = projectService.updateProject(id, project);
-            return new ResponseEntity<>(updatedProject, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        Project updatedProject = projectService.updateProject(id, project);
+        return new ResponseEntity<>(updatedProject, HttpStatus.OK);
     }
 
     @DeleteMapping("/projects/{id}")

@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import calendarapp.model.Project;
 import calendarapp.repository.ProjectRepository;
 import calendarapp.repository.UserRepository;
 
@@ -141,6 +142,55 @@ public class ProjectControllerTest {
      @Test
      public void testGetUserProjectsNotUser() {
         webTestClient.get().uri("/api/projects/user/del.vr@mail.com")
+            .exchange()
+            .expectStatus().isNotFound();
+     }
+
+     /*
+      * Tests update a project
+      */
+
+    @Test
+    public void testUpdateProject() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+ 
+        webTestClient.post().uri("/api/users")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJson)
+            .exchange();
+ 
+        String projectJson  = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+ 
+        Project project =  webTestClient.post().uri("/api/projects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(projectJson)
+            .exchange()
+            .expectBody(Project.class)
+            .returnResult()
+            .getResponseBody();
+        
+        String projectUpdatedJson  = "{ 'name': 'Christmas show 2.0', 'description': 'Winter show with santa and its elfs', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26'}".replace('\'', '"');
+ 
+        webTestClient.put().uri("/api/projects/" + project.getId())
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(projectUpdatedJson)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.name").isEqualTo("Christmas show 2.0")
+            .jsonPath("$.description").isEqualTo("Winter show with santa and its elfs")
+            .jsonPath("$.beginningDate").isEqualTo("2020-07-01")
+            .jsonPath("$.endingDate").isEqualTo("2020-12-26");
+     }
+
+     @Test
+    public void testUpdateProjectNotFound() {        
+        String projectUpdatedJson  = "{ 'name': 'Christmas show 2.0', 'description': 'Winter show with santa and its elfs', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26'}".replace('\'', '"');
+ 
+        webTestClient.put().uri("/api/projects/1")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(projectUpdatedJson)
             .exchange()
             .expectStatus().isNotFound();
      }

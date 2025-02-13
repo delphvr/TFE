@@ -108,7 +108,7 @@ POST "http://localhost:8080/api/projects"
 
 ```
 {
-    name: "Christmas show",
+    "name": "Christmas show",
     "description": "Winter show with santa...",
     "beginningDate": "2020-07-01",
     "endingDate": "2020-12-26",
@@ -155,3 +155,36 @@ GET "http://localhost:8080/api/projects/user/{email}"
 
 - `200 OK`: Successfully retreive the list of projects of that user.
 - `404 Not Found`: No user found with the given email.
+
+### Update a project
+
+```
+PUT "http://localhost:8080/api/projects/{id}"
+```
+
+**Request Body Example**:
+
+```
+{
+    "name": "Christmas show 2.0",
+    "description": "Winter show with Santa and its elves",
+    "beginningDate": "2020-07-01",
+    "endingDate": "2020-12-26",
+}
+```
+
+**If successful return newly created project** e.g: 
+```
+{
+    "id": 3,
+    "name": "Christmas show 2.0",
+    "description": "Winter show with Santa and its elves",
+    "beginningDate": "2020-07-01",
+    "endingDate": "2020-12-26"
+}
+```
+
+**Possible Response Codes:**
+
+- `200 OK`: Project successfully updated.
+- `404 Not Found`: No project found with the given ID.
