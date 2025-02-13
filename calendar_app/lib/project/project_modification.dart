@@ -30,6 +30,20 @@ class ProjectModificationPage extends StatefulWidget {
 class _ProjectModificationPage extends State<ProjectModificationPage> {
   final user = FirebaseAuth.instance.currentUser!;
 
+  late String name;
+  late String? description;
+  late String? beginningDate;
+  late String? endingDate;
+
+  @override
+  void initState() {
+    super.initState();
+    name = widget.name;
+    description = widget.description;
+    beginningDate = widget.beginningDate;
+    endingDate = widget.endingDate;
+  }
+
   void logout(Function onLogoutSuccess) async {
     await FirebaseAuth.instance.signOut();
     onLogoutSuccess();
@@ -72,6 +86,15 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop({
+            'name': name,
+            'description': description,
+            'beginningDate': beginningDate,
+            'endingDate': endingDate,
+          }),
+        ),
         actions: [
           IconButton(
             onPressed: () {
@@ -95,7 +118,7 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
               child: Column(
             children: [
               Text(
-                widget.name,
+                name,
                 style: const TextStyle(
                   fontSize: 30,
                 ),
@@ -109,21 +132,21 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Description: ${widget.description != null && widget.description != '' ? widget.description : "-"}",
+                        "Description: ${description != null && description != '' ? description : "-"}",
                         style: const TextStyle(
                           fontSize: 20,
                         ),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Date de début: ${widget.beginningDate != null ? formatDate(widget.beginningDate) : "-"}',
+                        'Date de début: ${beginningDate != null ? formatDate(beginningDate) : "-"}',
                         style: const TextStyle(
                           fontSize: 20,
                         ),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Date de fin: ${widget.endingDate != null ? formatDate(widget.endingDate) : "-"}',
+                        'Date de fin: ${endingDate != null ? formatDate(endingDate) : "-"}',
                         style: const TextStyle(
                           fontSize: 20,
                         ),
@@ -141,14 +164,21 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
                     MaterialPageRoute(
                       builder: (context) => UpdateProjectPage(
                         id: widget.id,
-                        name: widget.name,
-                        description: widget.description,
-                        beginningDate: widget.beginningDate,
-                        endingDate: widget.endingDate,
+                        name: name,
+                        description: description,
+                        beginningDate: beginningDate,
+                        endingDate: endingDate,
                       ),
                     ),
-                  ).then((_) {
-                    setState(() {});
+                  ).then((updatedProject) {
+                    if (updatedProject != null) {
+                      setState(() {
+                        name = updatedProject['name'];
+                        description = updatedProject['description'];
+                        beginningDate = updatedProject['beginningDate'];
+                        endingDate = updatedProject['endingDate'];
+                      });
+                    }
                   });
                 },
               ),

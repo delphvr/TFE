@@ -1,7 +1,7 @@
 import 'package:calendar_app/project/project_modification.dart';
 import 'package:flutter/material.dart';
 
-class ProjectElement extends StatelessWidget {
+class ProjectElement extends StatefulWidget {
   final int id;
   final String name;
   final String? description;
@@ -16,6 +16,26 @@ class ProjectElement extends StatelessWidget {
     this.beginningDate,
     this.endingDate,
   });
+
+  @override
+  State<ProjectElement> createState() => _ProjectElementState();
+}
+
+class _ProjectElementState extends State<ProjectElement> {
+
+  late String name;
+  late String? description;
+  late String? beginningDate;
+  late String? endingDate;
+
+  @override
+  void initState() {
+    super.initState();
+    name = widget.name;
+    description = widget.description;
+    beginningDate = widget.beginningDate;
+    endingDate = widget.endingDate;
+  }
 
   String formatDate(String? date) {
     List<String> parts = date!.split('-');
@@ -35,14 +55,25 @@ class ProjectElement extends StatelessWidget {
             context, //MaterialPageRoute(builder: (context) => NewProjectPage())
             MaterialPageRoute(
               builder: (context) => ProjectModificationPage(
-                id: id,
+                id: widget.id,
                 name: name,
                 description: description,
                 beginningDate: beginningDate,
                 endingDate: endingDate,
               ),
             ),
-          );
+          ).then((updatedProject) {
+            print("DEBUGGGG");
+            if (updatedProject != null) {
+              print("DEBUGGGG2");
+              setState(() {
+                name = updatedProject['name'];
+                description = updatedProject['description'];
+                beginningDate = updatedProject['beginningDate'];
+                endingDate = updatedProject['endingDate'];
+              });
+            }
+          });
         },
         child: Container(
           decoration: BoxDecoration(

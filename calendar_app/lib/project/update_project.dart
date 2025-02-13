@@ -30,8 +30,7 @@ class UpdateProjectPage extends StatefulWidget {
 class _UpdateProjectPageState extends State<UpdateProjectPage> {
   final user = FirebaseAuth.instance.currentUser!;
 
-  late TextEditingController titreController;
-
+  late TextEditingController titleController;
   late TextEditingController descriptionController;
   late TextEditingController beginningDateController;
   late TextEditingController endingDateController;
@@ -39,7 +38,7 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
   @override
   void initState() {
     super.initState();
-    titreController = TextEditingController(text: widget.name);
+    titleController = TextEditingController(text: widget.name);
     descriptionController = TextEditingController(text: widget.description);
     beginningDateController = TextEditingController(text: widget.beginningDate);
     endingDateController = TextEditingController(text: widget.endingDate);
@@ -47,7 +46,7 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
 
   @override
   void dispose() {
-    titreController.dispose();
+    titleController.dispose();
     descriptionController.dispose();
     beginningDateController.dispose();
     endingDateController.dispose();
@@ -82,8 +81,55 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
   }
 
   void update(BuildContext context) async {
-    if (mounted) {
-      Navigator.pop(context);
+    final projectName = titleController.text;
+    final description = descriptionController.text;
+    final beginningDate = beginningDateController.text;
+    final endingDate = endingDateController.text;
+
+    if (projectName.isEmpty) {
+      errorMess('Veuillez donner un nom au project.');
+      return;
+    }
+
+    if (beginningDate.isNotEmpty && endingDate.isNotEmpty) {
+      if (DateTime.parse(beginningDate).isAfter(DateTime.parse(endingDate))) {
+        errorMess(
+            'La date de fin du projet ne peut pas avoir lieu avant la date de début.');
+        return;
+      }
+    }
+
+    final String url = '${dotenv.env['API_BASE_URL']}/projects/${widget.id}';
+
+    final Map<String, dynamic> requestBody = {
+      "name": projectName,
+      "description": description,
+      "beginningDate": beginningDate,
+      "endingDate": endingDate,
+    };
+
+    try {
+      final response = await http.put(
+        Uri.parse(url),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        if (mounted) {
+          Navigator.pop(context, {
+            'name': projectName,
+            'description': description,
+            'beginningDate': beginningDate,
+            'endingDate': endingDate,
+          });
+        }
+      } else {
+        errorMess(
+            'Erreur lors de la modification du projet. Merci de réessayez plus tard.');
+      }
+    } catch (e) {
+      errorMess('Impossible de se connecter au serveur.');
     }
   }
 
@@ -146,7 +192,7 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
             const SizedBox(height: 25),
             TextFieldcustom(
               labelText: 'Nom du projet*',
-              controller: titreController,
+              controller: titleController,
               obscureText: false,
               keyboardType: TextInputType.text,
             ),
