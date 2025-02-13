@@ -1,4 +1,5 @@
 import 'package:calendar_app/auth/auth.dart';
+import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/components/button_custom.dart';
@@ -29,26 +30,6 @@ class _NewProjectPageState extends State<NewProjectPage> {
     onLogoutSuccess();
   }
 
-  //TODO: mettre ça dans function auxilliaire?
-  void errorMess(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-            title: const Text('Erreur lors de la création du project'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('OK'),
-              ),
-            ]);
-      },
-    );
-  }
-
   void save(BuildContext context) async {
     final projectName = projectNameController.text;
     final description = descriptionController.text;
@@ -56,14 +37,17 @@ class _NewProjectPageState extends State<NewProjectPage> {
     final endingDate = endingDateController.text;
 
     if (projectName.isEmpty) {
-      errorMess('Veuillez donner un nom au project.');
+      Utils.errorMess('Erreur lors de la création du project',
+          'Veuillez donner un nom au project.', context);
       return;
     }
 
     if (beginningDate.isNotEmpty && endingDate.isNotEmpty) {
       if (DateTime.parse(beginningDate).isAfter(DateTime.parse(endingDate))) {
-        errorMess(
-            'La date de fin du projet ne peut pas avoir lieu avant la date de début.');
+        Utils.errorMess(
+            'Erreur lors de la création du project',
+            'La date de fin du projet ne peut pas avoir lieu avant la date de début.',
+            context);
         return;
       }
     }
@@ -90,13 +74,17 @@ class _NewProjectPageState extends State<NewProjectPage> {
           Navigator.pop(context);
         }
       } else if (response.statusCode == 409) {
-        errorMess('Un projet avec ce nom existe déjà.');
+        Utils.errorMess('Erreur lors de la création du project',
+            'Un projet avec ce nom existe déjà.', context);
       } else {
-        errorMess(
-            'Erreur lors de la création du projet. Merci de réessayez plus tard.');
+        Utils.errorMess(
+            'Erreur lors de la création du project',
+            'Erreur lors de la création du projet. Merci de réessayez plus tard.',
+            context);
       }
     } catch (e) {
-      errorMess('Impossible de se connecter au serveur.');
+      Utils.errorMess('Erreur lors de la création du project',
+          'Impossible de se connecter au serveur.', context);
     }
   }
 

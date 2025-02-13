@@ -1,5 +1,6 @@
 import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
+import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -21,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
 
   Future<bool> isOrganizer(String email) async {
-    String url = '${dotenv.env['API_BASE_URL']}/users/organizer/$email'; 
+    String url = '${dotenv.env['API_BASE_URL']}/users/organizer/$email';
     try {
       final response = await http.get(
         Uri.parse(url),
@@ -55,12 +56,13 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) {
           Navigator.pop(context);
         }
-        errorMess('Merci de remplir tous les champs');
+        Utils.errorMess(
+            'Erreur de connexion', 'Merci de remplir tous les champs', context);
       } else if (!isValidEmail(emailController.text)) {
         if (mounted) {
           Navigator.pop(context);
         }
-        errorMess('Email non Valide.');
+        Utils.errorMess('Erreur de connexion', 'Email non Valide.', context);
       } else {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         bool isOrga = await isOrganizer(emailController.text);
@@ -78,9 +80,10 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pop(context);
       }
       if (e.code == 'invalid-credential') {
-        errorMess('Email ou mot de passe incorect');
+        Utils.errorMess(
+            'Erreur de connexion', 'Email ou mot de passe incorect', context);
       } else {
-        errorMess(e.code);
+        Utils.errorMess('Erreur de connexion', e.code, context);
       }
     }
   }
@@ -90,25 +93,6 @@ class _LoginScreenState extends State<LoginScreen> {
     return RegExp(
             r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
         .hasMatch(email);
-  }
-
-  void errorMess(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-            title: const Text('Erreur de connexion'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('OK'),
-              ),
-            ]);
-      },
-    );
   }
 
   @override

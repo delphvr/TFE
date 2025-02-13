@@ -1,5 +1,6 @@
 import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
+import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -36,8 +37,7 @@ class _RegisterState extends State<Register> {
   final firstnameController = TextEditingController();
   final lastnameController = TextEditingController();
   bool isOrganizer = false;
-  String url =
-      '${dotenv.env['API_BASE_URL']}/users';
+  String url = '${dotenv.env['API_BASE_URL']}/users';
   List<Profession> professions = [];
   List<Profession> selectedProfessions = [];
   List<MultiSelectItem<Profession>> items = [];
@@ -108,20 +108,23 @@ class _RegisterState extends State<Register> {
         if (mounted) {
           Navigator.pop(context);
         }
-        errorMess("Adresse email déjà utilisé");
+        Utils.errorMess('Erreur lors de la création du compte',
+            "Adresse email déjà utilisé", context);
         return -1;
       } else {
         if (mounted) {
           Navigator.pop(context);
         }
-        errorMess("Echecs de l'envoie des données au server");
+        Utils.errorMess('Erreur lors de la création du compte',
+            "Echecs de l'envoie des données au server", context);
         return -1;
       }
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
       }
-      errorMess("Echecs de l'envoie des données au server");
+      Utils.errorMess('Erreur lors de la création du compte',
+          "Echecs de l'envoie des données au server", context);
       return -1;
     }
   }
@@ -133,25 +136,29 @@ class _RegisterState extends State<Register> {
       if (mounted) {
         Navigator.pop(context);
       }
-      errorMess('Merci de remplir tous les champs');
+      Utils.errorMess('Erreur lors de la création du compte',
+          'Merci de remplir tous les champs', context);
       return -1;
     } else if (!isValidEmail(emailController.text)) {
       if (mounted) {
         Navigator.pop(context);
       }
-      errorMess('Email non Valide');
+      Utils.errorMess(
+          'Erreur lors de la création du compte', 'Email non valide', context);
       return -1;
     } else if (passwordController.text.length < 6) {
       if (mounted) {
         Navigator.pop(context);
       }
-      errorMess('Le mot de passe doit faire au moins 6 caractères.');
+      Utils.errorMess('Erreur lors de la création du compte',
+          'Le mot de passe doit faire au moins 6 caractères.', context);
       return -1;
     } else if (passwordController.text != confirmpasswordController.text) {
       if (mounted) {
         Navigator.pop(context);
       }
-      errorMess('Les mots de passe ne correspondent pas');
+      Utils.errorMess('Erreur lors de la création du compte',
+          'Les mots de passe ne correspondent pas', context);
       return -1;
     }
     return 1;
@@ -188,7 +195,8 @@ class _RegisterState extends State<Register> {
           if (mounted) {
             Navigator.pop(context);
           }
-          errorMess(e.code);
+          Utils.errorMess(
+              'Erreur lors de la création du compte', e.code, context);
         }
       }
     }
@@ -199,25 +207,6 @@ class _RegisterState extends State<Register> {
     return RegExp(
             r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
         .hasMatch(email);
-  }
-
-  void errorMess(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-            title: const Text('Erreur lors de la création du compte'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('OK'),
-              ),
-            ]);
-      },
-    );
   }
 
   void _showBottomSheet() async {
@@ -236,7 +225,7 @@ class _RegisterState extends State<Register> {
               children: [
                 const SizedBox(height: 10),
                 const Text(
-                  "Selectionez vos professions",
+                  "Sélectionnez vos professions",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const Divider(),

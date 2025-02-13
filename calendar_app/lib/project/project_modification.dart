@@ -1,11 +1,9 @@
 import 'package:calendar_app/auth/auth.dart';
+import 'package:calendar_app/project/add_participant.dart';
 import 'package:calendar_app/project/update_project.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/components/button_custom.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ProjectModificationPage extends StatefulWidget {
   final int id;
@@ -47,26 +45,6 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
   void logout(Function onLogoutSuccess) async {
     await FirebaseAuth.instance.signOut();
     onLogoutSuccess();
-  }
-
-  //TODO: mettre ça dans function auxilliaire?
-  void errorMess(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-            title: const Text('Erreur lors de la modification du project'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('OK'),
-              ),
-            ]);
-      },
-    );
   }
 
   void save(BuildContext context) async {}
@@ -179,6 +157,40 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
                         endingDate = updatedProject['endingDate'];
                       });
                     }
+                  });
+                },
+              ),
+              const SizedBox(height: 25),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 35),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Participants",
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 25),
+              ButtonCustom(
+                text: 'Ajouter des personnes',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddParticipant(
+                        projectName: name,
+                      ),
+                    ),
+                  ).then((_) {
+                    setState(() {});
                   });
                 },
               ),

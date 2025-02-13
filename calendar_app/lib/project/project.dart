@@ -1,5 +1,6 @@
 import 'package:calendar_app/project/new_project.dart';
 import 'package:calendar_app/project/project_element.dart';
+import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/components/button_custom.dart';
@@ -21,26 +22,6 @@ class _ProjectPageState extends State<ProjectPage> {
     FirebaseAuth.instance.signOut();
   }
 
-  //TODO: mettre ça dans function auxilliaire?
-  void errorMess(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-            title: const Text('Erreur lors de la récupérations des projects'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('OK'),
-              ),
-            ]);
-      },
-    );
-  }
-
   Future<List> getProjects(BuildContext context) async {
     final email = user.email;
     final String url = '${dotenv.env['API_BASE_URL']}/projects/user/$email';
@@ -58,18 +39,18 @@ class _ProjectPageState extends State<ProjectPage> {
             'endingDate': item['endingDate'],
           };
         }).toList();
-        print("DEBUG: $userProjects");
-
         //if (mounted) {
         //  Navigator.pop(context);
         //}
         return userProjects;
       } else {
-        errorMess(context, 'Une erreur c\'est produite');
+        Utils.errorMess('Erreur lors de la récupérations des projects',
+            'Une erreur c\'est produite', context);
         return [];
       }
     } catch (e) {
-      errorMess(context, 'Une erreur c\'est produite');
+      Utils.errorMess('Erreur lors de la récupérations des projects',
+          'Une erreur c\'est produite', context);
       return [];
     }
   }
@@ -92,8 +73,7 @@ class _ProjectPageState extends State<ProjectPage> {
       body: Center(
         child: Column(
           children: [
-            const SizedBox(height:25),
-
+            const SizedBox(height: 25),
             SizedBox(
               width: 250,
               child: ButtonCustom(
@@ -108,9 +88,7 @@ class _ProjectPageState extends State<ProjectPage> {
                 },
               ),
             ),
-
-            const SizedBox(height:25),
-
+            const SizedBox(height: 25),
             Expanded(
               child: FutureBuilder<List>(
                 future: getProjects(context),

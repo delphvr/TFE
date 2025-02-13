@@ -1,4 +1,5 @@
 import 'package:calendar_app/auth/auth.dart';
+import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/components/button_custom.dart';
@@ -60,25 +61,6 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
     onLogoutSuccess();
   }
 
-  //TODO: mettre ça dans function auxilliaire?
-  void errorMess(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-            title: const Text('Erreur lors de la modification du project'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('OK'),
-              ),
-            ]);
-      },
-    );
-  }
 
   void update(BuildContext context) async {
     final projectName = titleController.text;
@@ -87,14 +69,14 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
     final endingDate = endingDateController.text;
 
     if (projectName.isEmpty) {
-      errorMess('Veuillez donner un nom au project.');
+      Utils.errorMess('Erreur lors de la modification du project', 'Veuillez donner un nom au project.', context);
       return;
     }
 
     if (beginningDate.isNotEmpty && endingDate.isNotEmpty) {
       if (DateTime.parse(beginningDate).isAfter(DateTime.parse(endingDate))) {
-        errorMess(
-            'La date de fin du projet ne peut pas avoir lieu avant la date de début.');
+        Utils.errorMess('Erreur lors de la modification du project', 
+            'La date de fin du projet ne peut pas avoir lieu avant la date de début.', context);
         return;
       }
     }
@@ -125,11 +107,11 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
           });
         }
       } else {
-        errorMess(
-            'Erreur lors de la modification du projet. Merci de réessayez plus tard.');
+        Utils.errorMess('Erreur lors de la modification du project', 
+            'Erreur lors de la modification du projet. Merci de réessayez plus tard.', context);
       }
     } catch (e) {
-      errorMess('Impossible de se connecter au serveur.');
+      Utils.errorMess('Erreur lors de la modification du project', 'Impossible de se connecter au serveur.', context);
     }
   }
 
@@ -186,7 +168,7 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
               'Modification du projet ${widget.name}',
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontSize: 30,
+                fontSize: 27,
               ),
             ),
             const SizedBox(height: 25),
