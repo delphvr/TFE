@@ -1,10 +1,8 @@
-import 'dart:ffi';
-
 import 'package:calendar_app/auth/auth.dart';
+import 'package:calendar_app/project/update_project.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/components/button_custom.dart';
-import 'package:calendar_app/components/textfield_custom.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -31,9 +29,6 @@ class ProjectModificationPage extends StatefulWidget {
 
 class _ProjectModificationPage extends State<ProjectModificationPage> {
   final user = FirebaseAuth.instance.currentUser!;
-  bool modification = false;
-
-  DateTime? _selectedDate;
 
   void logout(Function onLogoutSuccess) async {
     await FirebaseAuth.instance.signOut();
@@ -58,25 +53,6 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
             ]);
       },
     );
-  }
-
-  //Done with the help of chatgpt
-  //TODO: dans fichier utils?
-  Future<void> _selectDate(
-      BuildContext context, TextEditingController controller) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-        controller.text =
-            "${picked.toLocal()}".split(' ')[0]; // Format as yyyy-MM-dd
-      });
-    }
   }
 
   void save(BuildContext context) async {}
@@ -158,8 +134,23 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
               ),
               const SizedBox(height: 25),
               ButtonCustom(
-                text: 'Enregistrer',
-                onTap: () => save(context),
+                text: 'Modifier',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UpdateProjectPage(
+                        id: widget.id,
+                        name: widget.name,
+                        description: widget.description,
+                        beginningDate: widget.beginningDate,
+                        endingDate: widget.endingDate,
+                      ),
+                    ),
+                  ).then((_) {
+                    setState(() {});
+                  });
+                },
               ),
             ],
           ))),
