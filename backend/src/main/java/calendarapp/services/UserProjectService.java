@@ -87,19 +87,20 @@ public class UserProjectService {
         userProjectRepository.deleteAll();
     }
 
-    public List<Long> getOrganizerProjects(String email) {
+    public List<Project> getOrganizerProjects(String email) {
         Optional<User> user = userRepository.findByEmail(email);
         if (!user.isPresent()) {
             throw new IllegalArgumentException("User not found with email " + email);
         }
         Long userId = user.get().getId();
-        List<Long> res = new ArrayList<>();
+        List<Project> res = new ArrayList<>();
         List<UserProject> userProjects = userProjectRepository.findByUserIdAndRole(userId, "Organizer");
         if (userProjects.isEmpty()) {
             return res;
         }
         for (UserProject userProject : userProjects) {
-            res.add(userProject.getProjectId());
+            Optional<Project> p = projectRepository.findById(userProject.getProjectId());
+            res.add(p.get());
         }
         return res;
     }

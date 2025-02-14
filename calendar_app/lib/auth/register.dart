@@ -61,7 +61,7 @@ class _RegisterState extends State<Register> {
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
-        List<dynamic> jsonData = json.decode(response.body);
+        List<dynamic> jsonData = json.decode(utf8.decode(response.bodyBytes));
         return jsonData.isEmpty
             ? []
             : jsonData.map((json) => Profession.fromJson(json)).toList();

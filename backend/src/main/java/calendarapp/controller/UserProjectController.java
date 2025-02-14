@@ -1,5 +1,6 @@
 package calendarapp.controller;
 
+import calendarapp.model.Project;
 import calendarapp.model.UserProject;
 import calendarapp.request.CreateUserProjectRequest;
 import calendarapp.response.UserProjectResponse;
@@ -68,7 +69,13 @@ public class UserProjectController {
     }
 
     @GetMapping("/userProjects/organizer/{email}")
-    public ResponseEntity<List<Long>> getOrganizerProjects(@PathVariable("email") String email) {
+    public ResponseEntity<List<Project>> getOrganizerProjects(@PathVariable("email") String email) {
+        List<Project> organizerProject = userProjectService.getOrganizerProjects(email);
+        return new ResponseEntity<>(organizerProject, HttpStatus.OK);
+    }
+
+    /*@GetMapping("/userProjects/{id}")
+    public ResponseEntity<List<Long>> getProjectsUsers(@PathVariable("id") Long id) {
         try {
             List<Long> organizerProject = userProjectService.getOrganizerProjects(email);
             return new ResponseEntity<>(organizerProject, HttpStatus.OK);
@@ -77,5 +84,5 @@ public class UserProjectController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
+    }*/
 }

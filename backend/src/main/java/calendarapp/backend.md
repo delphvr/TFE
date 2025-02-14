@@ -218,4 +218,29 @@ POST "http://localhost:8080/api/userProjects"
 
 - `201 Created`: User successfully added to the project with roles.
 - `404 Not Found`: No user or project found with the given email or id.
-- `400 Bad Request`: Invalid request body, such as a malformed email or missing fields.
+- `400 Bad Request`: Invalid request body, email field does not contains an email format string, ...
+
+### Get the project for which the user is an organizer
+
+```
+POST "http://localhost:8080/api/userProjects/organizer/{mail}"
+```
+
+
+**If successful return** e.g: 
+```
+[
+    {
+        "id":20,
+        "name":"Christmas show 2.0",
+        "description": "Winter show with Santa and its elves",
+        "beginningDate": "2020-07-01",
+        "endingDate": "2020-12-26"
+    }
+]
+```
+
+**Possible Response Codes:**
+
+- `20O OK`: Successfully retreive all the project of the organizer.
+- `404 Not Found`: No user found with the given email.

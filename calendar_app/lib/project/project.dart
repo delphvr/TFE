@@ -31,7 +31,7 @@ class _ProjectPageState extends State<ProjectPage> {
 
   Future<List> getProjects(BuildContext context) async {
     final email = user.email;
-    final String url = '${dotenv.env['API_BASE_URL']}/projects/user/$email';
+    final String url = '${dotenv.env['API_BASE_URL']}/userProjects/organizer/$email'; 
     try {
       final response = await http.get(Uri.parse(url));
 
