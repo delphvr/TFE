@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
         Utils.errorMess(
             'Erreur de connexion', 'Merci de remplir tous les champs', context);
-      } else if (!isValidEmail(emailController.text)) {
+      } else if (!Utils.isValidEmail(emailController.text)) {
         if (mounted) {
           Navigator.pop(context);
         }
@@ -86,13 +86,6 @@ class _LoginScreenState extends State<LoginScreen> {
         Utils.errorMess('Erreur de connexion', e.code, context);
       }
     }
-  }
-
-  //Source: https://stackoverflow.com/questions/16800540/how-should-i-check-if-the-input-is-an-email-address-in-flutter
-  bool isValidEmail(String email) {
-    return RegExp(
-            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
-        .hasMatch(email);
   }
 
   @override

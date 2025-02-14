@@ -1,4 +1,5 @@
 import 'package:calendar_app/project/project_modification.dart';
+import 'package:calendar_app/utils.dart';
 import 'package:flutter/material.dart';
 
 class ProjectElement extends StatefulWidget {
@@ -37,14 +38,6 @@ class _ProjectElementState extends State<ProjectElement> {
     endingDate = widget.endingDate;
   }
 
-  String formatDate(String? date) {
-    List<String> parts = date!.split('-');
-    if (parts.length == 3) {
-      return "${parts[2]}-${parts[1]}-${parts[0]}";
-    }
-    return date;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -63,9 +56,7 @@ class _ProjectElementState extends State<ProjectElement> {
               ),
             ),
           ).then((updatedProject) {
-            print("DEBUGGGG");
             if (updatedProject != null) {
-              print("DEBUGGGG2");
               setState(() {
                 name = updatedProject['name'];
                 description = updatedProject['description'];
@@ -111,14 +102,14 @@ class _ProjectElementState extends State<ProjectElement> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Début: ${beginningDate != null ? formatDate(beginningDate) : "-"}',
+                        'Début: ${beginningDate != null ? Utils.formatDate(beginningDate) : "-"}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black54,
                         ),
                       ),
                       Text(
-                        'Fin: ${endingDate != null ? formatDate(endingDate) : "-"}',
+                        'Fin: ${endingDate != null ? Utils.formatDate(endingDate) : "-"}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black54,

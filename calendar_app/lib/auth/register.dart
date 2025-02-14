@@ -1,3 +1,4 @@
+import 'package:calendar_app/components/bottom_sheet_selector.dart';
 import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
 import 'package:calendar_app/utils.dart';
@@ -19,6 +20,12 @@ class Profession {
     return Profession(
       name: json['profession'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'profession': name,
+    };
   }
 }
 
@@ -97,7 +104,7 @@ class _RegisterState extends State<Register> {
           "lastName": lastName,
           "email": email,
           "isOrganizer": isOrganizer,
-          "professions": [], //TODO normal que ce soit une list vide ???
+          "professions": selectedProfessions.map((p) => p.name).toList(),
         }),
       );
 
@@ -139,7 +146,7 @@ class _RegisterState extends State<Register> {
       Utils.errorMess('Erreur lors de la création du compte',
           'Merci de remplir tous les champs', context);
       return -1;
-    } else if (!isValidEmail(emailController.text)) {
+    } else if (!Utils.isValidEmail(emailController.text)) {
       if (mounted) {
         Navigator.pop(context);
       }
@@ -200,73 +207,6 @@ class _RegisterState extends State<Register> {
         }
       }
     }
-  }
-
-  //Source: https://stackoverflow.com/questions/16800540/how-should-i-check-if-the-input-is-an-email-address-in-flutter
-  bool isValidEmail(String email) {
-    return RegExp(
-            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
-        .hasMatch(email);
-  }
-
-  void _showBottomSheet() async {
-    List<Profession> tempSelected = List.from(selectedProfessions);
-
-    await showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setStateInModal) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 10),
-                const Text(
-                  "Sélectionnez vos professions",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const Divider(),
-                Expanded(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: professions.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final profession = professions[index];
-                      return CheckboxListTile(
-                        title: Text(profession.name),
-                        value: tempSelected.contains(profession),
-                        onChanged: (bool? isSelected) {
-                          setStateInModal(() {
-                            if (isSelected == true) {
-                              tempSelected.add(profession);
-                            } else {
-                              tempSelected.remove(profession);
-                            }
-                          });
-                        },
-                      );
-                    },
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    setState(() {
-                      selectedProfessions = tempSelected;
-                    });
-                  },
-                  child: const Text("Valider"),
-                ),
-                const SizedBox(height: 10),
-              ],
-            );
-          },
-        );
-      },
-    );
   }
 
   @override
@@ -337,60 +277,18 @@ class _RegisterState extends State<Register> {
 
                 const SizedBox(height: 20),
 
-                //Done with the help of chatgpt
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Dropdown Button
-                    SizedBox(
-                      width: 250,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFF2F2F2),
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
-                            side:
-                                const BorderSide(color: Colors.black, width: 1),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                        ),
-                        onPressed: _showBottomSheet,
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Professions",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight
-                                    .normal, // Move this inside TextStyle
-                              ),
-                            ),
-                            Icon(Icons.arrow_drop_down),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-
-                    // Display selected professions below the button
-                    Wrap(
-                      spacing: 8.0,
-                      runSpacing: 4.0,
-                      children: selectedProfessions
-                          .map((profession) => Chip(
-                                label: Text(profession.name),
-                                onDeleted: () {
-                                  setState(() {
-                                    selectedProfessions.remove(profession);
-                                  });
-                                },
-                              ))
-                          .toList(),
-                    ),
-                  ],
+                BottomSheetSelector<Profession>(
+                  items: professions,
+                  selectedItems: selectedProfessions,
+                  onSelectionChanged: (selectedList) {
+                    setState(() {
+                      selectedProfessions = selectedList;
+                    });
+                  },
+                  title: "Sélectionnez vos professions",
+                  buttonLabel: "Valider",
+                  itemLabel: (profession) => profession.name,
+                  textfield: "Professions",
                 ),
 
                 const SizedBox(height: 10),

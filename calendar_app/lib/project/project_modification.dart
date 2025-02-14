@@ -1,6 +1,7 @@
 import 'package:calendar_app/auth/auth.dart';
 import 'package:calendar_app/project/add_participant.dart';
 import 'package:calendar_app/project/update_project.dart';
+import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/components/button_custom.dart';
@@ -45,17 +46,6 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
   void logout(Function onLogoutSuccess) async {
     await FirebaseAuth.instance.signOut();
     onLogoutSuccess();
-  }
-
-  void save(BuildContext context) async {}
-
-  //TODO: dans fichier utils?
-  String formatDate(String? date) {
-    List<String> parts = date!.split('-');
-    if (parts.length == 3) {
-      return "${parts[2]}-${parts[1]}-${parts[0]}";
-    }
-    return date;
   }
 
   @override
@@ -117,14 +107,14 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Date de début: ${beginningDate != null ? formatDate(beginningDate) : "-"}',
+                        'Date de début: ${beginningDate != null ? Utils.formatDate(beginningDate) : "-"}',
                         style: const TextStyle(
                           fontSize: 20,
                         ),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Date de fin: ${endingDate != null ? formatDate(endingDate) : "-"}',
+                        'Date de fin: ${endingDate != null ? Utils.formatDate(endingDate) : "-"}',
                         style: const TextStyle(
                           fontSize: 20,
                         ),

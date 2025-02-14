@@ -54,7 +54,7 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
     super.dispose();
   }
 
-  DateTime? _selectedDate;
+  DateTime? selectedDate;
 
   void logout(Function onLogoutSuccess) async {
     await FirebaseAuth.instance.signOut();
@@ -116,8 +116,7 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
   }
 
   //Done with the help of chatgpt
-  //TODO mettre dans un fichier utils ?
-  Future<void> _selectDate(
+  Future<void> selectDate(
       BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -125,9 +124,9 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != _selectedDate) {
+    if (picked != null && picked != selectedDate) {
       setState(() {
-        _selectedDate = picked;
+        selectedDate = picked;
         controller.text =
             "${picked.toLocal()}".split(' ')[0]; // Format as yyyy-MM-dd
       });
@@ -197,7 +196,7 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
             SizedBox(
               width: 250,
               child: GestureDetector(
-                onTap: () => _selectDate(context, beginningDateController),
+                onTap: () => selectDate(context, beginningDateController),
                 child: AbsorbPointer(
                   child: TextField(
                     controller: beginningDateController,
@@ -217,7 +216,7 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
             SizedBox(
               width: 250,
               child: GestureDetector(
-                onTap: () => _selectDate(context, endingDateController),
+                onTap: () => selectDate(context, endingDateController),
                 child: AbsorbPointer(
                   child: TextField(
                     controller: endingDateController,
