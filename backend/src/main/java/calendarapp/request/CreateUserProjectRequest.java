@@ -2,26 +2,29 @@ package calendarapp.request;
 
 import java.util.List;
 
-public class CreateUserRoleRequest {
-    private Long userId;
+import jakarta.validation.constraints.Email;
+
+public class CreateUserProjectRequest {
+    @Email
+    private String userEmail;
     private Long projectId;
     private List<String> roles;
 
-    public CreateUserRoleRequest() {
+    public CreateUserProjectRequest() {
     }
 
-    public CreateUserRoleRequest(Long userId, Long projectId, List<String> roles) {
-        this.userId = userId;
+    public CreateUserProjectRequest(String userEmail, Long projectId, List<String> roles) {
+        this.userEmail = userEmail;
         this.projectId = projectId;
         this.roles = roles;
     }
 
-    public Long getUserId() {
-        return userId;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUserId(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public Long getProjectId() {

@@ -1,8 +1,10 @@
 package calendarapp.controller;
 
 import calendarapp.model.UserProject;
-import calendarapp.request.CreateUserRoleRequest;
+import calendarapp.request.CreateUserProjectRequest;
+import calendarapp.response.UserProjectResponse;
 import calendarapp.services.UserProjectService;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
 @RequestMapping("/api")
+@Validated  
 public class UserProjectController {
 
     @Autowired
@@ -38,18 +42,9 @@ public class UserProjectController {
     }
 
     @PostMapping("/userProjects")
-    public ResponseEntity<List<UserProject>> createUserProject(@RequestBody CreateUserRoleRequest request) {
-        try {
-            List<UserProject> createdUserProjects = userProjectService.createUserProject(request);
-            return new ResponseEntity<>(createdUserProjects, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("already exists")) {
-                return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-            }
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<UserProjectResponse> createUserProject(@Valid @RequestBody CreateUserProjectRequest request) {
+        UserProjectResponse createdUserProjects = userProjectService.createUserProject(request);
+        return new ResponseEntity<>(createdUserProjects, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/userProject")

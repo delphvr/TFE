@@ -47,7 +47,7 @@ public class ProjectControllerTest {
             .bodyValue(userJson)
             .exchange();
 
-        String projectJson  = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
 
         webTestClient.post().uri("/api/projects")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
@@ -63,7 +63,7 @@ public class ProjectControllerTest {
 
     @Test
     public void testCreateProjectEmailNotFound() {
-        String projectJson  = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
 
         webTestClient.post().uri("/api/projects")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
@@ -82,7 +82,7 @@ public class ProjectControllerTest {
             .bodyValue(userJson)
             .exchange();
 
-        String projectJson  = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-06-29', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-06-29', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
 
         webTestClient.post().uri("/api/projects")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
@@ -105,7 +105,7 @@ public class ProjectControllerTest {
             .bodyValue(userJson)
             .exchange();
  
-        String projectJson  = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
  
         webTestClient.post().uri("/api/projects")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
@@ -160,7 +160,7 @@ public class ProjectControllerTest {
             .bodyValue(userJson)
             .exchange();
  
-        String projectJson  = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
  
         Project project =  webTestClient.post().uri("/api/projects")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
@@ -170,7 +170,7 @@ public class ProjectControllerTest {
             .returnResult()
             .getResponseBody();
         
-        String projectUpdatedJson  = "{ 'name': 'Christmas show 2.0', 'description': 'Winter show with santa and its elfs', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26'}".replace('\'', '"');
+        String projectUpdatedJson = "{ 'name': 'Christmas show 2.0', 'description': 'Winter show with santa and its elfs', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26'}".replace('\'', '"');
  
         webTestClient.put().uri("/api/projects/" + project.getId())
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
@@ -186,7 +186,7 @@ public class ProjectControllerTest {
 
      @Test
     public void testUpdateProjectNotFound() {        
-        String projectUpdatedJson  = "{ 'name': 'Christmas show 2.0', 'description': 'Winter show with santa and its elfs', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26'}".replace('\'', '"');
+        String projectUpdatedJson = "{ 'name': 'Christmas show 2.0', 'description': 'Winter show with santa and its elfs', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26'}".replace('\'', '"');
  
         webTestClient.put().uri("/api/projects/1")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)

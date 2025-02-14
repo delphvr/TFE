@@ -5,7 +5,7 @@ import calendarapp.model.User;
 import calendarapp.repository.ProjectRepository;
 import calendarapp.repository.UserRepository;
 import calendarapp.request.CreateProjectRequest;
-import calendarapp.request.CreateUserRoleRequest;
+import calendarapp.request.CreateUserProjectRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +62,7 @@ public class ProjectService {
         project = projectRepository.save(project);
         ArrayList<String> role = new ArrayList<>();
         role.add("Organizer");
-        CreateUserRoleRequest userPRojectRequest = new CreateUserRoleRequest(user.get().getId(), project.getId(), role);
+        CreateUserProjectRequest userPRojectRequest = new CreateUserProjectRequest(user.get().getEmail(), project.getId(), role);
         userProjectService.createUserProject(userPRojectRequest);
         return project;
     }

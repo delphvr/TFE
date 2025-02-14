@@ -188,3 +188,34 @@ PUT "http://localhost:8080/api/projects/{id}"
 
 - `200 OK`: Project successfully updated.
 - `404 Not Found`: No project found with the given ID.
+
+### Add a user to the project
+
+```
+POST "http://localhost:8080/api/userProjects"
+```
+
+**Request Body Example**:
+
+```
+{
+    "userEmail": "eve.ld@mail.com",
+    "projectId": 3,
+    "roles": ["Danseur", "Organizer"]
+}
+```
+
+**If successful return** e.g: 
+```
+{
+    "projectId": 3,
+    "userId": 2,
+    "roles": ["Danseur", "Organizer"]
+}
+```
+
+**Possible Response Codes:**
+
+- `201 Created`: User successfully added to the project with roles.
+- `404 Not Found`: No user or project found with the given email or id.
+- `400 Bad Request`: Invalid request body, such as a malformed email or missing fields.
