@@ -8,6 +8,7 @@ class ProjectElement extends StatefulWidget {
   final String? description;
   final String? beginningDate;
   final String? endingDate;
+  final VoidCallback onUpdate;
 
   const ProjectElement({
     super.key,
@@ -16,6 +17,7 @@ class ProjectElement extends StatefulWidget {
     this.description,
     this.beginningDate,
     this.endingDate,
+    required this.onUpdate,
   });
 
   @override
@@ -55,15 +57,8 @@ class _ProjectElementState extends State<ProjectElement> {
                 endingDate: endingDate,
               ),
             ),
-          ).then((updatedProject) {
-            if (updatedProject != null) {
-              setState(() {
-                name = updatedProject['name'];
-                description = updatedProject['description'];
-                beginningDate = updatedProject['beginningDate'];
-                endingDate = updatedProject['endingDate'];
-              });
-            }
+          ).then((_) {
+            widget.onUpdate();
           });
         },
         child: Container(

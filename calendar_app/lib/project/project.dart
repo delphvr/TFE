@@ -17,6 +17,13 @@ class ProjectPage extends StatefulWidget {
 
 class _ProjectPageState extends State<ProjectPage> {
   final user = FirebaseAuth.instance.currentUser!;
+  late Future<List>? projects;
+
+  @override
+  void initState() {
+    super.initState();
+    projects = getProjects(context);
+  }
 
   void logout() {
     FirebaseAuth.instance.signOut();
@@ -55,6 +62,12 @@ class _ProjectPageState extends State<ProjectPage> {
     }
   }
 
+  void refreshProjects() {
+    setState(() {
+      projects = getProjects(context);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,7 +96,9 @@ class _ProjectPageState extends State<ProjectPage> {
                     context,
                     MaterialPageRoute(builder: (context) => NewProjectPage()),
                   ).then((_) {
-                    setState(() {});
+                    setState(() {
+                        projects = getProjects(context);
+                      });
                   });
                 },
               ),
@@ -91,9 +106,17 @@ class _ProjectPageState extends State<ProjectPage> {
             const SizedBox(height: 25),
             Expanded(
               child: FutureBuilder<List>(
-                future: getProjects(context),
+                future: projects,
                 builder: (context, snapshot) {
-                  if (snapshot.hasData) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text("Erreur: ${snapshot.error}"),
+                    );
+                  } else if (snapshot.hasData) {
                     final projects = snapshot.data!;
 
                     return ListView.builder(
@@ -105,12 +128,13 @@ class _ProjectPageState extends State<ProjectPage> {
                           description: projects[index]['description'],
                           beginningDate: projects[index]['beginningDate'],
                           endingDate: projects[index]['endingDate'],
+                          onUpdate: refreshProjects,
                         );
                       },
                     );
                   } else {
                     return const Center(
-                      child: CircularProgressIndicator(),
+                      child: Text('Aucun projet trouvé'),
                     );
                   }
                 },

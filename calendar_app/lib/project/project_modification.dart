@@ -54,15 +54,6 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop({
-            'name': name,
-            'description': description,
-            'beginningDate': beginningDate,
-            'endingDate': endingDate,
-          }),
-        ),
         actions: [
           IconButton(
             onPressed: () {

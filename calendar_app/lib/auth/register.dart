@@ -313,9 +313,16 @@ class _RegisterState extends State<Register> {
                             });
                           },
                         ),
-                        const Text(
-                          'Oui',
-                          style: TextStyle(fontSize: 18),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isOrganizer = true;
+                            });
+                          },
+                          child: const Text(
+                            'Oui',
+                            style: TextStyle(fontSize: 18),
+                          ),
                         ),
                       ],
                     ),
@@ -330,9 +337,16 @@ class _RegisterState extends State<Register> {
                             });
                           },
                         ),
-                        const Text(
-                          'Non',
-                          style: TextStyle(fontSize: 18),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isOrganizer = false;
+                            });
+                          },
+                          child: const Text(
+                            'Non',
+                            style: TextStyle(fontSize: 18),
+                          ),
                         ),
                       ],
                     ),
