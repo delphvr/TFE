@@ -121,4 +121,21 @@ public class UserProjectService {
         }
         return res;
     }
+
+    public List<User> getProjectUsers(Long id){
+        List<User> res = new ArrayList<>();
+        Optional<Project> projcet = projectRepository.findById(id);
+        if (!projcet.isPresent()) {
+            throw new IllegalArgumentException("Project not found with id " + id);
+        }
+        List<UserProject> userProjects = userProjectRepository.findByProjectId(id);
+        if (userProjects.isEmpty()) {
+            return res;
+        }
+        for (UserProject userProject : userProjects) {
+            Optional<User> user = userRepository.findById(userProject.getUserId());
+            res.add(user.get());
+        }
+        return res;
+    }
 }

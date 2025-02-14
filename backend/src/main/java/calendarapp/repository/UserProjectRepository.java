@@ -9,4 +9,5 @@ import calendarapp.model.UserProjectId;
 public interface UserProjectRepository extends JpaRepository<UserProject, UserProjectId> {
     List<UserProject> findByUserIdAndRole(Long userId, String role);
     List<UserProject> findByUserId(Long userId);
+    List<UserProject> findByProjectId(Long projectId);
 }

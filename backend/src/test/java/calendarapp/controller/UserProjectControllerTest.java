@@ -295,4 +295,65 @@ public class UserProjectControllerTest {
             .expectStatus().isNotFound();
     }
 
+    /*
+     * Get user participating in the project
+     */
+
+    @Test
+    public void testGetProjectUsers() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+
+        webTestClient.post().uri("/api/users")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJson)
+            .exchange();
+
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': false}"
+            .replace('\'', '"');
+
+        webTestClient.post().uri("/api/users")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(user2Json)
+            .exchange();
+
+        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+
+        Project project =  webTestClient.post().uri("/api/projects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(projectJson)
+            .exchange()
+            .expectBody(Project.class)
+            .returnResult()
+            .getResponseBody();
+
+        String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
+                + ", 'roles':  ['Danseur']}"
+                        .replace('\'', '"');
+
+        webTestClient.post().uri("/api/userProjects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userProjectJson)
+            .exchange();
+
+        webTestClient.get().uri("/api/userProjects/" + project.getId())
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.length()").isEqualTo(2) 
+            .jsonPath("$[0].email").isEqualTo("del.vr@mail.com") 
+            .jsonPath("$[0].firstName").isEqualTo("Del") 
+            .jsonPath("$[0].lastName").isEqualTo("vr")
+            .jsonPath("$[1].email").isEqualTo("eve.ld@mail.com")
+            .jsonPath("$[1].firstName").isEqualTo("eve")
+            .jsonPath("$[0].lastName").isEqualTo("vr");
+    }
+
+    @Test
+    public void testGetProjectUsersNotFound() {
+        webTestClient.get().uri("/api/userProjects/1")
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+
 }
