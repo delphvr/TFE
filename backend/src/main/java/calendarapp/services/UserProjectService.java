@@ -140,4 +140,25 @@ public class UserProjectService {
         }
         return new ArrayList<>(res); 
     }
+
+    public void deleteUserProject(Long projectId, Long userId) {
+        userProjectRepository.deleteByProjectIdAndUserId(projectId, userId);
+    }
+
+    public List<String> getUserRolesForProject(Long userId, Long projectId){
+        Optional<Project> projcet = projectRepository.findById(projectId);
+        if (!projcet.isPresent()) {
+            throw new IllegalArgumentException("Project not found with id " + projectId);
+        }
+        Optional<User> user = userRepository.findById(userId);
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found with id " + userId);
+        }
+        List<String> res = new ArrayList<>();
+        List<UserProject> userProjects = userProjectRepository.findByUserIdAndProjectId(userId, projectId);
+        for (UserProject userProject : userProjects){
+            res.add(userProject.getRole());
+        }
+        return res;
+    }
 }

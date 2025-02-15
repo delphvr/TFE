@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
 @RequestMapping("/api")
-@Validated  
+@Validated
 public class UserProjectController {
 
     @Autowired
@@ -49,14 +49,10 @@ public class UserProjectController {
         return new ResponseEntity<>(createdUserProjects, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/userProject")
-    public ResponseEntity<HttpStatus> deleteUserProject(@RequestBody UserProject request) {
-        try {
-            userProjectService.deleteUserProject(request);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @DeleteMapping("userProjects/{projectId}/users/{userId}")
+    public ResponseEntity<HttpStatus> deleteUserProject(@PathVariable Long projectId, @PathVariable Long userId) {
+        userProjectService.deleteUserProject(projectId, userId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/userProjects")
@@ -79,5 +75,11 @@ public class UserProjectController {
     public ResponseEntity<List<User>> getProjectUsers(@PathVariable("id") Long id) {
         List<User> organizerProject = userProjectService.getProjectUsers(id);
         return new ResponseEntity<>(organizerProject, HttpStatus.OK);
+    }
+
+    @GetMapping("/projects/{projectId}/users/{userId}/roles")
+    public ResponseEntity<List<String>> getUserRoles(@PathVariable Long projectId, @PathVariable Long userId) {
+        List<String> roles = userProjectService.getUserRolesForProject(userId, projectId);
+        return new ResponseEntity<>(roles, HttpStatus.OK);
     }
 }

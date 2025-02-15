@@ -354,4 +354,94 @@ public class UserProjectControllerTest {
             .expectStatus().isNotFound();
     }
 
+    /*
+     * Get teh user roles in the project
+     */
+
+    @Test
+    public void testGetRoles() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+
+        User user = webTestClient.post().uri("/api/users")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJson)
+            .exchange()
+            .expectBody(User.class)
+            .returnResult()
+            .getResponseBody();
+
+        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+
+        Project project =  webTestClient.post().uri("/api/projects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(projectJson)
+            .exchange()
+            .expectBody(Project.class)
+            .returnResult()
+            .getResponseBody();
+
+        String userProjectJson = "{ 'userEmail': 'del.vr@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
+                + ", 'roles':  ['Danseur']}"
+                        .replace('\'', '"');
+
+        webTestClient.post().uri("/api/userProjects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userProjectJson)
+            .exchange();
+
+        webTestClient.get().uri("/api/projects/" + project.getId() + "/users/" + user.getId() + "/roles")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.length()").isEqualTo(2)
+            .jsonPath("$[*]").value(hasItems("Organizer", "Danseur"));
+    }
+
+    @Test
+    public void testGetRoleProjectNotFound() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+
+        User user = webTestClient.post().uri("/api/users")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJson)
+            .exchange()
+            .expectBody(User.class)
+            .returnResult()
+            .getResponseBody();
+
+        webTestClient.get().uri("/api/projects/0/users/" + user.getId() + "/roles")
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+
+    @Test
+    public void testGetRolesUserNotFound() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+
+        User user = webTestClient.post().uri("/api/users")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userJson)
+            .exchange()
+            .expectBody(User.class)
+            .returnResult()
+            .getResponseBody();
+
+        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+
+        Project project =  webTestClient.post().uri("/api/projects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(projectJson)
+            .exchange()
+            .expectBody(Project.class)
+            .returnResult()
+            .getResponseBody();
+
+        webTestClient.get().uri("/api/projects/" + project.getId() +1 + "/users/" + user.getId() + "/roles")
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+
 }

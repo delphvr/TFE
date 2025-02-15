@@ -274,3 +274,23 @@ POST "http://localhost:8080/api/userProjects/{id}"
 
 - `20O OK`: Successfully retrieves all the user of the project with the given id.
 - `404 Not Found`: No Project found with the given id.
+
+### Get the user roles in the project
+
+```
+POST "http://localhost:8080/api/projects/{projectId}/users/{userId}/roles"
+```
+
+
+**If successful return** e.g: 
+```
+[
+    "Organizer",
+    "Danseur"
+]
+```
+
+**Possible Response Codes:**
+
+- `20O OK`: Successfully retrieves all roles of the user with the given id for the project with the given id.
+- `404 Not Found`: No user or project found with the given id.
