@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import static org.hamcrest.Matchers.hasItems;
 
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -340,13 +341,10 @@ public class UserProjectControllerTest {
             .exchange()
             .expectStatus().isOk()
             .expectBody()
-            .jsonPath("$.length()").isEqualTo(2) 
-            .jsonPath("$[0].email").isEqualTo("del.vr@mail.com") 
-            .jsonPath("$[0].firstName").isEqualTo("Del") 
-            .jsonPath("$[0].lastName").isEqualTo("vr")
-            .jsonPath("$[1].email").isEqualTo("eve.ld@mail.com")
-            .jsonPath("$[1].firstName").isEqualTo("eve")
-            .jsonPath("$[0].lastName").isEqualTo("vr");
+            .jsonPath("$.length()").isEqualTo(2)
+            .jsonPath("$[*].email").value(hasItems("del.vr@mail.com", "eve.ld@mail.com"))
+            .jsonPath("$[*].firstName").value(hasItems("Del", "eve"))
+            .jsonPath("$[*].lastName").value(hasItems("vr", "ld"));
     }
 
     @Test

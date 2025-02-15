@@ -65,14 +65,14 @@ DELETE "/api/users/{id}"
 GET "/api/users/organizer/{mail}"
 ```
 
-**If successful return boolean value** e.g: 
+**If successful return Boolean value** e.g: 
 ```
 true
 ```
 
 **Possible Response Codes:**
 
-- `200 OK`: Value successfully retreived.
+- `200 OK`: Value successfully retrieved.
 - `404 Not Found`: No user found with that email address.
 
 ## Profession
@@ -93,7 +93,7 @@ GET "/api/professions"
 
 **Possible Response Codes:**
 
-- `200 OK`: Value successfully retreived.
+- `200 OK`: Value successfully retrieved.
 - `204 No Content`: No professions present in the database.
 
 ## Project
@@ -130,7 +130,7 @@ POST "http://localhost:8080/api/projects"
 **Possible Response Codes:**
 
 - `201 Created`: Project successfully created.
-- `400 Bad Request`: Invalid request body, invalid email, ending date befor begining date, ... .
+- `400 Bad Request`: Invalid request body, invalid email, ending date before beginning date, ... .
 
 ### Get the projects of a user
 
@@ -153,7 +153,7 @@ GET "http://localhost:8080/api/projects/user/{email}"
 
 **Possible Response Codes:**
 
-- `200 OK`: Successfully retreive the list of projects of that user.
+- `200 OK`: Successfully retrieve the list of projects of that user.
 - `404 Not Found`: No user found with the given email.
 
 ### Update a project
@@ -231,8 +231,8 @@ POST "http://localhost:8080/api/userProjects/organizer/{mail}"
 ```
 [
     {
-        "id":20,
-        "name":"Christmas show 2.0",
+        "id": 20,
+        "name": "Christmas show 2.0",
         "description": "Winter show with Santa and its elves",
         "beginningDate": "2020-07-01",
         "endingDate": "2020-12-26"
@@ -242,5 +242,35 @@ POST "http://localhost:8080/api/userProjects/organizer/{mail}"
 
 **Possible Response Codes:**
 
-- `20O OK`: Successfully retreive all the project of the organizer.
+- `20O OK`: Successfully retrieves all the project of the organizer.
 - `404 Not Found`: No user found with the given email.
+
+### Get the users participating in the project
+
+```
+POST "http://localhost:8080/api/userProjects/{id}"
+```
+
+
+**If successful return** e.g: 
+```
+[
+    {
+        "id": 18,
+        "firstName": "Del",
+        "lastName": "vr",
+        "email":"del.vr@mail.com"
+    },
+    {
+        "id": 19,
+        "firstName": "Eve",
+        "lastName": "ld",
+        "email": "eve.ln@mail.com"
+    }
+]
+```
+
+**Possible Response Codes:**
+
+- `20O OK`: Successfully retrieves all the user of the project with the given id.
+- `404 Not Found`: No Project found with the given id.

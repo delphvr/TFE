@@ -18,9 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserProjectService {
@@ -93,16 +95,16 @@ public class UserProjectService {
             throw new IllegalArgumentException("User not found with email " + email);
         }
         Long userId = user.get().getId();
-        List<Project> res = new ArrayList<>();
+        Set<Project> res = new HashSet<>();
         List<UserProject> userProjects = userProjectRepository.findByUserIdAndRole(userId, "Organizer");
         if (userProjects.isEmpty()) {
-            return res;
+            return new ArrayList<>(res);
         }
         for (UserProject userProject : userProjects) {
             Optional<Project> p = projectRepository.findById(userProject.getProjectId());
             res.add(p.get());
         }
-        return res;
+        return new ArrayList<>(res);
     }
 
     public List<Long> getUserProjects(String email) {
@@ -123,19 +125,19 @@ public class UserProjectService {
     }
 
     public List<User> getProjectUsers(Long id){
-        List<User> res = new ArrayList<>();
+        Set<User> res = new HashSet<>();
         Optional<Project> projcet = projectRepository.findById(id);
         if (!projcet.isPresent()) {
             throw new IllegalArgumentException("Project not found with id " + id);
         }
         List<UserProject> userProjects = userProjectRepository.findByProjectId(id);
         if (userProjects.isEmpty()) {
-            return res;
+            return new ArrayList<>(res);
         }
         for (UserProject userProject : userProjects) {
             Optional<User> user = userRepository.findById(userProject.getUserId());
             res.add(user.get());
         }
-        return res;
+        return new ArrayList<>(res); 
     }
 }
