@@ -1,4 +1,4 @@
-import 'package:calendar_app/project/new_project.dart';
+import 'package:calendar_app/project/particpipant_modification.dart';
 import 'package:flutter/material.dart';
 
 class UsersElement extends StatefulWidget {
@@ -41,7 +41,7 @@ class _UsersElementState extends State<UsersElement> {
       child: GestureDetector(
         onTap: () {
           Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => NewProjectPage()))
+                  MaterialPageRoute(builder: (context) => ParticpipantModificationPage(projectId: widget.projectId, userId: widget.userId, lastName: widget.lastName, firstName: widget.firstName, email: widget.email,)))
               .then((_) {
             widget.onUpdate();
           });

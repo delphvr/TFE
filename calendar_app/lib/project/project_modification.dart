@@ -1,7 +1,7 @@
 import 'package:calendar_app/auth/auth.dart';
 import 'package:calendar_app/project/add_participant.dart';
 import 'package:calendar_app/project/update_project.dart';
-import 'package:calendar_app/project/users_element.dart';
+import 'package:calendar_app/project/participant_element.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
