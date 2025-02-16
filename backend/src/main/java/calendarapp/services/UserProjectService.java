@@ -190,7 +190,7 @@ public class UserProjectService {
                 userProjectRepository.deleteByProjectIdAndUserIdAndRole(projectId, userId, role);
             }
         }
-        if (!roleFound){
+        if (!roleFound) {
             throw new IllegalArgumentException("Role " + role + " not found.");
         }
         if (userProjects.size() == 1 && roleFound) {
@@ -202,6 +202,46 @@ public class UserProjectService {
             UserProject userProject = new UserProject(userId, projectId, "Non défini");
             userProjectRepository.save(userProject);
         }
+    }
+
+    @Transactional
+    public UserProjectResponse addUserRolesToUserInProject(Long userId, Long projectId, List<String> roles) {
+        Optional<User> user = userRepository.findById(userId);
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found with id " + userId);
+        }
+        Optional<Project> project = projectRepository.findById(projectId);
+        if (!project.isPresent()) {
+            throw new IllegalArgumentException("Project not found with id " + projectId);
+        }
+        List<String> addedRoles = new ArrayList<>();
+        for (String role : roles) {
+            Optional<Role> existingRole = roleRepository.findById(role);
+            if (!existingRole.isPresent()) {
+                Role newRole = new Role(role);
+                roleRepository.save(newRole);
+            }
+            Optional<UserProject> existingUserProject = userProjectRepository
+                    .findById(new UserProjectId(userId, projectId, role));
+            if (!existingUserProject.isPresent()) {
+                if ("Organizer".equals(role)) {
+                    Organizer organizer = new Organizer(userId);
+                    organizerRepository.save(organizer);
+                }
+                UserProject userProject = new UserProject(userId, projectId, role);
+                userProjectRepository.save(userProject);
+                addedRoles.add(role);
+            }
+        }
+        if (addedRoles.size() > 0 && !addedRoles.contains("Non défini")) {
+            Optional<UserProject> userProject = userProjectRepository
+                    .findById(new UserProjectId(userId, projectId, "Non défini"));
+            if (userProject.isPresent()) {
+                UserProjectId id = new UserProjectId(userId, projectId, "Non défini");
+                userProjectRepository.deleteById(id);
+            }
+        }
+        return new UserProjectResponse(userId, projectId, addedRoles);
     }
 
 }

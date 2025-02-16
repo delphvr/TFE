@@ -442,4 +442,52 @@ public class UserProjectControllerTest {
             .jsonPath("$[*]").value(hasItems("Non défini"));
     }
 
+    /*
+     * Tests add roles
+     */
+
+    @Test
+    public void testAddRole() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+        pushUser(userJson);
+
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': false}"
+            .replace('\'', '"');
+        User user = pushUser(user2Json);
+
+        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        Project project =  pushProject(projectJson);
+
+        String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
+                + ", 'roles':  ['Danseur', 'Organizer']}"
+                        .replace('\'', '"');
+
+        webTestClient.post().uri("/api/userProjects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userProjectJson)
+            .exchange();
+
+        String roles =  "{'roles': ['Metteur en scène', 'Directeur artistique']}"
+                .replace('\'', '"');
+
+        webTestClient.post().uri("/api/projects/" + project.getId() + "/users/" + user.getId() + "/roles")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(roles)
+            .exchange()
+            .expectStatus().isCreated()
+            .expectBody()
+            .jsonPath("$.projectId").isEqualTo(project.getId())
+            .jsonPath("$.userId").isEqualTo(user.getId())
+            .jsonPath("$.role").isArray()
+            .jsonPath("$.role[*]").value(hasItems("Metteur en scène", "Directeur artistique"));
+
+        webTestClient.get().uri("/api/projects/" + project.getId() + "/users/" + user.getId() + "/roles")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.length()").isEqualTo(4)
+            .jsonPath("$[*]").value(hasItems("Organizer", "Danseur", "Metteur en scène", "Directeur artistique"));
+    }
+
 }

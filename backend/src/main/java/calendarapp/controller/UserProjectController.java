@@ -4,6 +4,7 @@ import calendarapp.model.Project;
 import calendarapp.model.User;
 import calendarapp.model.UserProject;
 import calendarapp.request.CreateUserProjectRequest;
+import calendarapp.request.RolesRequest;
 import calendarapp.response.UserProjectResponse;
 import calendarapp.services.UserProjectService;
 import jakarta.validation.Valid;
@@ -49,6 +50,12 @@ public class UserProjectController {
         return new ResponseEntity<>(createdUserProjects, HttpStatus.CREATED);
     }
 
+    @PostMapping("/projects/{projectId}/users/{userId}/roles")
+    public ResponseEntity<UserProjectResponse> addUserRoles(@PathVariable Long projectId, @PathVariable Long userId, @RequestBody RolesRequest roles) {
+        UserProjectResponse response = userProjectService.addUserRolesToUserInProject(userId, projectId, roles.getRoles());
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
     @DeleteMapping("userProjects/{projectId}/users/{userId}")
     public ResponseEntity<HttpStatus> deleteUserProject(@PathVariable Long projectId, @PathVariable Long userId) {
         userProjectService.deleteUserProject(projectId, userId);
@@ -84,7 +91,8 @@ public class UserProjectController {
     }
 
     @DeleteMapping("/projects/{projectId}/users/{userId}/roles/{role}")
-    public ResponseEntity<HttpStatus> deleteUserRole(@PathVariable Long projectId, @PathVariable Long userId, @PathVariable String role) {
+    public ResponseEntity<HttpStatus> deleteUserRole(@PathVariable Long projectId, @PathVariable Long userId,
+            @PathVariable String role) {
         userProjectService.deleteUserRole(projectId, userId, role);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

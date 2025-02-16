@@ -228,7 +228,7 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
                       );
                     } else {
                       return const Center(
-                        child: Text('Aucun projet trouvé'),
+                        child: Text('Aucun participant trouvé'),
                       );
                     }
                   },

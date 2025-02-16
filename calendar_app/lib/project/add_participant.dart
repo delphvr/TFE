@@ -60,9 +60,11 @@ class _AddParticipant extends State<AddParticipant> {
 
       if (response.statusCode == 200) {
         List<dynamic> jsonData = json.decode(utf8.decode(response.bodyBytes));
-        return jsonData.isEmpty
+        List<Role> res = jsonData.isEmpty
             ? []
             : jsonData.map((json) => Role.fromJson(json)).toList();
+         res.removeWhere((role) => role.name == "Non défini");
+        return res;
       } else if (response.statusCode == 204) {
         return [];
       } else {
@@ -192,7 +194,7 @@ class _AddParticipant extends State<AddParticipant> {
                         selectedRoles = selectedList;
                       });
                     },
-                    title: "Sélectionnez vos rôles",
+                    title: "Sélectionnez les rôles",
                     buttonLabel: "Valider",
                     itemLabel: (role) => role.name,
                     textfield: "Roles",

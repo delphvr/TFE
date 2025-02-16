@@ -1,6 +1,6 @@
 import 'package:calendar_app/auth/auth.dart';
-import 'package:calendar_app/project/new_project.dart';
 import 'package:calendar_app/project/role_element.dart';
+import 'package:calendar_app/project/role_modification.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/components/button_custom.dart';
@@ -170,7 +170,7 @@ class _ParticpipantModificationPage
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => NewProjectPage()),
+                  MaterialPageRoute(builder: (context) => RoleModificationPage(projectId: widget.projectId, userId: widget.userId, firstName: widget.firstName, lastName: widget.lastName,)),
                 ).then((_) {
                   refreshRoles();
                 });
