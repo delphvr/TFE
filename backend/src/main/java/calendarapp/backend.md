@@ -298,7 +298,7 @@ POST "http://localhost:8080/api/projects/{projectId}/users/{userId}/roles"
 ### Delete a user role in the project
 
 ```
-POST "http://localhost:8080/api/projects/{projectId}/users/{userId}/roles/{role}"
+DELETE "http://localhost:8080/api/projects/{projectId}/users/{userId}/roles/{role}"
 ```
 
 **Possible Response Codes:**
@@ -335,3 +335,14 @@ POST "http://localhost:8080/api/projects/{projectId}/users/{userId}/roles"
 
 - `201 Created`: User roles successfully added to the project.
 - `404 Not Found`: No Project or user found with the given id.
+
+### Delete a project
+
+```
+DELETE "http://localhost:8080/api/projects/{projectId}"
+```
+
+**Possible Response Codes:**
+
+- `204 No Content`: Successfully delete the project with the given id.
+- `404 Not Found`: No project or role found with the given id.

@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import calendarapp.Utils;
 import calendarapp.model.Project;
 import calendarapp.repository.ProjectRepository;
 import calendarapp.repository.UserRepository;
@@ -41,11 +42,7 @@ public class ProjectControllerTest {
     public void testCreateProject() {
         String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
             .replace('\'', '"');
-
-        webTestClient.post().uri("/api/users")
-            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-            .bodyValue(userJson)
-            .exchange();
+        Utils.pushUser(userJson, webTestClient);
 
         String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
 
@@ -76,11 +73,7 @@ public class ProjectControllerTest {
     public void testCreateProjectWrongDateOrder() {
         String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
             .replace('\'', '"');
-
-        webTestClient.post().uri("/api/users")
-            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-            .bodyValue(userJson)
-            .exchange();
+        Utils.pushUser(userJson, webTestClient);
 
         String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-06-29', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
 
@@ -99,18 +92,10 @@ public class ProjectControllerTest {
      public void testGetUserProjects() {
         String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
             .replace('\'', '"');
- 
-        webTestClient.post().uri("/api/users")
-            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-            .bodyValue(userJson)
-            .exchange();
+        Utils.pushUser(userJson, webTestClient);
  
         String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
- 
-        webTestClient.post().uri("/api/projects")
-            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-            .bodyValue(projectJson)
-            .exchange();
+        Utils.pushProject(projectJson, webTestClient);
         
         webTestClient.get().uri("/api/projects/user/del.vr@mail.com")
             .exchange()
@@ -126,11 +111,7 @@ public class ProjectControllerTest {
      public void testGetUserProjectsEmpty() {
         String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
             .replace('\'', '"');
- 
-        webTestClient.post().uri("/api/users")
-            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-            .bodyValue(userJson)
-            .exchange();
+        Utils.pushUser(userJson, webTestClient);
         
         webTestClient.get().uri("/api/projects/user/del.vr@mail.com")
             .exchange()
@@ -146,29 +127,18 @@ public class ProjectControllerTest {
             .expectStatus().isNotFound();
      }
 
-     /*
-      * Tests update a project
-      */
+    /*
+     * Tests update a project
+     */
 
     @Test
     public void testUpdateProject() {
         String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
             .replace('\'', '"');
- 
-        webTestClient.post().uri("/api/users")
-            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-            .bodyValue(userJson)
-            .exchange();
+        Utils.pushUser(userJson, webTestClient);
  
         String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
- 
-        Project project =  webTestClient.post().uri("/api/projects")
-            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-            .bodyValue(projectJson)
-            .exchange()
-            .expectBody(Project.class)
-            .returnResult()
-            .getResponseBody();
+        Project project =  Utils.pushProject(projectJson, webTestClient);
         
         String projectUpdatedJson = "{ 'name': 'Christmas show 2.0', 'description': 'Winter show with santa and its elfs', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26'}".replace('\'', '"');
  
@@ -193,6 +163,37 @@ public class ProjectControllerTest {
             .bodyValue(projectUpdatedJson)
             .exchange()
             .expectStatus().isNotFound();
-     }
-    
+    }
+
+    /*
+     * Tests update a project
+     */
+
+    @Test
+    public void testDeleteProject() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+        Utils.pushUser(userJson, webTestClient);
+
+        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        Project project =  Utils.pushProject(projectJson, webTestClient);
+
+        webTestClient.delete().uri("/api/projects/" + project.getId())
+            .exchange()
+            .expectStatus().isNoContent();
+
+        webTestClient.get().uri("/api/projects/user/del.vr@mail.com")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .json("[]");
+    }
+
+    @Test
+    public void testDeleteProjectNotFound() {
+        webTestClient.delete().uri("/api/projects/1")
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+     
 }

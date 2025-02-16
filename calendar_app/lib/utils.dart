@@ -37,4 +37,30 @@ static void errorMess(String title, String message, BuildContext context) {
         .hasMatch(email);
   }
 
+  static void confirmation(String title, String message, Function act, BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('annuler'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  act();
+                },
+                child: const Text('oui'),
+              ),
+            ]);
+      },
+    );
+  }
+
 }

@@ -81,12 +81,16 @@ public class ProjectService {
         }
     }
 
-    public void deleteProject(long id) {
-        projectRepository.deleteById(id);
-    }
-
     public void deleteAllProjects() {
         projectRepository.deleteAll();
+    }
+
+    public void deleteProject(Long id){
+        Optional<Project> project = projectRepository.findById(id);
+        if (!project.isPresent()) {
+            throw new IllegalArgumentException("Project not found with id " + id);
+        }
+        projectRepository.deleteById(id);
     }
 
 }

@@ -84,6 +84,22 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
     onLogoutSuccess();
   }
 
+  void deleteProject() async{
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/projects/${widget.id}';
+    try {
+      final response = await http.delete(Uri.parse(url));
+
+      if (response.statusCode != 204) {
+        Utils.errorMess('Erreur lors de la suppression du project', 'Merci de réessayer plus tard', context);
+      }else{
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      Utils.errorMess('Erreur lors de la suppression du project', 'Merci de réessayer plus tard', context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -251,6 +267,13 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
                       users = getUsersOnProject(context);
                     });
                   });
+                },
+              ),
+              const SizedBox(height: 25),
+              ButtonCustom(
+                text: 'Suprimmer le projet',
+                onTap: () {
+                  Utils.confirmation('Action Irrévesible', 'Êtes-vous sûre de vouloir supprimer le projet ?', deleteProject, context);
                 },
               ),
             ],
