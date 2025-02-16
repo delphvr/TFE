@@ -61,7 +61,6 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
     onLogoutSuccess();
   }
 
-
   void update(BuildContext context) async {
     final projectName = titleController.text;
     final description = descriptionController.text;
@@ -69,14 +68,17 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
     final endingDate = endingDateController.text;
 
     if (projectName.isEmpty) {
-      Utils.errorMess('Erreur lors de la modification du project', 'Veuillez donner un nom au project.', context);
+      Utils.errorMess('Erreur lors de la modification du project',
+          'Veuillez donner un nom au project.', context);
       return;
     }
 
     if (beginningDate.isNotEmpty && endingDate.isNotEmpty) {
       if (DateTime.parse(beginningDate).isAfter(DateTime.parse(endingDate))) {
-        Utils.errorMess('Erreur lors de la modification du project', 
-            'La date de fin du projet ne peut pas avoir lieu avant la date de début.', context);
+        Utils.errorMess(
+            'Erreur lors de la modification du project',
+            'La date de fin du projet ne peut pas avoir lieu avant la date de début.',
+            context);
         return;
       }
     }
@@ -107,11 +109,14 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
           });
         }
       } else {
-        Utils.errorMess('Erreur lors de la modification du project', 
-            'Erreur lors de la modification du projet. Merci de réessayez plus tard.', context);
+        Utils.errorMess(
+            'Erreur lors de la modification du project',
+            'Erreur lors de la modification du projet. Merci de réessayez plus tard.',
+            context);
       }
     } catch (e) {
-      Utils.errorMess('Erreur lors de la modification du project', 'Impossible de se connecter au serveur.', context);
+      Utils.errorMess('Erreur lors de la modification du project',
+          'Impossible de se connecter au serveur.', context);
     }
   }
 

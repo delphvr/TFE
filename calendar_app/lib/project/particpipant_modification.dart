@@ -1,6 +1,7 @@
 import 'package:calendar_app/auth/auth.dart';
 import 'package:calendar_app/project/role_element.dart';
 import 'package:calendar_app/project/role_modification.dart';
+import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/components/button_custom.dart';
@@ -65,6 +66,22 @@ class _ParticpipantModificationPage
   void logout(Function onLogoutSuccess) async {
     await FirebaseAuth.instance.signOut();
     onLogoutSuccess();
+  }
+
+  void deleteParticipant() async{
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}';
+    try {
+      final response = await http.delete(Uri.parse(url));
+
+      if (response.statusCode != 204) {
+        Utils.errorMess('Erreur lors de la suppression du participant', 'Merci de réessayer plus tard', context);
+      }else{
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      Utils.errorMess('Erreur lors de la suppression du participant', 'Merci de réessayer plus tard', context);
+    }
   }
 
   @override
@@ -176,6 +193,13 @@ class _ParticpipantModificationPage
                 });
               },
             ),
+            const SizedBox(height: 25),
+              ButtonCustom(
+                text: 'Suprimmer le projet',
+                onTap: () {
+                  Utils.confirmation('Action Irrévesible', 'Êtes-vous sûre de vouloir supprimer le participant du projet ?', deleteParticipant, context);
+                },
+              ),
           ],
         ),
       ),

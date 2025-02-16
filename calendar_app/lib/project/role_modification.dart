@@ -65,7 +65,7 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
         List<Role> res = jsonData.isEmpty
             ? []
             : jsonData.map((json) => Role.fromJson(json)).toList();
-         res.removeWhere((role) => role.name == "Non défini");
+        res.removeWhere((role) => role.name == "Non défini");
         return res;
       } else if (response.statusCode == 204) {
         return [];
@@ -95,37 +95,38 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
   }
 
   void addUserRole(BuildContext context) async {
-    final String url = '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles';
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles';
 
-      final Map<String, dynamic> requestBody = {
-        "roles": selectedRoles.map((p) => p.name).toList(),
-      };
+    final Map<String, dynamic> requestBody = {
+      "roles": selectedRoles.map((p) => p.name).toList(),
+    };
 
-      try {
-        final response = await http.post(
-          Uri.parse(url),
-          headers: {"Content-Type": "application/json"},
-          body: jsonEncode(requestBody),
-        );
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(requestBody),
+      );
 
-        print("DEBUGG : ${requestBody}");
+      print("DEBUGG : ${requestBody}");
 
-        print("DEBUGG : ${response.statusCode}");
+      print("DEBUGG : ${response.statusCode}");
 
+      print("DEBUGG : ${response.body}");
+      if (response.statusCode == 201) {
         print("DEBUGG : ${response.body}");
-        if (response.statusCode == 201) {
-          print("DEBUGG : ${response.body}");
-          if (mounted) {
-            Navigator.pop(context);
-          }
-        } else {
-          Utils.errorMess('Erreur lors de l\'ajout de rôles au participant',
-              'Merci de réessayez plus tard.', context);
+        if (mounted) {
+          Navigator.pop(context);
         }
-      } catch (e) {
+      } else {
         Utils.errorMess('Erreur lors de l\'ajout de rôles au participant',
-            'Impossible de se connecter au serveur.', context);
+            'Merci de réessayez plus tard.', context);
       }
+    } catch (e) {
+      Utils.errorMess('Erreur lors de l\'ajout de rôles au participant',
+          'Impossible de se connecter au serveur.', context);
+    }
   }
 
   void logout(Function onLogoutSuccess) async {
@@ -156,39 +157,46 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
           ),
         ],
       ),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              "Ajout de rôles pour ${widget.lastName} ${widget.firstName}",
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 30,
-              ),
+      body: Center(
+        heightFactor: 3,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(25.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "Ajout de rôles pour ${widget.lastName} ${widget.firstName}",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 27,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                BottomSheetSelector<Role>(
+                  items: roles,
+                  selectedItems: selectedRoles,
+                  onSelectionChanged: (selectedList) {
+                    setState(() {
+                      selectedRoles = selectedList;
+                    });
+                  },
+                  title: "Sélectionnez les rôles à ajouter",
+                  buttonLabel: "Valider",
+                  itemLabel: (role) => role.name,
+                  textfield: "Roles",
+                ),
+                const SizedBox(height: 10),
+                ButtonCustom(
+                  text: 'Ajouter',
+                  onTap: () {
+                    addUserRole(context);
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: 25),
-            BottomSheetSelector<Role>(
-              items: roles,
-              selectedItems: selectedRoles,
-              onSelectionChanged: (selectedList) {
-                setState(() {
-                  selectedRoles = selectedList;
-                });
-              },
-              title: "Sélectionnez les rôles à ajouter",
-              buttonLabel: "Valider",
-              itemLabel: (role) => role.name,
-              textfield: "Roles",
-            ),
-            ButtonCustom(
-              text: 'Ajouter',
-              onTap: () {
-                addUserRole(context);
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );

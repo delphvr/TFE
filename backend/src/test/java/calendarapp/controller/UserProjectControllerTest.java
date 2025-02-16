@@ -469,4 +469,66 @@ public class UserProjectControllerTest {
             .jsonPath("$[*]").value(hasItems("Organizer", "Danseur", "Metteur en scène", "Directeur artistique"));
     }
 
+    /*
+     * Tests remove participant from project
+     */
+
+    @Test
+    public void testDeleteParticipant() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+        Utils.pushUser(userJson, webTestClient);
+
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': false}"
+            .replace('\'', '"');
+        User user = Utils.pushUser(user2Json, webTestClient);
+
+        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        Project project = Utils.pushProject(projectJson, webTestClient);
+
+        String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
+                + ", 'roles':  ['Danseur', 'Organizer']}"
+                        .replace('\'', '"');
+
+        webTestClient.post().uri("/api/userProjects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userProjectJson)
+            .exchange();
+
+        webTestClient.delete().uri("/api/projects/" + project.getId() + "/users/" + user.getId())
+            .exchange()
+            .expectStatus().isNoContent();
+
+        webTestClient.get().uri("/api/projects/user/eve.ld@mail.com")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .json("[]");
+    }
+
+    @Test
+    public void testDeleteParticipantNotFound() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        Project project = Utils.pushProject(projectJson, webTestClient);
+
+        webTestClient.delete().uri("/api/projects/" + project.getId() + "/users/" + user.getId() + 1)
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+
+    @Test
+    public void testDeleteParticipantProjectNotFound() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        webTestClient.delete().uri("/api/projects/0/users/" + user.getId())
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+
 }

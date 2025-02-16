@@ -90,11 +90,6 @@ public class UserProjectService {
         return new UserProjectResponse(userId, request.getProjectId(), roles);
     }
 
-    public void deleteUserProject(UserProject request) {
-        UserProjectId id = new UserProjectId(request.getUserId(), request.getProjectId(), request.getRole());
-        userProjectRepository.deleteById(id);
-    }
-
     public void deleteAllUserProjects() {
         userProjectRepository.deleteAll();
     }
@@ -151,7 +146,16 @@ public class UserProjectService {
         return new ArrayList<>(res);
     }
 
+    @Transactional
     public void deleteUserProject(Long projectId, Long userId) {
+        Optional<Project> projcet = projectRepository.findById(projectId);
+        if (!projcet.isPresent()) {
+            throw new IllegalArgumentException("Project not found with id " + projectId);
+        }
+        Optional<User> user = userRepository.findById(userId);
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found with id " + userId);
+        }
         userProjectRepository.deleteByProjectIdAndUserId(projectId, userId);
     }
 

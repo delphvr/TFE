@@ -56,7 +56,7 @@ public class UserProjectController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("userProjects/{projectId}/users/{userId}")
+    @DeleteMapping("projects/{projectId}/users/{userId}")
     public ResponseEntity<HttpStatus> deleteUserProject(@PathVariable Long projectId, @PathVariable Long userId) {
         userProjectService.deleteUserProject(projectId, userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
