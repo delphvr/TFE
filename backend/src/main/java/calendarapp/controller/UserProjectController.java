@@ -82,4 +82,10 @@ public class UserProjectController {
         List<String> roles = userProjectService.getUserRolesForProject(userId, projectId);
         return new ResponseEntity<>(roles, HttpStatus.OK);
     }
+
+    @DeleteMapping("/projects/{projectId}/users/{userId}/roles/{role}")
+    public ResponseEntity<HttpStatus> deleteUserRole(@PathVariable Long projectId, @PathVariable Long userId, @PathVariable String role) {
+        userProjectService.deleteUserRole(projectId, userId, role);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

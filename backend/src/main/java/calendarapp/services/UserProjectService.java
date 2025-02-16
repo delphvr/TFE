@@ -13,6 +13,7 @@ import calendarapp.repository.UserProjectRepository;
 import calendarapp.repository.UserRepository;
 import calendarapp.request.CreateUserProjectRequest;
 import calendarapp.response.UserProjectResponse;
+import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,6 +76,15 @@ public class UserProjectService {
                 userProjectRepository.save(userProject);
                 roles.add(role);
             }
+        } else {
+            Optional<Role> existingRole = roleRepository.findById("Non défini");
+            if (!existingRole.isPresent()) {
+                Role r = new Role("Non défini");
+                roleRepository.save(r);
+            }
+            UserProject userProject = new UserProject(userId, request.getProjectId(), "Non défini");
+            userProjectRepository.save(userProject);
+            roles.add("Non défini");
         }
 
         return new UserProjectResponse(userId, request.getProjectId(), roles);
@@ -124,7 +134,7 @@ public class UserProjectService {
         return res;
     }
 
-    public List<User> getProjectUsers(Long id){
+    public List<User> getProjectUsers(Long id) {
         Set<User> res = new HashSet<>();
         Optional<Project> projcet = projectRepository.findById(id);
         if (!projcet.isPresent()) {
@@ -138,14 +148,14 @@ public class UserProjectService {
             Optional<User> user = userRepository.findById(userProject.getUserId());
             res.add(user.get());
         }
-        return new ArrayList<>(res); 
+        return new ArrayList<>(res);
     }
 
     public void deleteUserProject(Long projectId, Long userId) {
         userProjectRepository.deleteByProjectIdAndUserId(projectId, userId);
     }
 
-    public List<String> getUserRolesForProject(Long userId, Long projectId){
+    public List<String> getUserRolesForProject(Long userId, Long projectId) {
         Optional<Project> projcet = projectRepository.findById(projectId);
         if (!projcet.isPresent()) {
             throw new IllegalArgumentException("Project not found with id " + projectId);
@@ -156,9 +166,42 @@ public class UserProjectService {
         }
         List<String> res = new ArrayList<>();
         List<UserProject> userProjects = userProjectRepository.findByUserIdAndProjectId(userId, projectId);
-        for (UserProject userProject : userProjects){
+        for (UserProject userProject : userProjects) {
             res.add(userProject.getRole());
         }
         return res;
     }
+
+    @Transactional
+    public void deleteUserRole(Long projectId, Long userId, String role) {
+        Optional<Project> projcet = projectRepository.findById(projectId);
+        if (!projcet.isPresent()) {
+            throw new IllegalArgumentException("Project not found with id " + projectId);
+        }
+        Optional<User> user = userRepository.findById(userId);
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found with id " + userId);
+        }
+        List<UserProject> userProjects = userProjectRepository.findByUserIdAndProjectId(userId, projectId);
+        boolean roleFound = false;
+        for (UserProject userProject : userProjects) {
+            if (userProject.getRole().equals(role)) {
+                roleFound = true;
+                userProjectRepository.deleteByProjectIdAndUserIdAndRole(projectId, userId, role);
+            }
+        }
+        if (!roleFound){
+            throw new IllegalArgumentException("Role " + role + " not found.");
+        }
+        if (userProjects.size() == 1 && roleFound) {
+            Optional<Role> existingRole = roleRepository.findById("Non défini");
+            if (!existingRole.isPresent()) {
+                Role r = new Role("Non défini");
+                roleRepository.save(r);
+            }
+            UserProject userProject = new UserProject(userId, projectId, "Non défini");
+            userProjectRepository.save(userProject);
+        }
+    }
+
 }

@@ -292,5 +292,16 @@ POST "http://localhost:8080/api/projects/{projectId}/users/{userId}/roles"
 
 **Possible Response Codes:**
 
-- `20O OK`: Successfully retrieves all roles of the user with the given id for the project with the given id.
+- `200 OK`: Successfully retrieves all roles of the user with the given id for the project with the given id.
 - `404 Not Found`: No user or project found with the given id.
+
+### Delete a user role in the project
+
+```
+POST "http://localhost:8080/api/projects/{projectId}/users/{userId}/roles/{role}"
+```
+
+**Possible Response Codes:**
+
+- `204 No Content`: Successfully delete the user role in the project.
+- `404 Not Found`: No user or project or role found with the given id.
