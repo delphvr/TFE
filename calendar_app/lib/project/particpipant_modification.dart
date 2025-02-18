@@ -195,7 +195,7 @@ class _ParticpipantModificationPage
             ),
             const SizedBox(height: 25),
               ButtonCustom(
-                text: 'Suprimmer le projet',
+                text: 'Suprimmer le partcipant',
                 onTap: () {
                   Utils.confirmation('Action Irrévesible', 'Êtes-vous sûre de vouloir supprimer le participant du projet ?', deleteParticipant, context);
                 },

@@ -1,6 +1,6 @@
 import 'package:calendar_app/auth/login_or_register.dart';
 import 'package:calendar_app/home.dart';
-import 'package:calendar_app/project/project.dart';
+import 'package:calendar_app/project/project_admin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';

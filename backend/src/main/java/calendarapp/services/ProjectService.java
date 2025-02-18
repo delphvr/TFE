@@ -7,6 +7,7 @@ import calendarapp.repository.UserRepository;
 import calendarapp.request.CreateProjectRequest;
 import calendarapp.request.CreateUserProjectRequest;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -39,10 +40,10 @@ public class ProjectService {
         return projects;
     }
 
-    public List<Project> getProjectOfUser(String email){
+    public List<Project> getProjectOfUser(String email) {
         List<Project> projects = new ArrayList<Project>();
-        List<Long> projectsId= userProjectService.getUserProjects(email);
-        for (Long projectId : projectsId){
+        List<Long> projectsId = userProjectService.getUserProjects(email);
+        for (Long projectId : projectsId) {
             Optional<Project> project = projectRepository.findById(projectId);
             project.ifPresent(projects::add);
         }
@@ -50,6 +51,13 @@ public class ProjectService {
     }
 
     public Project createProject(CreateProjectRequest request) {
+        if (request.getEndingDate() != null) {
+            LocalDate endingDate = request.getEndingDate(); 
+            LocalDate now = LocalDate.now(); 
+            if (endingDate.isBefore(now)) {
+                throw new IllegalArgumentException("The ending date cannot be in the past");
+            } 
+        }
         Optional<User> user = userRepository.findByEmail(request.getOrganizerEmail());
         if (!user.isPresent()) {
             throw new IllegalArgumentException("User not found with email " + request.getOrganizerEmail());
@@ -62,7 +70,8 @@ public class ProjectService {
         project = projectRepository.save(project);
         ArrayList<String> role = new ArrayList<>();
         role.add("Organizer");
-        CreateUserProjectRequest userPRojectRequest = new CreateUserProjectRequest(user.get().getEmail(), project.getId(), role);
+        CreateUserProjectRequest userPRojectRequest = new CreateUserProjectRequest(user.get().getEmail(),
+                project.getId(), role);
         userProjectService.createUserProject(userPRojectRequest);
         return project;
     }
@@ -85,7 +94,7 @@ public class ProjectService {
         projectRepository.deleteAll();
     }
 
-    public void deleteProject(Long id){
+    public void deleteProject(Long id) {
         Optional<Project> project = projectRepository.findById(id);
         if (!project.isPresent()) {
             throw new IllegalArgumentException("Project not found with id " + id);

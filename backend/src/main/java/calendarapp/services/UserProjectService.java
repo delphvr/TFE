@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -100,16 +101,22 @@ public class UserProjectService {
             throw new IllegalArgumentException("User not found with email " + email);
         }
         Long userId = user.get().getId();
-        Set<Project> res = new HashSet<>();
+        Set<Project> projects = new HashSet<>();
         List<UserProject> userProjects = userProjectRepository.findByUserIdAndRole(userId, "Organizer");
         if (userProjects.isEmpty()) {
-            return new ArrayList<>(res);
+            return new ArrayList<>(projects);
         }
         for (UserProject userProject : userProjects) {
             Optional<Project> p = projectRepository.findById(userProject.getProjectId());
-            res.add(p.get());
+            projects.add(p.get());
         }
-        return new ArrayList<>(res);
+        List<Project> res = new ArrayList<>(projects);
+        // Sort based on endingDate, then beginningDate
+        res.sort(Comparator
+                .comparing(Project::getEndingDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(Project::getBeginningDate, Comparator.nullsLast(Comparator.naturalOrder())));
+
+        return res;
     }
 
     public List<Long> getUserProjects(String email) {
@@ -130,20 +137,24 @@ public class UserProjectService {
     }
 
     public List<User> getProjectUsers(Long id) {
-        Set<User> res = new HashSet<>();
+        Set<User> users = new HashSet<>();
         Optional<Project> projcet = projectRepository.findById(id);
         if (!projcet.isPresent()) {
             throw new IllegalArgumentException("Project not found with id " + id);
         }
         List<UserProject> userProjects = userProjectRepository.findByProjectId(id);
         if (userProjects.isEmpty()) {
-            return new ArrayList<>(res);
+            return new ArrayList<>(users);
         }
         for (UserProject userProject : userProjects) {
             Optional<User> user = userRepository.findById(userProject.getUserId());
-            res.add(user.get());
+            users.add(user.get());
         }
-        return new ArrayList<>(res);
+        // Sort based on last name, then first name
+        List<User> res = new ArrayList<>(users);
+        res.sort(Comparator.comparing(User::getLastName, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(User::getFirstName, Comparator.nullsLast(Comparator.naturalOrder())));
+        return res;
     }
 
     @Transactional

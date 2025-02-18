@@ -50,6 +50,13 @@ class _NewProjectPageState extends State<NewProjectPage> {
             context);
         return;
       }
+      if (DateTime.now().isAfter(DateTime.parse(endingDate))){
+        Utils.errorMess(
+            'Erreur lors de la création du project',
+            'La date de fin du projet ne peut pas avoir lieu dans le passé.',
+            context);
+        return;
+      }
     }
 
     final String url = '${dotenv.env['API_BASE_URL']}/projects';
