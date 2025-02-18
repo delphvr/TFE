@@ -356,3 +356,41 @@ DELETE "http://localhost:8080/api/projects/{projectId}/users/{userId}"
 
 - `204 No Content`: Successfully delete the participant with the given id from the project with the given id.
 - `404 Not Found`: No project or user found with the given id.
+
+## Rehearsal
+
+### Create a rehearsal
+
+```
+POST "http://localhost:8080/api/rehearsals"
+```
+
+**Request Body Example**:
+
+```
+{
+    name: "General rehearsal", 
+    description: "Last rehearsal with everyone",
+    "date": "2025-07-01",
+    "duration": "'PT3H'",
+    "projectId": "2"
+}
+```
+
+**If successful return newly created project** e.g: 
+```
+{
+    id : 3,
+    name: "General rehearsal", 
+    description: "Last rehearsal with everyone",
+    "date": "2025-07-01",
+    "duration": "'PT3H'",
+    "projectId": "2"
+}
+```
+
+**Possible Response Codes:**
+
+- `201 Created`: Rehearsal successfully created.
+- `400 Bad Request`: Invalid date (has to be between the project dates).
+- `404 Not Found`: No project found with the given id.

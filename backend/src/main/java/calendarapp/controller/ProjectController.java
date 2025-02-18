@@ -7,7 +7,6 @@ import calendarapp.services.ProjectService;
 import jakarta.validation.Valid;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,18 +29,6 @@ public class ProjectController {
     private ProjectRepository projectRepository;
     @Autowired
     private ProjectService projectService;
-
-    @GetMapping("/projects")
-    public ResponseEntity<List<Project>> getAllProjects() {
-        try {
-            List<Project> projects = projectService.getAllProjects();
-            return new ResponseEntity<>(projects, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 
     @GetMapping("/projects/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable("id") long id) {

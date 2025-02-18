@@ -10,7 +10,6 @@ import calendarapp.request.CreateUserProjectRequest;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +30,17 @@ public class ProjectService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<Project> getAllProjects() {
-        List<Project> projects = new ArrayList<Project>();
-        projectRepository.findAll().forEach(projects::add);
-        if (projects.isEmpty()) {
-            throw new NoSuchElementException("No projects found in the database.");
+    /**
+     * Checks if a project with the given ´projectId´ exists in the database.
+     * If it does not exist, throws an IllegalArgumentException.
+     * @param projectId: the id of a project 
+     * @throws IllegalArgumentException if no project is found with the given ID
+     */
+    public void isProject(Long projectId) {
+        Optional<Project> project = projectRepository.findById(projectId);
+        if (!project.isPresent()) {
+            throw new IllegalArgumentException("Project not found with id " + projectId);
         }
-        return projects;
     }
 
     public List<Project> getProjectOfUser(String email) {
@@ -70,9 +73,9 @@ public class ProjectService {
         project = projectRepository.save(project);
         ArrayList<String> role = new ArrayList<>();
         role.add("Organizer");
-        CreateUserProjectRequest userPRojectRequest = new CreateUserProjectRequest(user.get().getEmail(),
+        CreateUserProjectRequest userProjectRequest = new CreateUserProjectRequest(user.get().getEmail(),
                 project.getId(), role);
-        userProjectService.createUserProject(userPRojectRequest);
+        userProjectService.createUserProject(userProjectRequest);
         return project;
     }
 
