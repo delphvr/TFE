@@ -1,7 +1,6 @@
 import 'package:calendar_app/auth/auth.dart';
-import 'package:calendar_app/project/add_participant.dart';
+import 'package:calendar_app/project/participants.dart';
 import 'package:calendar_app/project/update_project.dart';
-import 'package:calendar_app/project/participant_element.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -10,14 +9,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class ProjectModificationPage extends StatefulWidget {
+class ProjectDetailsPage extends StatefulWidget {
   final int id;
   final String name;
   final String? description;
   final String? beginningDate;
   final String? endingDate;
 
-  const ProjectModificationPage({
+  const ProjectDetailsPage({
     super.key,
     required this.id,
     required this.name,
@@ -27,10 +26,10 @@ class ProjectModificationPage extends StatefulWidget {
   });
 
   @override
-  State<ProjectModificationPage> createState() => _ProjectModificationPage();
+  State<ProjectDetailsPage> createState() => _ProjectDetailsPage();
 }
 
-class _ProjectModificationPage extends State<ProjectModificationPage> {
+class _ProjectDetailsPage extends State<ProjectDetailsPage> {
   final user = FirebaseAuth.instance.currentUser!;
 
   late String name;
@@ -193,79 +192,17 @@ class _ProjectModificationPage extends State<ProjectModificationPage> {
                 },
               ),
               const SizedBox(height: 25),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 35),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Participants",
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 25),
-              Flexible(
-                child: FutureBuilder<List>(
-                  future: users,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text("Erreur: ${snapshot.error}"),
-                      );
-                    } else if (snapshot.hasData) {
-                      final users = snapshot.data!;
-
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: users.length,
-                        itemBuilder: (context, index) {
-                          return UsersElement(
-                            projectId: widget.id,
-                            userId: users[index]['id'],
-                            firstName: users[index]['firstName'],
-                            lastName: users[index]['lastName'],
-                            email: users[index]['email'],
-                            //roles: users[index]['roles'],
-                            onUpdate: refreshUsers,
-                          );
-                        },
-                      );
-                    } else {
-                      return const Center(
-                        child: Text('Aucun participant trouvé'),
-                      );
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(height: 25),
               ButtonCustom(
-                text: 'Ajouter des personnes',
+                text: "Voir les participants",
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => AddParticipant(
-                        projectId: widget.id,
-                        projectName: name,
-                      ),
-                    ),
+                    MaterialPageRoute(builder: (context) => ParticipantsPage(id: widget.id, name: name,)),
                   ).then((_) {
                     setState(() {
-                      users = getUsersOnProject(context);
-                    });
+                        //projects = getProjects(context);
+                        //TODO
+                      });
                   });
                 },
               ),

@@ -1,4 +1,4 @@
-import 'package:calendar_app/project/project_modification.dart';
+import 'package:calendar_app/project/project_details.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -49,7 +49,7 @@ class _ProjectElementState extends State<ProjectElement> {
           Navigator.push(
             context, //MaterialPageRoute(builder: (context) => NewProjectPage())
             MaterialPageRoute(
-              builder: (context) => ProjectModificationPage(
+              builder: (context) => ProjectDetailsPage(
                 id: widget.id,
                 name: name,
                 description: description,
