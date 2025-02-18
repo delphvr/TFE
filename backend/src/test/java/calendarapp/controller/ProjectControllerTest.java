@@ -1,5 +1,7 @@
 package calendarapp.controller;
 
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +46,8 @@ public class ProjectControllerTest {
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"'); 
 
         webTestClient.post().uri("/api/projects")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
@@ -55,12 +58,13 @@ public class ProjectControllerTest {
             .jsonPath("$.name").isEqualTo("Christmas show")
             .jsonPath("$.description").isEqualTo("Winter show with santa...")
             .jsonPath("$.beginningDate").isEqualTo("2020-07-01")
-            .jsonPath("$.endingDate").isEqualTo("2020-12-26");
+            .jsonPath("$.endingDate").isEqualTo(futureEndingDate);
     }
 
     @Test
     public void testCreateProjectEmailNotFound() {
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"'); 
 
         webTestClient.post().uri("/api/projects")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
@@ -94,7 +98,8 @@ public class ProjectControllerTest {
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
  
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"'); 
         Utils.pushProject(projectJson, webTestClient);
         
         webTestClient.get().uri("/api/projects/user/del.vr@mail.com")
@@ -104,7 +109,7 @@ public class ProjectControllerTest {
             .jsonPath("$[0].name").isEqualTo("Christmas show")
             .jsonPath("$[0].description").isEqualTo("Winter show with santa...")
             .jsonPath("$[0].beginningDate").isEqualTo("2020-07-01")
-            .jsonPath("$[0].endingDate").isEqualTo("2020-12-26");
+            .jsonPath("$[0].endingDate").isEqualTo(futureEndingDate);
      }
 
      @Test
@@ -137,10 +142,11 @@ public class ProjectControllerTest {
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
  
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"'); 
         Project project =  Utils.pushProject(projectJson, webTestClient);
         
-        String projectUpdatedJson = "{ 'name': 'Christmas show 2.0', 'description': 'Winter show with santa and its elfs', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26'}".replace('\'', '"');
+        String projectUpdatedJson = ("{ 'name': 'Christmas show 2.0', 'description': 'Winter show with santa and its elfs', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"'); 
  
         webTestClient.put().uri("/api/projects/" + project.getId())
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
@@ -151,7 +157,7 @@ public class ProjectControllerTest {
             .jsonPath("$.name").isEqualTo("Christmas show 2.0")
             .jsonPath("$.description").isEqualTo("Winter show with santa and its elfs")
             .jsonPath("$.beginningDate").isEqualTo("2020-07-01")
-            .jsonPath("$.endingDate").isEqualTo("2020-12-26");
+            .jsonPath("$.endingDate").isEqualTo(futureEndingDate);
      }
 
      @Test
@@ -175,7 +181,8 @@ public class ProjectControllerTest {
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project =  Utils.pushProject(projectJson, webTestClient);
 
         webTestClient.delete().uri("/api/projects/" + project.getId())

@@ -17,6 +17,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import static org.hamcrest.Matchers.hasItems;
 
+import java.time.LocalDate;
+
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @ActiveProfiles("test") 
@@ -55,7 +57,8 @@ public class UserProjectControllerTest {
             .replace('\'', '"');
         User user = Utils.pushUser(user2Json, webTestClient);;
 
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project =  Utils.pushProject(projectJson, webTestClient);
 
         String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
@@ -81,7 +84,8 @@ public class UserProjectControllerTest {
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
         
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project =  Utils.pushProject(projectJson, webTestClient);
 
         String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
@@ -121,7 +125,8 @@ public class UserProjectControllerTest {
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project =  Utils.pushProject(projectJson, webTestClient);
 
         String userProjectJson = "{ 'userEmail': 'eve.mail.com', 'projectId': ".replace('\'', '"') + project.getId()
@@ -145,7 +150,8 @@ public class UserProjectControllerTest {
             .replace('\'', '"');
         User user = Utils.pushUser(user2Json, webTestClient);
 
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project =  Utils.pushProject(projectJson, webTestClient);
 
         String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
@@ -178,7 +184,8 @@ public class UserProjectControllerTest {
              .replace('\'', '"');
         Utils.pushUser(user2Json, webTestClient);
  
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project =  Utils.pushProject(projectJson, webTestClient);
  
         String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
@@ -198,7 +205,7 @@ public class UserProjectControllerTest {
             .jsonPath("$[0].name").isEqualTo("Christmas show")
             .jsonPath("$[0].description").isEqualTo("Winter show with santa...")
             .jsonPath("$[0].beginningDate").isEqualTo("2020-07-01")
-            .jsonPath("$[0].endingDate").isEqualTo("2020-12-26");
+            .jsonPath("$[0].endingDate").isEqualTo(futureEndingDate);
 
         webTestClient.get().uri("/api/userProjects/organizer/eve.ld@mail.com")
             .exchange()
@@ -208,7 +215,7 @@ public class UserProjectControllerTest {
             .jsonPath("$[0].name").isEqualTo("Christmas show")
             .jsonPath("$[0].description").isEqualTo("Winter show with santa...")
             .jsonPath("$[0].beginningDate").isEqualTo("2020-07-01")
-            .jsonPath("$[0].endingDate").isEqualTo("2020-12-26");
+            .jsonPath("$[0].endingDate").isEqualTo(futureEndingDate);
     }
 
     @Test
@@ -221,7 +228,8 @@ public class UserProjectControllerTest {
              .replace('\'', '"');
         Utils.pushUser(user2Json, webTestClient);
  
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project =  Utils.pushProject(projectJson, webTestClient);
  
         String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
@@ -261,7 +269,8 @@ public class UserProjectControllerTest {
             .replace('\'', '"');
         Utils.pushUser(user2Json, webTestClient);
 
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project =  Utils.pushProject(projectJson, webTestClient);
 
         String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
@@ -300,7 +309,8 @@ public class UserProjectControllerTest {
             .replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project =  Utils.pushProject(projectJson, webTestClient);
 
         String userProjectJson = "{ 'userEmail': 'del.vr@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
@@ -337,7 +347,8 @@ public class UserProjectControllerTest {
             .replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project =  Utils.pushProject(projectJson, webTestClient);
 
         webTestClient.get().uri("/api/projects/" + project.getId() +1 + "/users/" + user.getId() + "/roles")
@@ -359,7 +370,8 @@ public class UserProjectControllerTest {
             .replace('\'', '"');
         User user = Utils.pushUser(user2Json, webTestClient);
 
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project = Utils.pushProject(projectJson, webTestClient);
 
         String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
@@ -393,7 +405,8 @@ public class UserProjectControllerTest {
             .replace('\'', '"');
         User user = Utils.pushUser(user2Json, webTestClient);
 
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project = Utils.pushProject(projectJson, webTestClient);
 
         String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
@@ -435,7 +448,8 @@ public class UserProjectControllerTest {
             .replace('\'', '"');
         User user = Utils.pushUser(user2Json, webTestClient);
 
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project = Utils.pushProject(projectJson, webTestClient);
 
         String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
@@ -483,7 +497,8 @@ public class UserProjectControllerTest {
             .replace('\'', '"');
         User user = Utils.pushUser(user2Json, webTestClient);
 
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project = Utils.pushProject(projectJson, webTestClient);
 
         String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
@@ -512,7 +527,8 @@ public class UserProjectControllerTest {
             .replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
-        String projectJson = "{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '2020-12-26', 'organizerEmail': 'del.vr@mail.com'}".replace('\'', '"');
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project = Utils.pushProject(projectJson, webTestClient);
 
         webTestClient.delete().uri("/api/projects/" + project.getId() + "/users/" + user.getId() + 1)
