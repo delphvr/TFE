@@ -8,10 +8,14 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import calendarapp.model.Participation;
 import calendarapp.model.Project;
 import calendarapp.model.Rehearsal;
+import calendarapp.repository.ParticipationRepositiry;
 import calendarapp.repository.ProjectRepository;
 import calendarapp.repository.RehearsalRepository;
+import calendarapp.request.CreateRehearsalRequest;
+import jakarta.transaction.Transactional;
 
 @Service
 public class RehearsalService {
@@ -22,6 +26,10 @@ public class RehearsalService {
     private ProjectService projectService;
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private ParticipationRepositiry participationRepositiry;
+    @Autowired
+    private UserService userService;
 
     /**
      * Return the list of rehersal in the project with id ´projectId´
@@ -42,28 +50,42 @@ public class RehearsalService {
     /**
      * Add the ´rehearsal´ to the database
      * 
-     * @param rehearsal the rehearsal to save in the database
+     * @param request the rehearsal to save in the database
      * @throws IllegalArgumentException if no project is found for the given project
      *                                  id
      *                                  or if the date of the rehearsal is in the
      *                                  past
+     *                                  or if the particpant id of one of the
+     *                                  participants does correspond to a user in
+     *                                  the database
      * @return the newly added rehearsal
      */
-    public Rehearsal createRehearsal(Rehearsal rehearsal) {
-        projectService.isProject(rehearsal.getProjectId());
+    @Transactional
+    public Rehearsal createRehearsal(CreateRehearsalRequest request) {
+        projectService.isProject(request.getProjectId());
         LocalDate now = LocalDate.now();
-        if (rehearsal.getDate().isBefore(now)) {
-            throw new IllegalArgumentException("The rehearsal date cannot be in the past");
+        if (request.getDate() != null) {
+            if (request.getDate().isBefore(now)) {
+                throw new IllegalArgumentException("The rehearsal date cannot be in the past");
+            }
+            Optional<Project> project = projectRepository.findById(request.getProjectId());
+            if (project.get().getEndingDate() != null && request.getDate().isAfter(project.get().getEndingDate())) {
+                throw new IllegalArgumentException("The rehearsal date cannot be after the project has ended");
+            }
+            if (project.get().getBeginningDate() != null
+                    && request.getDate().isBefore(project.get().getBeginningDate())) {
+                throw new IllegalArgumentException("The rehearsal date cannot be before the project has started");
+            }
         }
-        Optional<Project> project = projectRepository.findById(rehearsal.getProjectId());
-        if (project.get().getEndingDate() != null && rehearsal.getDate().isAfter(project.get().getEndingDate())) {
-            throw new IllegalArgumentException("The rehearsal date cannot be after the project has ended");
-        }
-        if (project.get().getBeginningDate() != null
-                && rehearsal.getDate().isBefore(project.get().getBeginningDate())) {
-            throw new IllegalArgumentException("The rehearsal date cannot be before the project has started");
-        }
+        Rehearsal rehearsal = new Rehearsal(request.getName(), request.getDescription(), request.getDate(),
+                request.getDuration(), request.getProjectId());
         Rehearsal res = rehearsalRepository.save(rehearsal);
+        
+        for (Long participantId : request.getParticipantsIds()) {
+            userService.isUser(participantId);
+            Participation participation = new Participation(participantId, rehearsal.getId());
+            participationRepositiry.save(participation);
+        }
         return res;
     }
 

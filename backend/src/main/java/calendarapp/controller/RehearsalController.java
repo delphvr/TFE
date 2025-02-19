@@ -1,6 +1,7 @@
 package calendarapp.controller;
 
 import calendarapp.model.Rehearsal;
+import calendarapp.request.CreateRehearsalRequest;
 import calendarapp.services.RehearsalService;
 import jakarta.validation.Valid;
 
@@ -30,7 +31,7 @@ public class RehearsalController {
     }
 
     @PostMapping("/rehearsals")
-    public ResponseEntity<Rehearsal> createRehearsal(@Valid @RequestBody Rehearsal request) {
+    public ResponseEntity<Rehearsal> createRehearsal(@Valid @RequestBody CreateRehearsalRequest request) {
         Rehearsal rehearsal = rehearsalService.createRehearsal(request);
         return new ResponseEntity<>(rehearsal, HttpStatus.CREATED);
     }

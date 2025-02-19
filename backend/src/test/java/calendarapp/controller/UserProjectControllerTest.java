@@ -55,7 +55,7 @@ public class UserProjectControllerTest {
 
         String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': false}"
             .replace('\'', '"');
-        User user = Utils.pushUser(user2Json, webTestClient);;
+        User user = Utils.pushUser(user2Json, webTestClient);
 
         String futureEndingDate = LocalDate.now().plusDays(1).toString();
         String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');

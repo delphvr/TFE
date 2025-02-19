@@ -14,9 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -31,13 +28,17 @@ public class UserService {
     @Autowired
     private ProfessionRepository professionRepository;
 
-    public List<User> getAllUsers() {
-        List<User> users = new ArrayList<User>();
-        userRepository.findAll().forEach(users::add);
-        if (users.isEmpty()) {
-            throw new NoSuchElementException("No users found in the database.");
+    /**
+     * Checks if a user with the given ´userId´ exists in the database.
+     * If it does not exist, throws an IllegalArgumentException.
+     * @param userId: the id of a user 
+     * @throws IllegalArgumentException if no user is found with the given ID
+     */
+    public void isUser(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found with id " + userId);
         }
-        return users;
     }
 
     @Transactional

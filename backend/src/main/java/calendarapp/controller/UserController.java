@@ -6,8 +6,6 @@ import calendarapp.request.CreateUserRequest;
 import calendarapp.services.UserService;
 import jakarta.validation.Valid;
 
-import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,18 +31,6 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
-
-	@GetMapping("/users")
-	public ResponseEntity<List<User>> getAllUsers() {
-		try {
-			List<User> users = userService.getAllUsers();
-			return new ResponseEntity<>(users, HttpStatus.OK);
-		} catch (NoSuchElementException e) {
-			return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
 
 	@GetMapping("/users/{id}")
 	public ResponseEntity<User> getUserById(@PathVariable("id") long id) {

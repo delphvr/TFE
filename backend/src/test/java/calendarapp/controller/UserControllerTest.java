@@ -169,9 +169,9 @@ public class UserControllerTest {
             .exchange()
             .expectStatus().isNoContent();
 
-        webTestClient.get().uri("/api/users")
+        webTestClient.get().uri("/api/users/" + user.getId())
             .exchange()
-            .expectStatus().isNoContent();
+            .expectStatus().isNotFound();
     }
 
     @Test
