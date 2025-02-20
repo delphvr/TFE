@@ -13,6 +13,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import calendarapp.Utils;
 import calendarapp.model.Project;
+import calendarapp.model.Rehearsal;
 import calendarapp.model.User;
 import calendarapp.repository.ProjectRepository;
 import calendarapp.repository.RehearsalRepository;
@@ -63,6 +64,8 @@ public class RehearsalControllerTest {
             .exchange()
             .expectStatus().isCreated()
             .expectBody()
+            .jsonPath("$.name").isEqualTo("General rehearsal")
+            .jsonPath("$.description").isEqualTo("Last rehearsal with everyone")
             .jsonPath("$.date").isEqualTo(rehearsalDate)
             .jsonPath("$.duration").isEqualTo("PT3H")
             .jsonPath("$.projectId").isEqualTo(project.getId());
@@ -125,9 +128,42 @@ public class RehearsalControllerTest {
             .exchange()
             .expectStatus().isCreated()
             .expectBody()
+            .jsonPath("$.name").isEqualTo("General rehearsal")
+            .jsonPath("$.description").isEqualTo("Last rehearsal with everyone")
             .jsonPath("$.date").isEqualTo(rehearsalDate)
             .jsonPath("$.duration").isEqualTo("PT3H")
             .jsonPath("$.projectId").isEqualTo(project.getId());
+    }
+
+    /*
+     * Tests get the rehearsals of a project
+     */
+    @Test
+    public void testGetProjectRehearsal() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        String beginningDate = LocalDate.now().toString();
+        String futureEndingDate = LocalDate.now().plusDays(30).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project =  Utils.pushProject(projectJson, webTestClient);
+
+        String rehearsalDate = LocalDate.now().plusDays(3).toString();
+        String rehearsalJson = ("{'name': 'General rehearsal', 'description' :'Last rehearsal with everyone', 'date': '"+ rehearsalDate + "', 'duration': 'PT3H', 'projectId': ' "+ project.getId() + "', 'participantsIds': [" + user.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal = Utils.pushRehearsal(rehearsalJson, webTestClient);
+        
+        webTestClient.get().uri("/api/projects/"+ project.getId() + "/rehearsals")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$[0].id").isEqualTo(rehearsal.getId())
+            .jsonPath("$[0].name").isEqualTo("General rehearsal")
+            .jsonPath("$[0].description").isEqualTo("Last rehearsal with everyone")
+            .jsonPath("$[0].date").isEqualTo(rehearsalDate)
+            .jsonPath("$[0].duration").isEqualTo("PT3H")
+            .jsonPath("$[0].projectId").isEqualTo(project.getId())
+            .jsonPath("$[0].participantsIds[0]").isEqualTo(user.getId());
     }
 
 }

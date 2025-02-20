@@ -369,20 +369,21 @@ POST "http://localhost:8080/api/rehearsals"
 
 ```
 {
-    name: "General rehearsal", 
-    description: "Last rehearsal with everyone",
+    "name": "General rehearsal", 
+    "description": "Last rehearsal with everyone",
     "date": "2025-07-01",
     "duration": "'PT3H'",
-    "projectId": "2"
+    "projectId": "2",
+    "participantsIds": []
 }
 ```
 
 **If successful return newly created project** e.g: 
 ```
 {
-    id : 3,
-    name: "General rehearsal", 
-    description: "Last rehearsal with everyone",
+    "id" : 3,
+    "name": "General rehearsal", 
+    "description": "Last rehearsal with everyone",
     "date": "2025-07-01",
     "duration": "'PT3H'",
     "projectId": "2"
@@ -393,4 +394,31 @@ POST "http://localhost:8080/api/rehearsals"
 
 - `201 Created`: Rehearsal successfully created.
 - `400 Bad Request`: Invalid date (has to be between the project dates).
+- `404 Not Found`: No project or participant found with the given id.
+
+
+### Get the rehearsals of a project
+
+```
+POST "http://localhost:8080/api/projects/{id}/rehearsals"
+```
+
+**If successful return** e.g: 
+```
+[
+    {
+        "id" : 3,
+        "name": "General rehearsal", 
+        "description": "Last rehearsal with everyone",
+        "date": "2025-07-01",
+        "duration": "'PT3H'",
+        "projectId": "2",
+        "participantsIds"
+    }
+]
+```
+
+**Possible Response Codes:**
+
+- `20O Ok`: Successfully retrieved the project rehearsals.
 - `404 Not Found`: No project found with the given id.

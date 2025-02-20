@@ -1,9 +1,11 @@
 package calendarapp.services;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import calendarapp.repository.ParticipationRepositiry;
 import calendarapp.repository.ProjectRepository;
 import calendarapp.repository.RehearsalRepository;
 import calendarapp.request.CreateRehearsalRequest;
+import calendarapp.response.RehearsalResponse;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -40,11 +43,18 @@ public class RehearsalService {
      *         ´projectId´
      *         sort by date.
      */
-    public List<Rehearsal> getProjectRehearsals(Long projectId) {
+    public List<RehearsalResponse> getProjectRehearsals(Long projectId) {
         projectService.isProject(projectId);
         List<Rehearsal> rehearsals = rehearsalRepository.findByProjectId(projectId);
-        rehearsals.sort(Comparator.comparing(Rehearsal::getDate));
-        return rehearsals;
+        List<RehearsalResponse> rehearsalsResponse = new ArrayList<>();
+        for (Rehearsal rehearsal : rehearsals) {
+            List<Participation> participations = participationRepositiry.findByRehearsalId(rehearsal.getId());
+            List<Long> participationIds = participations.stream().map(Participation::getUserId).collect(Collectors.toList());
+            RehearsalResponse rehearsalResponse = new RehearsalResponse(rehearsal.getId(), rehearsal.getName(), rehearsal.getDescription(), rehearsal.getDate(), rehearsal.getDuration(), rehearsal.getProjectId(), participationIds);
+            rehearsalsResponse.add(rehearsalResponse);
+        }
+        rehearsalsResponse.sort(Comparator.comparing(RehearsalResponse::getDate));
+        return rehearsalsResponse;
     }
 
     /**
@@ -80,7 +90,7 @@ public class RehearsalService {
         Rehearsal rehearsal = new Rehearsal(request.getName(), request.getDescription(), request.getDate(),
                 request.getDuration(), request.getProjectId());
         Rehearsal res = rehearsalRepository.save(rehearsal);
-        
+
         for (Long participantId : request.getParticipantsIds()) {
             userService.isUser(participantId);
             Participation participation = new Participation(participantId, rehearsal.getId());

@@ -2,6 +2,7 @@ package calendarapp.controller;
 
 import calendarapp.model.Rehearsal;
 import calendarapp.request.CreateRehearsalRequest;
+import calendarapp.response.RehearsalResponse;
 import calendarapp.services.RehearsalService;
 import jakarta.validation.Valid;
 
@@ -25,8 +26,8 @@ public class RehearsalController {
     private RehearsalService rehearsalService;
 
     @GetMapping("/projects/{id}/rehearsals")
-    public ResponseEntity<List<Rehearsal>> getProjectRehearsals(@PathVariable("id") long id) {
-        List<Rehearsal> rehearsals = rehearsalService.getProjectRehearsals(id);
+    public ResponseEntity<List<RehearsalResponse>> getProjectRehearsals(@PathVariable("id") long id) {
+        List<RehearsalResponse> rehearsals = rehearsalService.getProjectRehearsals(id);
         return new ResponseEntity<>(rehearsals, HttpStatus.OK);
     }
 

@@ -3,6 +3,7 @@ package calendarapp;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import calendarapp.model.Project;
+import calendarapp.model.Rehearsal;
 import calendarapp.model.User;
 
 public class Utils {
@@ -27,6 +28,17 @@ public class Utils {
             .returnResult()
             .getResponseBody();
         return project;
+    }
+
+    static public Rehearsal pushRehearsal(String jsonData, WebTestClient webTestClient){
+        Rehearsal rehearsal = webTestClient.post().uri("/api/rehearsals")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(jsonData)
+            .exchange()
+            .expectBody(Rehearsal.class)
+            .returnResult()
+            .getResponseBody();
+        return rehearsal;
     }
     
 }
