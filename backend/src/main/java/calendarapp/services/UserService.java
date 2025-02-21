@@ -41,6 +41,20 @@ public class UserService {
         }
     }
 
+    /**
+     * Get the user with id ´id´
+     * @param id id of a user
+     * @return the user with the given id
+     * @throws IllegalArgumentException if no user is found with the given id
+     */
+    public User getUser(Long id){
+        Optional<User> user = userRepository.findById(id);
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found with id " + id);
+        }
+        return user.get();
+    }
+
     @Transactional
     public User createUser(CreateUserRequest request) {
         Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
@@ -85,10 +99,6 @@ public class UserService {
 
     public void deleteUser(long id) {
         userRepository.deleteById(id);
-    }
-
-    public void deleteAllUsers() {
-        userRepository.deleteAll();
     }
 
     public boolean isUserOrganizer(String email) {

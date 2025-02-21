@@ -79,12 +79,6 @@ public class UserController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
-	@DeleteMapping("/users")
-	public ResponseEntity<HttpStatus> deleteAllUsers() {
-		userRepository.deleteAll();
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	}
-
 	@GetMapping("/users/organizer/{email}")
 	public ResponseEntity<Boolean> isUserOrganizer(@PathVariable("email") String email) {
 		boolean isOrganizer = userService.isUserOrganizer(email);

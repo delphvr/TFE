@@ -1,6 +1,7 @@
 package calendarapp.controller;
 
 import calendarapp.model.Rehearsal;
+import calendarapp.model.User;
 import calendarapp.request.CreateRehearsalRequest;
 import calendarapp.response.RehearsalResponse;
 import calendarapp.services.RehearsalService;
@@ -12,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -37,10 +40,22 @@ public class RehearsalController {
         return new ResponseEntity<>(rehearsal, HttpStatus.CREATED);
     }
 
-    //TODO get list of user object for a rehearsal
+    @GetMapping("/rehearsals/{id}/participants")
+    public ResponseEntity<List<User>> getRehearsalParticipants(@PathVariable("id") long id) {
+        List<User> participants = rehearsalService.getRehearsalParticipants(id);
+        return new ResponseEntity<>(participants, HttpStatus.OK);
+    }
 
-    //TODO delete une crépétition
+    @DeleteMapping("/rehearsals/{id}")
+    public ResponseEntity<HttpStatus> deleteRehearsal(@PathVariable("id") long id) {
+        rehearsalService.deleteRehearsal(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
-    //TODO update le projet
+    @PutMapping("/rehearsals/{id}")
+	public ResponseEntity<Rehearsal> updateReheasal(@PathVariable("id") long id, @RequestBody Rehearsal rehearsal) {
+		Rehearsal updatedRehearsal = rehearsalService.updateReheasal(id, rehearsal);
+		return new ResponseEntity<>(updatedRehearsal, HttpStatus.OK);
+	}
 
 }

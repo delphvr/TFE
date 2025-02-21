@@ -13,7 +13,8 @@ import org.springframework.stereotype.Service;
 import calendarapp.model.Participation;
 import calendarapp.model.Project;
 import calendarapp.model.Rehearsal;
-import calendarapp.repository.ParticipationRepositiry;
+import calendarapp.model.User;
+import calendarapp.repository.ParticipationRepository;
 import calendarapp.repository.ProjectRepository;
 import calendarapp.repository.RehearsalRepository;
 import calendarapp.request.CreateRehearsalRequest;
@@ -30,9 +31,22 @@ public class RehearsalService {
     @Autowired
     private ProjectRepository projectRepository;
     @Autowired
-    private ParticipationRepositiry participationRepositiry;
+    private ParticipationRepository participationRepository;
     @Autowired
     private UserService userService;
+
+    /**
+     * Checks if a rehearsal with the given ´id´ exists in the database.
+     * If it does not exist, throws an IllegalArgumentException.
+     * @param id: the id of a project 
+     * @throws IllegalArgumentException if no rehearsal is found with the given ´id´
+     */
+    public void isRehearsal(Long id) {
+        Optional<Rehearsal> rehearsal = rehearsalRepository.findById(id);
+        if (!rehearsal.isPresent()) {
+            throw new IllegalArgumentException("Rehearsal not found with id " + id);
+        }
+    }
 
     /**
      * Return the list of rehersal in the project with id ´projectId´
@@ -48,7 +62,7 @@ public class RehearsalService {
         List<Rehearsal> rehearsals = rehearsalRepository.findByProjectId(projectId);
         List<RehearsalResponse> rehearsalsResponse = new ArrayList<>();
         for (Rehearsal rehearsal : rehearsals) {
-            List<Participation> participations = participationRepositiry.findByRehearsalId(rehearsal.getId());
+            List<Participation> participations = participationRepository.findByRehearsalId(rehearsal.getId());
             List<Long> participationIds = participations.stream().map(Participation::getUserId)
                     .collect(Collectors.toList());
             RehearsalResponse rehearsalResponse = new RehearsalResponse(rehearsal.getId(), rehearsal.getName(),
@@ -100,9 +114,54 @@ public class RehearsalService {
         for (Long participantId : request.getParticipantsIds()) {
             userService.isUser(participantId);
             Participation participation = new Participation(participantId, rehearsal.getId());
-            participationRepositiry.save(participation);
+            participationRepository.save(participation);
         }
         return res;
+    }
+
+    /**
+     * get all the user object that participate in a rehearsal
+     * @param id the id of a reheasral
+     * @return list of User that are participant in the rehearsal with id ´id´
+     * @throws IllegalArgumentException if no rehearsal is found with the given ´id´
+     */
+    public List<User> getRehearsalParticipants(Long id){
+        isRehearsal(id);
+        List<User> res = new ArrayList<>();
+        List<Participation> participations = participationRepository.findByRehearsalId(id);
+        for (Participation participation: participations){
+            User user = userService.getUser(participation.getUserId());
+            res.add(user);
+        }
+        return res;
+    }
+
+    /**
+     * update a rehearsal with id ´id´ in the database
+     * @param id the id of a rehearsal
+     * @param rehearsal a rehearsal object
+     * @return the updated rehearsal
+     */
+    public Rehearsal updateReheasal(Long id, Rehearsal rehearsal){
+        Optional<Rehearsal> rehearsalData = rehearsalRepository.findById(id);
+        if (rehearsalData.isPresent()){
+            Rehearsal _rehearsal = rehearsalData.get();
+            _rehearsal.setName(rehearsal.getName());
+            _rehearsal.setDescription(rehearsal.getDescription());
+            _rehearsal.setDate(rehearsal.getDate());
+            _rehearsal.setDuration(rehearsal.getDuration());
+            return rehearsalRepository.save(_rehearsal);
+        }else {
+            throw new IllegalArgumentException("Reherasal not found with id " + id);
+        }
+    }
+
+    /**
+     * Delete rehearsal with the id ´id´ from the database
+     * @param id the id of the rehearsal to delete
+     */
+    public void deleteRehearsal(Long id){
+        rehearsalRepository.deleteById(id);
     }
 
 }

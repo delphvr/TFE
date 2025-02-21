@@ -166,4 +166,106 @@ public class RehearsalControllerTest {
             .jsonPath("$[0].participantsIds[0]").isEqualTo(user.getId());
     }
 
+    /*
+     * Tests delete a rehearsals
+     */
+    @Test
+    public void testDeleteRehearsal() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        String beginningDate = LocalDate.now().toString();
+        String futureEndingDate = LocalDate.now().plusDays(30).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project =  Utils.pushProject(projectJson, webTestClient);
+
+        String rehearsalDate = LocalDate.now().plusDays(3).toString();
+        String rehearsalJson = ("{'name': 'General rehearsal', 'description' :'Last rehearsal with everyone', 'date': '"+ rehearsalDate + "', 'duration': 'PT3H', 'projectId': ' "+ project.getId() + "', 'participantsIds': [" + user.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal = Utils.pushRehearsal(rehearsalJson, webTestClient);
+
+        webTestClient.delete().uri("/api/rehearsals/" + rehearsal.getId())
+            .exchange()
+            .expectStatus().isNoContent();
+        
+        webTestClient.get().uri("/api/projects/"+ project.getId() + "/rehearsals")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .json("[]");
+    }
+
+    /*
+     * Tests get the user object of a rehearsal
+     */
+    @Test
+    public void testGetRehearsalParticipants() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        String beginningDate = LocalDate.now().toString();
+        String futureEndingDate = LocalDate.now().plusDays(30).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project =  Utils.pushProject(projectJson, webTestClient);
+
+        String rehearsalDate = LocalDate.now().plusDays(3).toString();
+        String rehearsalJson = ("{'name': 'General rehearsal', 'description' :'Last rehearsal with everyone', 'date': '"+ rehearsalDate + "', 'duration': 'PT3H', 'projectId': ' "+ project.getId() + "', 'participantsIds': [" + user.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal = Utils.pushRehearsal(rehearsalJson, webTestClient);
+        
+        webTestClient.get().uri("/api/rehearsals/" + rehearsal.getId() + "/participants")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$[0].id").isEqualTo(user.getId())
+            .jsonPath("$[0].firstName").isEqualTo(user.getFirstName())
+            .jsonPath("$[0].lastName").isEqualTo(user.getLastName())
+            .jsonPath("$[0].email").isEqualTo(user.getEmail());
+    }
+
+    /*
+     * Tests update a rehearsal
+     */
+    @Test
+    public void testUpdateRehearsal() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        String beginningDate = LocalDate.now().toString();
+        String futureEndingDate = LocalDate.now().plusDays(30).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project =  Utils.pushProject(projectJson, webTestClient);
+
+        String rehearsalDate = LocalDate.now().plusDays(3).toString();
+        String rehearsalJson = ("{'name': 'General rehearsal', 'description' :'Last rehearsal with everyone', 'date': '"+ rehearsalDate + "', 'duration': 'PT3H', 'projectId': ' "+ project.getId() + "', 'participantsIds': [" + user.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal = Utils.pushRehearsal(rehearsalJson, webTestClient);
+
+        String rehearsalUpdateJson = ("{'name': 'Little rehearsal', 'description' :'Juste check the placements', 'date': '"+ rehearsalDate + "', 'duration': 'PT3H', 'projectId': ' "+ project.getId() + "', 'participantsIds': [" + user.getId() + "]}").replace('\'', '"');
+
+        webTestClient.put().uri("/api/rehearsals/" + rehearsal.getId())
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(rehearsalUpdateJson)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.name").isEqualTo("Little rehearsal")
+            .jsonPath("$.description").isEqualTo("Juste check the placements")
+            .jsonPath("$.date").isEqualTo(rehearsalDate)
+            .jsonPath("$.duration").isEqualTo("PT3H")
+            .jsonPath("$.projectId").isEqualTo(project.getId());
+        
+        webTestClient.get().uri("/api/projects/"+ project.getId() + "/rehearsals")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$[0].id").isEqualTo(rehearsal.getId())
+            .jsonPath("$[0].name").isEqualTo("Little rehearsal")
+            .jsonPath("$[0].description").isEqualTo("Juste check the placements")
+            .jsonPath("$[0].date").isEqualTo(rehearsalDate)
+            .jsonPath("$[0].duration").isEqualTo("PT3H")
+            .jsonPath("$[0].projectId").isEqualTo(project.getId())
+            .jsonPath("$[0].participantsIds[0]").isEqualTo(user.getId());
+    }
+
 }

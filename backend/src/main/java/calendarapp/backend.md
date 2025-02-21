@@ -378,7 +378,7 @@ POST "http://localhost:8080/api/rehearsals"
 }
 ```
 
-**If successful return newly created project** e.g: 
+**If successful return newly created rehearsal** e.g: 
 ```
 {
     "id" : 3,
@@ -422,3 +422,78 @@ GET "http://localhost:8080/api/projects/{id}/rehearsals"
 
 - `20O Ok`: Successfully retrieved the project rehearsals.
 - `404 Not Found`: No project found with the given id.
+
+
+### Delete a rehearsals
+
+```
+DELETE "http://localhost:8080/api/rehearsals/{id}"
+```
+
+**Possible Response Codes:**
+
+- `204 No Content`: User delete successfully.
+
+
+### Update a rehearsal
+
+```
+PUT "http://localhost:8080/api/rehearsals/{id}"
+```
+
+**Request Body Example**:
+
+```
+{
+    "name": "General rehearsal", 
+    "description": "Last rehearsal with everyone",
+    "date": "2025-07-01",
+    "duration": "PT3H",
+}
+```
+
+**If successful return newly created rehearsal** e.g: 
+```
+{
+    "id" : 3,
+    "name": "General rehearsal", 
+    "description": "Last rehearsal with everyone",
+    "date": "2025-07-01",
+    "duration": "PT3H",
+    "projectId": "2"
+}
+```
+
+**Possible Response Codes:**
+
+- `200 OK`: Rehearsal successfully updated.
+- `404 Not Found`: No rehearsal found with the given id.
+
+### Get the users info of the participants of a rehearsal
+
+```
+GET "http://localhost:8080/api/rehearsals/{id}/participants"
+```
+
+**If successful return newly created rehearsal** e.g: 
+```
+[
+    {
+        id : 23,
+        firstName: "Del", 
+        lastName: "vr", 
+        email: "del.vr@mail.com"
+    },
+    {
+        id : 45,
+        firstName: "Eve", 
+        lastName: "pl", 
+        email: "Eve.pl@mail.com"
+    }
+]
+```
+
+**Possible Response Codes:**
+
+- `200 OK`: Rehearsal successfully updated.
+- `404 Not Found`: No rehearsal found with the given id.
