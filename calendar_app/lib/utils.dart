@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Utils {
-
-
-static void errorMess(String title, String message, BuildContext context) {
+  static void errorMess(String title, String message, BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
@@ -37,7 +35,8 @@ static void errorMess(String title, String message, BuildContext context) {
         .hasMatch(email);
   }
 
-  static void confirmation(String title, String message, Function act, BuildContext context) {
+  static void confirmation(
+      String title, String message, Function act, BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
@@ -63,4 +62,20 @@ static void errorMess(String title, String message, BuildContext context) {
     );
   }
 
+  //Done with chatgpt
+  static String formatDuration(String duration) {
+    final regex = RegExp(r'PT(?:(\d+)H)?(?:(\d+)M)?');
+    final match = regex.firstMatch(duration);
+
+    if (match == null) return duration;
+
+    final hours = match.group(1);
+    final minutes = match.group(2);
+
+    String formatted = '';
+    if (hours != null) formatted += '${hours}h';
+    if (minutes != null) formatted += minutes;
+
+    return formatted;
+  }
 }

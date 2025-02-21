@@ -156,6 +156,15 @@ public class RehearsalService {
         }
     }
 
+    public Rehearsal getRehearsal(long id){
+        Optional<Rehearsal> rehearsal = rehearsalRepository.findById(id);
+        if (rehearsal.isPresent()) {
+            return rehearsal.get();
+        }else {
+            throw new IllegalArgumentException("Rehearsal not found with id " + id);
+        }
+    }
+
     /**
      * Delete rehearsal with the id ´id´ from the database
      * @param id the id of the rehearsal to delete

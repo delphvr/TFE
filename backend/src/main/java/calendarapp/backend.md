@@ -475,7 +475,7 @@ PUT "http://localhost:8080/api/rehearsals/{id}"
 GET "http://localhost:8080/api/rehearsals/{id}/participants"
 ```
 
-**If successful return newly created rehearsal** e.g: 
+**If successful return list of users** e.g: 
 ```
 [
     {
@@ -496,4 +496,27 @@ GET "http://localhost:8080/api/rehearsals/{id}/participants"
 **Possible Response Codes:**
 
 - `200 OK`: Rehearsal successfully updated.
+- `404 Not Found`: No rehearsal found with the given id.
+
+### Get a rehearsal based on its id
+
+```
+GET "http://localhost:8080/api/rehearsals/{id}"
+```
+
+**If successful return the rehearsal** e.g: 
+```
+{
+    "id" : 3,
+    "name": "General rehearsal", 
+    "description": "Last rehearsal with everyone",
+    "date": "2025-07-01",
+    "duration": "PT3H",
+    "projectId": "2"
+}
+```
+
+**Possible Response Codes:**
+
+- `200 OK`: Rehearsal successfully retrieved.
 - `404 Not Found`: No rehearsal found with the given id.

@@ -26,6 +26,7 @@ class _AddRehearsal extends State<AddRehearsal> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   TextEditingController durationController = TextEditingController();
+  String isoDuration = '';
   DateTime? _selectedDate;
 
   void logout(Function onLogoutSuccess) async {
@@ -37,18 +38,18 @@ class _AddRehearsal extends State<AddRehearsal> {
     final rehearsalName = nameController.text;
     final description = descriptionController.text;
     final date = dateController.text;
-    final duration = durationController.text; //TODO
+    final duration = isoDuration;
     final String url = '${dotenv.env['API_BASE_URL']}/rehearsals';
 
     //TODO check que la date rentre dans la date du projet
 
     final Map<String, dynamic> requestBody = {
-      "name": rehearsalName, 
-    "description": description,
-    "date": date,
-    "duration": duration,
-    "projectId": widget.projectId,
-    "participantsIds": []
+      "name": rehearsalName,
+      "description": description,
+      "date": date,
+      "duration": duration,
+      "projectId": widget.projectId,
+      "participantsIds": []
     };
 
     try {
@@ -86,6 +87,24 @@ class _AddRehearsal extends State<AddRehearsal> {
         _selectedDate = picked;
         controller.text =
             "${picked.toLocal()}".split(' ')[0]; // Format as yyyy-MM-dd
+      });
+    }
+  }
+
+  //Done with the help of chatgpt
+  Future<void> _selectDuration(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: 0, minute: 0), // Default to 0h 0m
+    );
+
+    if (picked != null) {
+      setState(() {
+        // Store ISO-8601 format for backend
+        isoDuration = "PT${picked.hour}H${picked.minute}M";
+        // Display format (e.g., "2h 30m")
+        String displayDuration = "${picked.hour}h ${picked.minute}m";
+        durationController.text = displayDuration;
       });
     }
   }
@@ -153,8 +172,7 @@ class _AddRehearsal extends State<AddRehearsal> {
                   SizedBox(
                     width: 250,
                     child: GestureDetector(
-                      onTap: () =>
-                          _selectDate(context, dateController),
+                      onTap: () => _selectDate(context, dateController),
                       child: AbsorbPointer(
                         child: TextField(
                           controller: dateController,
@@ -165,6 +183,27 @@ class _AddRehearsal extends State<AddRehearsal> {
                             fillColor: Color(0xFFF2F2F2),
                             filled: true,
                             prefixIcon: Icon(Icons.calendar_today),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  SizedBox(
+                    width: 250,
+                    child: GestureDetector(
+                      onTap: () =>
+                          _selectDuration(context), 
+                      child: AbsorbPointer(
+                        child: TextField(
+                          controller: durationController,
+                          readOnly: true,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Durée',
+                            fillColor: Color(0xFFF2F2F2),
+                            filled: true,
+                            prefixIcon: Icon(Icons.timer), 
                           ),
                         ),
                       ),

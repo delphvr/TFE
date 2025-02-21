@@ -1,4 +1,6 @@
 import 'package:calendar_app/auth/auth.dart';
+import 'package:calendar_app/components/button_custom.dart';
+import 'package:calendar_app/components/textfield_custom.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +41,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
   late TextEditingController descriptionController;
   late TextEditingController dateController;
   late TextEditingController durationController;
+  String isoDuration = '';
 
   @override
   void initState() {
@@ -46,7 +49,8 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     nameController = TextEditingController(text: widget.name);
     descriptionController = TextEditingController(text: widget.description);
     dateController = TextEditingController(text: widget.date);
-    durationController = TextEditingController(text: widget.duration);
+    isoDuration = widget.duration !=null ? widget.duration! : '' ;
+    durationController = TextEditingController(text: widget.duration !=null ? Utils.formatDuration(widget.duration!) : null);
   }
 
   @override
@@ -69,7 +73,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     final rehearsalName = nameController.text;
     final description = descriptionController.text;
     final date = dateController.text;
-    final duration = durationController.text;
+    final duration = isoDuration;
 
     if (rehearsalName.isEmpty) {
       Utils.errorMess(
@@ -100,15 +104,9 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
 
       if (response.statusCode == 200) {
         if (mounted) {
-          Navigator.pop(context, {
-            'name': rehearsalName,
-            'description': description,
-            'date': date,
-            'duration': duration,
-          });
+          Navigator.pop(context);
         }
       } else {
-        print(response.body);
         Utils.errorMess(
             errorTitle,
             'Erreur lors de la modification. Merci de réessayez plus tard.',
@@ -121,7 +119,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
   }
 
   //Done with the help of chatgpt
-  Future<void> selectDate(
+  Future<void> _selectDate(
       BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -134,6 +132,23 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
         selectedDate = picked;
         controller.text =
             "${picked.toLocal()}".split(' ')[0]; // Format as yyyy-MM-dd
+      });
+    }
+  }
+
+  //Done with the help of chatgpt
+  Future<void> _selectDuration(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: const TimeOfDay(hour: 0, minute: 0), // Default to 0h 0m
+    );
+    if (picked != null) {
+      setState(() {
+        // Store ISO-8601 format for backend
+        isoDuration = "PT${picked.hour}H${picked.minute}M";
+        // Display format (e.g., "2h 30m")
+        String displayDuration = "${picked.hour}h ${picked.minute}m";
+        durationController.text = displayDuration;
       });
     }
   }
@@ -161,24 +176,93 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
           ),
         ],
       ),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              widget.name,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 30,
+      body: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(25.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Modification de la répétition ${widget.name}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 27,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextFieldcustom(
+                    labelText: 'Nom de la répétition *',
+                    controller: nameController,
+                    obscureText: false,
+                    keyboardType: TextInputType.text,
+                  ),
+                  const SizedBox(height: 25),
+                  SizedBox(
+                    width: 250,
+                    child: TextField(
+                      controller: descriptionController,
+                      maxLines: null,
+                      minLines: 2,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Description',
+                        fillColor: Color(0xFFF2F2F2),
+                        filled: true,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  SizedBox(
+                    width: 250,
+                    child: GestureDetector(
+                      onTap: () => _selectDate(context, dateController),
+                      child: AbsorbPointer(
+                        child: TextField(
+                          controller: dateController,
+                          readOnly: true,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Date',
+                            fillColor: Color(0xFFF2F2F2),
+                            filled: true,
+                            prefixIcon: Icon(Icons.calendar_today),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  SizedBox(
+                    width: 250,
+                    child: GestureDetector(
+                      onTap: () =>
+                          _selectDuration(context), 
+                      child: AbsorbPointer(
+                        child: TextField(
+                          controller: durationController,
+                          readOnly: true,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Durée',
+                            fillColor: Color(0xFFF2F2F2),
+                            filled: true,
+                            prefixIcon: Icon(Icons.timer), 
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  ButtonCustom(
+                    text: 'Modifier',
+                    onTap: () => update(context),
+                  ),
+                  const SizedBox(height: 10),
+                ],
               ),
             ),
-            const SizedBox(height: 25),
-            const SizedBox(height: 10),
-            const SizedBox(height: 25),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 }

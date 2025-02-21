@@ -1,4 +1,5 @@
 import 'package:calendar_app/project/rehearsals/rehearsal_details.dart';
+import 'package:calendar_app/utils.dart';
 import 'package:flutter/material.dart';
 
 class RehearsalElement extends StatefulWidget {
@@ -92,7 +93,7 @@ class _RehearsalElementState extends State<RehearsalElement> {
                 const SizedBox(height: 10),
                 if (description != null && description != "")
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.only(bottom: 2.5),
                     child: Text(
                       'Description : $description',
                       style: const TextStyle(
@@ -102,11 +103,25 @@ class _RehearsalElementState extends State<RehearsalElement> {
                     ),
                   ),
                 if (date != null)
-                  Text(
-                    'Date: $date',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.black54,
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 2.5),
+                    child: Text(
+                      'Date: $date',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                if (duration != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 2.5),
+                    child: Text(
+                      'Durée: ${Utils.formatDuration(duration!)}',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
               ],

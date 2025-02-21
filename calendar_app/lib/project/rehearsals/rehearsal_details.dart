@@ -51,10 +51,11 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
     date = widget.date;
     duration = widget.duration;
     participantsIds = widget.participantsIds;
-    users = getUsersOnReharsals(context);
+    users = getUsersOnReharsal(context);
+    getRehearsal();
   }
 
-  Future<List> getUsersOnReharsals(BuildContext context) async {
+  Future<List> getUsersOnReharsal(BuildContext context) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/userProjects/${widget.projectId}';
     try {
@@ -80,7 +81,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
 
   void refreshUsers() {
     setState(() {
-      users = getUsersOnReharsals(context);
+      users = getUsersOnReharsal(context);
     });
   }
 
@@ -89,19 +90,49 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
     onLogoutSuccess();
   }
 
-  void deleteRehearsal() async{
+  void deleteRehearsal() async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/rehearsals/${widget.rehearsalId}';
     try {
       final response = await http.delete(Uri.parse(url));
 
       if (response.statusCode != 204) {
-        Utils.errorMess('Erreur lors de la suppression de la répétition', 'Merci de réessayer plus tard', context);
-      }else{
+        Utils.errorMess('Erreur lors de la suppression de la répétition',
+            'Merci de réessayer plus tard', context);
+      } else {
         Navigator.pop(context);
       }
     } catch (e) {
-      Utils.errorMess('Erreur lors de la suppression de la répétition', 'Merci de réessayer plus tard', context);
+      Utils.errorMess('Erreur lors de la suppression de la répétition',
+          'Merci de réessayer plus tard', context);
+    }
+  }
+
+  void getRehearsal() async {
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/rehearsals/${widget.rehearsalId}';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data =
+            json.decode(utf8.decode(response.bodyBytes));
+        setState(() {
+          name = data['name'];
+          description = data['description'];
+          date = data['date'];
+          duration = data['duration'];
+        });
+        //TODO get participants
+      } else {
+        print("response.statusCode: ${response.statusCode}");
+        print("response.body: ${response.body}");
+        Utils.errorMess(
+            'Une erreur est survenue', 'Merci de réessayer plus tard', context);
+      }
+    } catch (e) {
+      print("e: $e");
+      Utils.errorMess(
+          'Une erreur est survenue', 'Merci de réessayer plus tard', context);
     }
   }
 
@@ -160,6 +191,13 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                           fontSize: 20,
                         ),
                       ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Durée: ${duration != null ? Utils.formatDuration(duration!) : "-"}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -181,19 +219,14 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                         participantsIds: participantsIds,
                       ),
                     ),
-                  ).then((updatedProject) {
-                    if (updatedProject != null) {
-                      setState(() {
-                        name = updatedProject['name'];
-                        description = updatedProject['description'];
-                        //TODO or call db ?
-                      });
-                    }
+                  ).then((_) {
+                    getRehearsal();
                   });
                 },
               ),
               const SizedBox(height: 20),
-              ButtonCustom( //TODO
+              ButtonCustom(
+                //TODO
                 text: 'Ajouter des participant',
                 onTap: () {
                   Navigator.push(
@@ -212,9 +245,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                   ).then((updatedProject) {
                     if (updatedProject != null) {
                       setState(() {
-                        name = updatedProject['name'];
-                        description = updatedProject['description'];
-                        //TODO or call db ?
+                        getRehearsal();
                       });
                     }
                   });
@@ -266,7 +297,11 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
               ButtonCustom(
                 text: 'Suprimmer la répétition',
                 onTap: () {
-                  Utils.confirmation('Action Irrévesible', 'Êtes-vous sûre de vouloir supprimer la répétition ?', deleteRehearsal, context);
+                  Utils.confirmation(
+                      'Action Irrévesible',
+                      'Êtes-vous sûre de vouloir supprimer la répétition ?',
+                      deleteRehearsal,
+                      context);
                 },
               ),
             ],

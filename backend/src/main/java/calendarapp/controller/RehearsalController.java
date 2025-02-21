@@ -34,6 +34,12 @@ public class RehearsalController {
         return new ResponseEntity<>(rehearsals, HttpStatus.OK);
     }
 
+    @GetMapping("/rehearsals/{id}")
+    public ResponseEntity<Rehearsal> getRehearsal(@PathVariable("id") long id) {
+        Rehearsal participants = rehearsalService.getRehearsal(id);
+        return new ResponseEntity<>(participants, HttpStatus.OK);
+    }
+
     @PostMapping("/rehearsals")
     public ResponseEntity<Rehearsal> createRehearsal(@Valid @RequestBody CreateRehearsalRequest request) {
         Rehearsal rehearsal = rehearsalService.createRehearsal(request);
