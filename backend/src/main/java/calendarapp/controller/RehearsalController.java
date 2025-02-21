@@ -37,4 +37,10 @@ public class RehearsalController {
         return new ResponseEntity<>(rehearsal, HttpStatus.CREATED);
     }
 
+    //TODO get list of user object for a rehearsal
+
+    //TODO delete une crépétition
+
+    //TODO update le projet
+
 }

@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 //source: https://www.youtube.com/watch?v=_3W-JuIVFlg
+
+//TODO: ceci completement remplacer par main
 class Auth extends StatelessWidget {
   //decide between home page and authentification page
   const Auth({super.key});

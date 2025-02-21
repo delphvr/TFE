@@ -1,6 +1,6 @@
 import 'package:calendar_app/auth/auth.dart';
-import 'package:calendar_app/project/add_participant.dart';
-import 'package:calendar_app/project/participant_element.dart';
+import 'package:calendar_app/project/participants/add_participant.dart';
+import 'package:calendar_app/project/participants/participant_element.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/components/button_custom.dart';
@@ -39,7 +39,7 @@ class _ParticipantsPage extends State<ParticipantsPage> {
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         final List<dynamic> userProjects = data.map((item) {
           return {
             'id': item['id'],
@@ -95,7 +95,7 @@ class _ParticipantsPage extends State<ParticipantsPage> {
           child: Column(
             children: [
               Text(
-                "Participants sur le project ${widget.name}",
+                "Participants sur le projet ${widget.name}",
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 27,

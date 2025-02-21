@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (response.statusCode == 200) {
-        //Map<String, dynamic> parsedJson = json.decode(response.body);
+        //Map<String, dynamic> parsedJson = json.decode(utf8.decode(response.bodyBytes));
         //print(parsedJson);
         return response.body == "true";
       } else {

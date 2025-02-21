@@ -1,4 +1,4 @@
-import 'package:calendar_app/project/particpipant_modification.dart';
+import 'package:calendar_app/project/participants/particpipant_modification.dart';
 import 'package:flutter/material.dart';
 
 class UsersElement extends StatefulWidget {

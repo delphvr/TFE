@@ -372,7 +372,7 @@ POST "http://localhost:8080/api/rehearsals"
     "name": "General rehearsal", 
     "description": "Last rehearsal with everyone",
     "date": "2025-07-01",
-    "duration": "'PT3H'",
+    "duration": "PT3H",
     "projectId": "2",
     "participantsIds": []
 }
@@ -385,7 +385,7 @@ POST "http://localhost:8080/api/rehearsals"
     "name": "General rehearsal", 
     "description": "Last rehearsal with everyone",
     "date": "2025-07-01",
-    "duration": "'PT3H'",
+    "duration": "PT3H",
     "projectId": "2"
 }
 ```
@@ -400,7 +400,7 @@ POST "http://localhost:8080/api/rehearsals"
 ### Get the rehearsals of a project
 
 ```
-POST "http://localhost:8080/api/projects/{id}/rehearsals"
+GET "http://localhost:8080/api/projects/{id}/rehearsals"
 ```
 
 **If successful return** e.g: 
@@ -411,9 +411,9 @@ POST "http://localhost:8080/api/projects/{id}/rehearsals"
         "name": "General rehearsal", 
         "description": "Last rehearsal with everyone",
         "date": "2025-07-01",
-        "duration": "'PT3H'",
+        "duration": "PT3H",
         "projectId": "2",
-        "participantsIds"
+        "participantsIds": []
     }
 ]
 ```

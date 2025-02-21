@@ -1,6 +1,7 @@
 import 'package:calendar_app/auth/auth.dart';
-import 'package:calendar_app/project/participants.dart';
-import 'package:calendar_app/project/update_project.dart';
+import 'package:calendar_app/project/participants/participants.dart';
+import 'package:calendar_app/project/rehearsals/rehearsals.dart';
+import 'package:calendar_app/project/project_modification.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +56,7 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         final List<dynamic> userProjects = data.map((item) {
           return {
             'id': item['id'],
@@ -198,15 +199,20 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => ParticipantsPage(id: widget.id, name: name,)),
-                  ).then((_) {
-                    setState(() {
-                        //projects = getProjects(context);
-                        //TODO
-                      });
-                  });
+                  );
                 },
               ),
               const SizedBox(height: 25),
+              ButtonCustom(
+                text: "Voir les répétitions",
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RehearsalPage(projectId: widget.id, projectName: name,)),
+                  );
+                },
+              ),
+              const SizedBox(height: 40),
               ButtonCustom(
                 text: 'Suprimmer le projet',
                 onTap: () {

@@ -41,7 +41,7 @@ public class RehearsalService {
      *                  rehearsal
      * @return the list of rehearsal associated with the project with project id
      *         ´projectId´
-     *         sort by date.
+     *         sort by date then by name.
      */
     public List<RehearsalResponse> getProjectRehearsals(Long projectId) {
         projectService.isProject(projectId);
@@ -49,11 +49,16 @@ public class RehearsalService {
         List<RehearsalResponse> rehearsalsResponse = new ArrayList<>();
         for (Rehearsal rehearsal : rehearsals) {
             List<Participation> participations = participationRepositiry.findByRehearsalId(rehearsal.getId());
-            List<Long> participationIds = participations.stream().map(Participation::getUserId).collect(Collectors.toList());
-            RehearsalResponse rehearsalResponse = new RehearsalResponse(rehearsal.getId(), rehearsal.getName(), rehearsal.getDescription(), rehearsal.getDate(), rehearsal.getDuration(), rehearsal.getProjectId(), participationIds);
+            List<Long> participationIds = participations.stream().map(Participation::getUserId)
+                    .collect(Collectors.toList());
+            RehearsalResponse rehearsalResponse = new RehearsalResponse(rehearsal.getId(), rehearsal.getName(),
+                    rehearsal.getDescription(), rehearsal.getDate(), rehearsal.getDuration(), rehearsal.getProjectId(),
+                    participationIds);
             rehearsalsResponse.add(rehearsalResponse);
         }
-        rehearsalsResponse.sort(Comparator.comparing(RehearsalResponse::getDate));
+        rehearsalsResponse.sort(Comparator
+                .comparing(RehearsalResponse::getDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(RehearsalResponse::getName, Comparator.naturalOrder()));
         return rehearsalsResponse;
     }
 
@@ -90,7 +95,8 @@ public class RehearsalService {
         Rehearsal rehearsal = new Rehearsal(request.getName(), request.getDescription(), request.getDate(),
                 request.getDuration(), request.getProjectId());
         Rehearsal res = rehearsalRepository.save(rehearsal);
-
+        // TODO dois check que les participant à la répète sont bien des participant au
+        // project
         for (Long participantId : request.getParticipantsIds()) {
             userService.isUser(participantId);
             Participation participation = new Participation(participantId, rehearsal.getId());

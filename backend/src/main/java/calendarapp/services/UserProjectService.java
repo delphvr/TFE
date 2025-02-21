@@ -114,7 +114,8 @@ public class UserProjectService {
         // Sort based on endingDate, then beginningDate
         res.sort(Comparator
                 .comparing(Project::getEndingDate, Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparing(Project::getBeginningDate, Comparator.nullsLast(Comparator.naturalOrder())));
+                .thenComparing(Project::getBeginningDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(Project::getName, Comparator.naturalOrder()));
 
         return res;
     }

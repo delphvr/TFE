@@ -109,7 +109,7 @@ class _RegisterState extends State<Register> {
       );
 
       if (response.statusCode == 201) {
-        Map<String, dynamic> parsedJson = json.decode(response.body);
+        Map<String, dynamic> parsedJson = json.decode(utf8.decode(response.bodyBytes));
         return parsedJson["id"];
       } else if (response.statusCode == 409) {
         if (mounted) {

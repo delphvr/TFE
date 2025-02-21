@@ -1,6 +1,6 @@
 import 'package:calendar_app/auth/auth.dart';
-import 'package:calendar_app/project/role_element.dart';
-import 'package:calendar_app/project/role_modification.dart';
+import 'package:calendar_app/project/roles/role_element.dart';
+import 'package:calendar_app/project/roles/role_modification.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

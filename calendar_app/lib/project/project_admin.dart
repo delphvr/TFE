@@ -31,12 +31,13 @@ class _ProjectPageState extends State<ProjectPage> {
 
   Future<List> getProjects(BuildContext context) async {
     final email = user.email;
-    final String url = '${dotenv.env['API_BASE_URL']}/userProjects/organizer/$email'; 
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/userProjects/organizer/$email';
     try {
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         final List<dynamic> userProjects = data.map((item) {
           return {
             'id': item['id'],
@@ -97,8 +98,8 @@ class _ProjectPageState extends State<ProjectPage> {
                     MaterialPageRoute(builder: (context) => NewProjectPage()),
                   ).then((_) {
                     setState(() {
-                        projects = getProjects(context);
-                      });
+                      projects = getProjects(context);
+                    });
                   });
                 },
               ),
