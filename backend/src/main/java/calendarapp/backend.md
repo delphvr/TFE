@@ -48,6 +48,48 @@ POST "http://localhost:8080/api/users"
 - `409 Conflict`: Email already exists.
 - `400 Bad Request`: Invalid request body, email field does not contains an email format string, ... .
 
+### Get a User with its id
+
+```
+GET "http://localhost:8080/api/users/{id}"
+```
+
+**If successful return the user with the given id** e.g: 
+```
+{
+    id : 23,
+    firstName: "Del", 
+    lastName: "vr", 
+    email: "del.vr@mail.com"
+}
+```
+
+**Possible Response Codes:**
+
+- `200 Ok`: User successfully retrieved.
+- `404 Not Found`: No user found with that id.
+
+### Get a User with its email
+
+```
+GET "http://localhost:8080/api/users?email={email}"
+```
+
+**If successful return the user with the given email** e.g: 
+```
+{
+    id : 23,
+    firstName: "Del", 
+    lastName: "vr", 
+    email: "del.vr@mail.com"
+}
+```
+
+**Possible Response Codes:**
+
+- `200 Ok`: User successfully retrieved.
+- `404 Not Found`: No user found with that email.
+
 ### Delete User based on its id
 
 ```
@@ -68,6 +110,24 @@ GET "/api/users/organizer/{mail}"
 **If successful return Boolean value** e.g: 
 ```
 true
+```
+
+**Possible Response Codes:**
+
+- `200 OK`: Value successfully retrieved.
+- `404 Not Found`: No user found with that email address.
+
+### Get User Professions
+
+```
+GET "/api/users/{email}/professions"
+```
+
+**If successful return list of professions** e.g: 
+```
+[
+    "Danseur"
+]
 ```
 
 **Possible Response Codes:**

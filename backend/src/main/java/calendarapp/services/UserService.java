@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,7 +33,8 @@ public class UserService {
     /**
      * Checks if a user with the given ´userId´ exists in the database.
      * If it does not exist, throws an IllegalArgumentException.
-     * @param userId: the id of a user 
+     * 
+     * @param userId: the id of a user
      * @throws IllegalArgumentException if no user is found with the given ID
      */
     public void isUser(Long userId) {
@@ -43,14 +46,30 @@ public class UserService {
 
     /**
      * Get the user with id ´id´
+     * 
      * @param id id of a user
      * @return the user with the given id
      * @throws IllegalArgumentException if no user is found with the given id
      */
-    public User getUser(Long id){
+    public User getUser(Long id) {
         Optional<User> user = userRepository.findById(id);
         if (!user.isPresent()) {
             throw new IllegalArgumentException("User not found with id " + id);
+        }
+        return user.get();
+    }
+
+    /**
+     * Get the user with email ´email´
+     * 
+     * @param email email of a user in a string format
+     * @return the user with the given email
+     * @throws IllegalArgumentException if no user is found with the given email
+     */
+    public User getUser(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found with email " + email);
         }
         return user.get();
     }
@@ -108,6 +127,26 @@ public class UserService {
         } else {
             throw new IllegalArgumentException("User not found with email " + email);
         }
+    }
+
+    /**
+     * Get the list of the user professions
+     * 
+     * @param email email of a user in a string format
+     * @return a list of string representing all the user professions
+     * @throws IllegalArgumentException if no user is found with the given email
+     */
+    public List<String> getUserProfessions(String email) {
+        List<String> res = new ArrayList<>();
+        Optional<User> user = userRepository.findByEmail(email);
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found with email " + email);
+        }
+        List<UserProfession> userProfessions = userProfessionRepository.findByUserId(user.get().getId());
+        for (UserProfession userProfession : userProfessions) {
+            res.add(userProfession.getProfession());
+        }
+        return res;
     }
 
 }

@@ -47,10 +47,4 @@ public class ProfessionController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
-	@DeleteMapping("/professions")
-	public ResponseEntity<HttpStatus> deleteAllProfessions() {
-		professionRepository.deleteAll();
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	}
-
 }

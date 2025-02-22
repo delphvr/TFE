@@ -6,6 +6,7 @@ import calendarapp.request.CreateUserRequest;
 import calendarapp.services.UserService;
 import jakarta.validation.Valid;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 //source: https://www.bezkoder.com/spring-boot-postgresql-example/
 
@@ -42,14 +44,10 @@ public class UserController {
 		}
 	}
 
-	@GetMapping("/users/email/{email}")
-	public ResponseEntity<User> getUserByEmail(@PathVariable("email") String email) {
-		Optional<User> userData = userRepository.findByEmail(email);
-		if (userData.isPresent()) {
-			return new ResponseEntity<>(userData.get(), HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+	@GetMapping("/users")
+	public ResponseEntity<User> getUserByEmail(@RequestParam("email") String email) {
+		User user = userService.getUser(email);
+		return ResponseEntity.ok(user);
 	}
 
 	@PostMapping("/users")
@@ -83,5 +81,11 @@ public class UserController {
 	public ResponseEntity<Boolean> isUserOrganizer(@PathVariable("email") String email) {
 		boolean isOrganizer = userService.isUserOrganizer(email);
 		return new ResponseEntity<>(isOrganizer, HttpStatus.OK);
+	}
+
+	@GetMapping("/users/{email}/professions")
+	public ResponseEntity<List<String>> getUserProfessions(@PathVariable("email") String email) {
+		List<String> professions = userService.getUserProfessions(email);
+		return new ResponseEntity<>(professions, HttpStatus.OK);
 	}
 }

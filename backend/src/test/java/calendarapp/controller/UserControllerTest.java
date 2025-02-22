@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import calendarapp.Utils;
 import calendarapp.model.User;
 import calendarapp.repository.UserRepository;
 
@@ -193,13 +194,69 @@ public class UserControllerTest {
     }
 
     /*
-     * Pour tester le get ? : 
-     * List<User> users = webTestClient.get().uri("/api/users")
-            .exchange()
-            .expectBody(new ParameterizedTypeReference<List<User>>() {})
-            .returnResult()
-            .getResponseBody();
-        System.out.println("USER : " + users);
+     * Tests get user with id
      */
+
+    @Test
+    public void testGetUser() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}".replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        webTestClient.get().uri("/api/users/" + user.getId())
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.firstName").isEqualTo("Del")
+            .jsonPath("$.lastName").isEqualTo("vr")
+            .jsonPath("$.email").isEqualTo("del.vr@mail.com");
+    }
+
+    @Test
+    public void testGetUserNotFound() {
+        webTestClient.get().uri("/api/users/0")
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+
+    /*
+     * Tests get user with email
+     */
+
+    @Test
+    public void testGetUserWithEmail() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}".replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        webTestClient.get().uri("/api/users?email=" + user.getEmail())
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.firstName").isEqualTo("Del")
+            .jsonPath("$.lastName").isEqualTo("vr")
+            .jsonPath("$.email").isEqualTo("del.vr@mail.com");
+    }
+
+    @Test
+    public void testGetUserWithEmailNotFound() {
+        webTestClient.get().uri("/api/users?email=b@b.com")
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+
+    /*
+     * Tests get user professions
+     */
+
+    @Test
+    public void testGetUserProfessions() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}".replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        webTestClient.get().uri("/api/users/" + user.getEmail() +"/professions")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .json("['Danseur']");
+    }
 
 }
