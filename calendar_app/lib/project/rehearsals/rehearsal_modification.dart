@@ -1,12 +1,17 @@
 import 'package:calendar_app/auth/auth.dart';
+import 'package:calendar_app/components/bottom_sheet_selector.dart';
 import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
+import 'package:calendar_app/project/rehearsals/add_rehearsal.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:multi_select_flutter/multi_select_flutter.dart';
+
 
 class RehearsalModificationPage extends StatefulWidget {
   final int projectId;
@@ -42,6 +47,9 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
   late TextEditingController dateController;
   late TextEditingController durationController;
   String isoDuration = '';
+  List<Participant> participants = [];
+  List<Participant> selectedParticipants = [];
+  List<MultiSelectItem<Participant>> items = [];
 
   @override
   void initState() {
@@ -51,6 +59,10 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     dateController = TextEditingController(text: widget.date);
     isoDuration = widget.duration !=null ? widget.duration! : '' ;
     durationController = TextEditingController(text: widget.duration !=null ? Utils.formatDuration(widget.duration!) : null);
+    getUsersOnProject(
+        context); //initiate participants list with the participants of the project
+    //init selectedParticipants to user already participating in the rehearsal
+    getUsersOnRehearsal(context);
   }
 
   @override
@@ -67,6 +79,51 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
   void logout(Function onLogoutSuccess) async {
     await FirebaseAuth.instance.signOut();
     onLogoutSuccess();
+  }
+
+  Future<void> getUsersOnProject(BuildContext context) async {
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/userProjects/${widget.projectId}';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        setState(() {
+          participants = data
+              .map((item) => Participant(
+                  name: "${item['firstName']} ${item['lastName']}",
+                  id: item['id']))
+              .toList();
+          items = participants
+              .map((participant) =>
+                  MultiSelectItem<Participant>(participant, participant.name))
+              .toList();
+        });
+      }
+    } catch (e) {
+      print("Error fetching users: $e");
+    }
+  }
+
+  void getUsersOnRehearsal(BuildContext context) async {
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/rehearsals/${widget.rehearsalId}/participants';
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        setState(() {
+          selectedParticipants = data
+              .map((item) => Participant(
+                  name: "${item['firstName']} ${item['lastName']}",
+                  id: item['id']))
+              .toList();
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   void update(BuildContext context) async {
@@ -93,6 +150,8 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
       "description": description,
       "date": date,
       "duration": duration,
+      "participantsIds": selectedParticipants.map((item) => item.id).toList(),
+      "projectId": widget.projectId
     };
 
     try {
@@ -140,7 +199,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
   Future<void> _selectDuration(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: const TimeOfDay(hour: 0, minute: 0), // Default to 0h 0m
+      initialTime: const TimeOfDay(hour: 0, minute: 0),
     );
     if (picked != null) {
       setState(() {
@@ -197,7 +256,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
                     obscureText: false,
                     keyboardType: TextInputType.text,
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 20),
                   SizedBox(
                     width: 250,
                     child: TextField(
@@ -212,7 +271,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 20),
                   SizedBox(
                     width: 250,
                     child: GestureDetector(
@@ -232,7 +291,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 20),
                   SizedBox(
                     width: 250,
                     child: GestureDetector(
@@ -253,10 +312,26 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 20),
+                  BottomSheetSelector<Participant>(
+                    items: participants,
+                    selectedItems: selectedParticipants,
+                    onSelectionChanged: (selectedList) {
+                      setState(() {
+                        selectedParticipants = selectedList;
+                      });
+                    },
+                    title: "Sélectionnez les participants",
+                    buttonLabel: "Valider",
+                    itemLabel: (role) => role.name,
+                    textfield: "Participants",
+                  ),
+                  const SizedBox(height: 20),
                   ButtonCustom(
                     text: 'Modifier',
-                    onTap: () => update(context),
+                    onTap: () {
+                      update(context);
+                    },
                   ),
                   const SizedBox(height: 10),
                 ],

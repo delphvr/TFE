@@ -2,7 +2,7 @@ package calendarapp.controller;
 
 import calendarapp.model.Rehearsal;
 import calendarapp.model.User;
-import calendarapp.request.CreateRehearsalRequest;
+import calendarapp.request.RehearsalRequest;
 import calendarapp.response.RehearsalResponse;
 import calendarapp.services.RehearsalService;
 import jakarta.validation.Valid;
@@ -41,7 +41,7 @@ public class RehearsalController {
     }
 
     @PostMapping("/rehearsals")
-    public ResponseEntity<Rehearsal> createRehearsal(@Valid @RequestBody CreateRehearsalRequest request) {
+    public ResponseEntity<Rehearsal> createRehearsal(@Valid @RequestBody RehearsalRequest request) {
         Rehearsal rehearsal = rehearsalService.createRehearsal(request);
         return new ResponseEntity<>(rehearsal, HttpStatus.CREATED);
     }
@@ -59,7 +59,7 @@ public class RehearsalController {
     }
 
     @PutMapping("/rehearsals/{id}")
-	public ResponseEntity<Rehearsal> updateReheasal(@PathVariable("id") long id, @RequestBody Rehearsal rehearsal) {
+	public ResponseEntity<Rehearsal> updateReheasal(@PathVariable("id") long id, @RequestBody RehearsalRequest rehearsal) {
 		Rehearsal updatedRehearsal = rehearsalService.updateReheasal(id, rehearsal);
 		return new ResponseEntity<>(updatedRehearsal, HttpStatus.OK);
 	}

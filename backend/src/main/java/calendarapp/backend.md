@@ -449,6 +449,8 @@ PUT "http://localhost:8080/api/rehearsals/{id}"
     "description": "Last rehearsal with everyone",
     "date": "2025-07-01",
     "duration": "PT3H",
+    "projectId": 2,
+    "participants": [18]
 }
 ```
 

@@ -1,6 +1,6 @@
 import 'package:calendar_app/auth/auth.dart';
-import 'package:calendar_app/project/participants/participant_element.dart';
 import 'package:calendar_app/project/rehearsals/rehearsal_modification.dart';
+import 'package:calendar_app/project/rehearsals/rehearsal_participant_element.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +26,7 @@ class RehearsalDetailsPage extends StatefulWidget {
     required this.description,
     required this.date,
     required this.duration,
-    required this.participantsIds,
+    required this.participantsIds, //TODO delete ?
   });
 
   @override
@@ -51,19 +51,19 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
     date = widget.date;
     duration = widget.duration;
     participantsIds = widget.participantsIds;
-    users = getUsersOnReharsal(context);
+    users = getUsersOnRehearsal(context);
     getRehearsal();
   }
 
-  Future<List> getUsersOnReharsal(BuildContext context) async {
+  Future<List> getUsersOnRehearsal(BuildContext context) async {
     final String url =
-        '${dotenv.env['API_BASE_URL']}/userProjects/${widget.projectId}';
+        '${dotenv.env['API_BASE_URL']}/rehearsals/${widget.rehearsalId}/participants';
     try {
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-        final List<dynamic> userProjects = data.map((item) {
+        final List<dynamic> userRehearsal = data.map((item) {
           return {
             'id': item['id'],
             'firstName': item['firstName'],
@@ -71,7 +71,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
             'email': item['email'],
           };
         }).toList();
-        return userProjects;
+        return userRehearsal;
       }
       return [];
     } catch (e) {
@@ -81,7 +81,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
 
   void refreshUsers() {
     setState(() {
-      users = getUsersOnReharsal(context);
+      users = getUsersOnRehearsal(context);
     });
   }
 
@@ -122,15 +122,11 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
           date = data['date'];
           duration = data['duration'];
         });
-        //TODO get participants
       } else {
-        print("response.statusCode: ${response.statusCode}");
-        print("response.body: ${response.body}");
         Utils.errorMess(
             'Une erreur est survenue', 'Merci de réessayer plus tard', context);
       }
     } catch (e) {
-      print("e: $e");
       Utils.errorMess(
           'Une erreur est survenue', 'Merci de réessayer plus tard', context);
     }
@@ -198,8 +194,57 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                           fontSize: 20,
                         ),
                       ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Participants: ${participantsIds.isEmpty ? "-" : ""}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
                     ],
                   ),
+                ),
+              ),
+
+              const SizedBox(height: 10),
+              Flexible(
+                child: FutureBuilder<List>(
+                  future: users,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text("Erreur: ${snapshot.error}"),
+                      );
+                    } else if (snapshot.hasData) {
+                      final users = snapshot.data!;
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: users.length,
+                        itemBuilder: (context, index) {
+                          return ParticipantElement(
+                            projectId: widget.projectId,
+                            rehearsalId: widget.rehearsalId,
+                            userId: users[index]['id'],
+                            firstName: users[index]['firstName'],
+                            lastName: users[index]['lastName'],
+                            email: users[index]['email'],
+                            //roles: users[index]['roles'],
+                            onUpdate: refreshUsers,
+                          );
+                        },
+                      );
+                    } else {
+                      return const Center(
+                        child: Text('Aucun participant trouvé'),
+                      );
+                    }
+                  },
                 ),
               ),
               const SizedBox(height: 25),
@@ -221,79 +266,11 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                     ),
                   ).then((_) {
                     getRehearsal();
+                    refreshUsers();
                   });
                 },
               ),
               const SizedBox(height: 20),
-              ButtonCustom(
-                //TODO
-                text: 'Ajouter des participant',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RehearsalModificationPage(
-                        rehearsalId: widget.rehearsalId,
-                        projectId: widget.projectId,
-                        name: name,
-                        description: description,
-                        date: date,
-                        duration: duration,
-                        participantsIds: participantsIds,
-                      ),
-                    ),
-                  ).then((updatedProject) {
-                    if (updatedProject != null) {
-                      setState(() {
-                        getRehearsal();
-                      });
-                    }
-                  });
-                },
-              ),
-              const SizedBox(height: 25),
-              //TODO: modif pour fit comme role élément plutot
-
-              Flexible(
-                child: FutureBuilder<List>(
-                  future: users,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text("Erreur: ${snapshot.error}"),
-                      );
-                    } else if (snapshot.hasData) {
-                      final users = snapshot.data!;
-
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: users.length,
-                        itemBuilder: (context, index) {
-                          return UsersElement(
-                            projectId: widget.projectId,
-                            userId: users[index]['id'],
-                            firstName: users[index]['firstName'],
-                            lastName: users[index]['lastName'],
-                            email: users[index]['email'],
-                            //roles: users[index]['roles'],
-                            onUpdate: refreshUsers,
-                          );
-                        },
-                      );
-                    } else {
-                      return const Center(
-                        child: Text('Aucun participant trouvé'),
-                      );
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(height: 40),
               ButtonCustom(
                 text: 'Suprimmer la répétition',
                 onTap: () {

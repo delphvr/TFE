@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 
-public class CreateRehearsalRequest {
+public class RehearsalRequest {
     private String name;
     private String description;
     private LocalDate date;
@@ -12,9 +12,9 @@ public class CreateRehearsalRequest {
     private Long projectId;
     private List<Long> participantsIds;
 
-    public CreateRehearsalRequest() {}
+    public RehearsalRequest() {}
 
-    public CreateRehearsalRequest(String name, String description, LocalDate date, Duration duration, Long projectId, List<Long> participantsIds) {
+    public RehearsalRequest(String name, String description, LocalDate date, Duration duration, Long projectId, List<Long> participantsIds) {
         this.name = name;
         this.description = description;
         this.date = date;

@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "rehearsals")
@@ -23,7 +24,8 @@ public class Rehearsal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = true)
+    @NotBlank
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "description", nullable = true)

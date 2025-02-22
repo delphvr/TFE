@@ -39,7 +39,8 @@ class BottomSheetSelector<T> extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const Divider(),
                 Expanded(
@@ -86,7 +87,7 @@ class BottomSheetSelector<T> extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 250,
+          width: 250, // Ensuring the button width is consistent
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFF2F2F2),
@@ -114,17 +115,19 @@ class BottomSheetSelector<T> extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 5),
-        Wrap(
-          spacing: 8.0,
-          runSpacing: 4.0,
-          children: selectedItems
-              .map((item) => Chip(
-                    label: Text(itemLabel(item)),
-                    onDeleted: () {
-                      onSelectionChanged(selectedItems..remove(item));
-                    },
-                  ))
-              .toList(),
+        SizedBox(
+          width: 250,
+          child: Wrap(
+            children: selectedItems
+                .map((item) => Chip(
+                      label: Text(itemLabel(item)),
+                      onDeleted: () {
+                        onSelectionChanged(
+                            List.from(selectedItems)..remove(item));
+                      },
+                    ))
+                .toList(),
+          ),
         ),
       ],
     );

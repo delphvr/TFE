@@ -1,4 +1,5 @@
 import 'package:calendar_app/auth/auth.dart';
+import 'package:calendar_app/components/bottom_sheet_selector.dart';
 import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
 import 'package:calendar_app/utils.dart';
@@ -7,6 +8,21 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
+
+class Participant {
+  final String name;
+  final int id;
+
+  Participant({required this.name, required this.id});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is Participant && other.id == id);
+
+  @override
+  int get hashCode => id.hashCode;
+}
 
 class AddRehearsal extends StatefulWidget {
   final int projectId;
@@ -28,6 +44,16 @@ class _AddRehearsal extends State<AddRehearsal> {
   TextEditingController durationController = TextEditingController();
   String isoDuration = '';
   DateTime? _selectedDate;
+  List<Participant> participants = [];
+  List<Participant> selectedParticipants = [];
+  List<MultiSelectItem<Participant>> items = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getUsersOnProject(
+        context); //initiate participants list with the participants of the project
+  }
 
   void logout(Function onLogoutSuccess) async {
     await FirebaseAuth.instance.signOut();
@@ -41,7 +67,22 @@ class _AddRehearsal extends State<AddRehearsal> {
     final duration = isoDuration;
     final String url = '${dotenv.env['API_BASE_URL']}/rehearsals';
 
-    //TODO check que la date rentre dans la date du projet
+    //TODO check que la date rentre dans les dates du projet
+    if (rehearsalName.isEmpty) {
+      Utils.errorMess('Erreur lors de la création de la répétition',
+          'Merci de donner un nom à la répétition', context);
+      return;
+    }
+    if (date.isNotEmpty) {
+      DateTime selectedDate = DateTime.parse(date);
+      DateTime today = DateTime.now();
+      DateTime todayWithoutTime = DateTime(today.year, today.month, today.day);
+      if (todayWithoutTime.isAfter(selectedDate)) {
+        Utils.errorMess('Erreur lors de la création de la répétition',
+            'La date ne peut pas avoir lieu dans le passé.', context);
+        return;
+      }
+    }
 
     final Map<String, dynamic> requestBody = {
       "name": rehearsalName,
@@ -49,7 +90,7 @@ class _AddRehearsal extends State<AddRehearsal> {
       "date": date,
       "duration": duration,
       "projectId": widget.projectId,
-      "participantsIds": []
+      "participantsIds": selectedParticipants.map((item) => item.id).toList()
     };
 
     try {
@@ -70,6 +111,30 @@ class _AddRehearsal extends State<AddRehearsal> {
     } catch (e) {
       Utils.errorMess('Erreur lors de l\'ajout du participant',
           'Impossible de se connecter au serveur.', context);
+    }
+  }
+
+  Future<void> getUsersOnProject(BuildContext context) async {
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/userProjects/${widget.projectId}';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        setState(() {
+          participants = data
+              .map((item) => Participant(
+                  name: "${item['firstName']} ${item['lastName']}",
+                  id: item['id']))
+              .toList();
+          items = participants
+              .map((participant) =>
+                  MultiSelectItem<Participant>(participant, participant.name))
+              .toList();
+        });
+      }
+    } catch (e) {
+      print("Error fetching users: $e");
     }
   }
 
@@ -153,7 +218,7 @@ class _AddRehearsal extends State<AddRehearsal> {
                     obscureText: false,
                     keyboardType: TextInputType.text,
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 20),
                   SizedBox(
                     width: 250,
                     child: TextField(
@@ -168,7 +233,7 @@ class _AddRehearsal extends State<AddRehearsal> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 20),
                   SizedBox(
                     width: 250,
                     child: GestureDetector(
@@ -188,12 +253,11 @@ class _AddRehearsal extends State<AddRehearsal> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 20),
                   SizedBox(
                     width: 250,
                     child: GestureDetector(
-                      onTap: () =>
-                          _selectDuration(context), 
+                      onTap: () => _selectDuration(context),
                       child: AbsorbPointer(
                         child: TextField(
                           controller: durationController,
@@ -203,13 +267,27 @@ class _AddRehearsal extends State<AddRehearsal> {
                             labelText: 'Durée',
                             fillColor: Color(0xFFF2F2F2),
                             filled: true,
-                            prefixIcon: Icon(Icons.timer), 
+                            prefixIcon: Icon(Icons.timer),
                           ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 20),
+                  BottomSheetSelector<Participant>(
+                    items: participants,
+                    selectedItems: selectedParticipants,
+                    onSelectionChanged: (selectedList) {
+                      setState(() {
+                        selectedParticipants = selectedList;
+                      });
+                    },
+                    title: "Sélectionnez les participants",
+                    buttonLabel: "Valider",
+                    itemLabel: (role) => role.name,
+                    textfield: "Participants",
+                  ),
+                  const SizedBox(height: 20),
                   ButtonCustom(
                     text: 'Ajouter',
                     onTap: () => addRehearsal(context),

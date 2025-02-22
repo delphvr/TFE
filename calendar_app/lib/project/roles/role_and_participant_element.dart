@@ -3,25 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
-class RoleElement extends StatefulWidget {
+class RoleOrParticipantElement extends StatefulWidget {
   final int projectId;
   final int userId;
   final String role;
-  final VoidCallback onUpdate;
+  final VoidCallback? onUpdate;
 
-  const RoleElement({
+  const RoleOrParticipantElement({
     super.key,
     required this.projectId,
     required this.userId,
     required this.role,
-    required this.onUpdate,
+    this.onUpdate,
   });
 
   @override
-  State<RoleElement> createState() => _RoleElementState();
+  State<RoleOrParticipantElement> createState() => _RoleOrParticipantElementState();
 }
 
-class _RoleElementState extends State<RoleElement> {
+class _RoleOrParticipantElementState extends State<RoleOrParticipantElement> {
   void _deleteRole() async {
     final String url = '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles/${widget.role}';
     try {
@@ -31,7 +31,7 @@ class _RoleElementState extends State<RoleElement> {
         Utils.errorMess('Erreur lors de la supression du role', 'Erreur lors de la suppression. Merci de réessayez plus tard.', context);
       }
     } catch (_) {}
-    widget.onUpdate();
+    widget.onUpdate!();
   }
 
   @override
@@ -45,7 +45,7 @@ class _RoleElementState extends State<RoleElement> {
           border: Border.all(),
         ),
         child: Padding(
-          padding: widget.role == "Non défini"
+          padding: widget.role == "Non défini" || widget.onUpdate == null
               ? const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0)
               : const EdgeInsets.symmetric(vertical: 1.0, horizontal: 10.0),
           child: Row(
@@ -58,7 +58,7 @@ class _RoleElementState extends State<RoleElement> {
                   color: Colors.black,
                 ),
               ),
-              if (widget.role != "Non défini")
+              if (widget.role != "Non défini" && widget.onUpdate != null)
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: _deleteRole,
