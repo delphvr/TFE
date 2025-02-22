@@ -1,4 +1,4 @@
-import 'package:calendar_app/project/rehearsals/rehearsal_details.dart';
+import 'package:calendar_app/organizer/rehearsals/rehearsal_details.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:flutter/material.dart';
 

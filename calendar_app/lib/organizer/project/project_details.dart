@@ -1,7 +1,7 @@
 import 'package:calendar_app/auth/auth.dart';
-import 'package:calendar_app/project/participants/participants.dart';
-import 'package:calendar_app/project/rehearsals/rehearsals.dart';
-import 'package:calendar_app/project/project_modification.dart';
+import 'package:calendar_app/organizer/participants/participants.dart';
+import 'package:calendar_app/organizer/rehearsals/rehearsals.dart';
+import 'package:calendar_app/organizer/project/project_modification.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

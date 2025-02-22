@@ -2,7 +2,7 @@ import 'package:calendar_app/auth/auth.dart';
 import 'package:calendar_app/components/bottom_sheet_selector.dart';
 import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
-import 'package:calendar_app/project/rehearsals/add_rehearsal.dart';
+import 'package:calendar_app/organizer/rehearsals/add_rehearsal.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

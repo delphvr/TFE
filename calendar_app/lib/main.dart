@@ -2,7 +2,7 @@ import 'package:calendar_app/auth/login_or_register.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/home.dart';
-import 'package:calendar_app/project/project_admin.dart';
+import 'package:calendar_app/organizer/project/project_admin.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -84,7 +84,7 @@ class _MyAppState extends State<MyApp> {
                 onTap: _navigateBottomBar,
                 type: BottomNavigationBarType.fixed,
                 items: const [
-                  BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+                  BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Projets'),
                   BottomNavigationBarItem(
                       icon: Icon(Icons.assignment), label: 'Organisateurs'),
                   BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),

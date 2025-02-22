@@ -1,5 +1,5 @@
-import 'package:calendar_app/project/new_project.dart';
-import 'package:calendar_app/project/project_element.dart';
+import 'package:calendar_app/organizer/project/new_project.dart';
+import 'package:calendar_app/organizer/project/project_element.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

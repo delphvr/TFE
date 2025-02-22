@@ -1,4 +1,4 @@
-import 'package:calendar_app/project/project_details.dart';
+import 'package:calendar_app/organizer/project/project_details.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:flutter/material.dart';
 

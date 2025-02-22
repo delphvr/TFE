@@ -1,4 +1,4 @@
-import 'package:calendar_app/project/participants/participant_rehearsal_detail.dart';
+import 'package:calendar_app/organizer/participants/participant_rehearsal_detail.dart';
 import 'package:flutter/material.dart';
 
 class ParticipantElement extends StatefulWidget {

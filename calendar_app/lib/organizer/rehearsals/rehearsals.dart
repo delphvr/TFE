@@ -1,6 +1,6 @@
 import 'package:calendar_app/auth/auth.dart';
-import 'package:calendar_app/project/rehearsals/add_rehearsal.dart';
-import 'package:calendar_app/project/rehearsals/rehearsal_element.dart';
+import 'package:calendar_app/organizer/rehearsals/add_rehearsal.dart';
+import 'package:calendar_app/organizer/rehearsals/rehearsal_element.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/components/button_custom.dart';

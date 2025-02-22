@@ -1,6 +1,6 @@
 import 'package:calendar_app/auth/auth.dart';
-import 'package:calendar_app/project/participants/add_participant.dart';
-import 'package:calendar_app/project/participants/participant_element.dart';
+import 'package:calendar_app/organizer/participants/add_participant.dart';
+import 'package:calendar_app/organizer/participants/participant_element.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/components/button_custom.dart';
