@@ -168,7 +168,7 @@ class _ParticpipantModificationPage
                         return RoleOrParticipantElement(
                           projectId: widget.projectId,
                           userId: widget.userId,
-                          role: roles[index],
+                          name: roles[index],
                           onUpdate: refreshRoles,
                         );
                       },

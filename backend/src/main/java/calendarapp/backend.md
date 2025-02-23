@@ -90,6 +90,40 @@ GET "http://localhost:8080/api/users?email={email}"
 - `200 Ok`: User successfully retrieved.
 - `404 Not Found`: No user found with that email.
 
+### Update a User
+
+```
+PUT "http://localhost:8080/api/users/{id}"
+```
+
+**Request Body Example**:
+
+```
+{
+    firstName: "Del", 
+    lastName: "vr", 
+    email: "del.vr@mail.com",
+    professions: ["Danseur"], 
+    isOrganizer: true
+}
+```
+
+**If successful return newly created user** e.g: 
+```
+{
+    id : 23,
+    firstName: "Del", 
+    lastName: "vr", 
+    email: "del.vr@mail.com"
+}
+```
+
+**Possible Response Codes:**
+
+- `201 Created`: User successfully updated.
+- `409 Conflict`: Email already exists.
+- `400 Bad Request`: Invalid request body, email field does not contains an email format string, ... .
+
 ### Delete User based on its id
 
 ```

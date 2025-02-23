@@ -8,7 +8,7 @@ import calendarapp.repository.OrganizerRepository;
 import calendarapp.repository.ProfessionRepository;
 import calendarapp.repository.UserProfessionRepository;
 import calendarapp.repository.UserRepository;
-import calendarapp.request.CreateUserRequest;
+import calendarapp.request.UserRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -74,8 +75,21 @@ public class UserService {
         return user.get();
     }
 
+    /**
+     * Add the ´profession´ to the profession table if not already present.
+     * 
+     * @param profession a string representing the profession
+     */
+    private void addProfession(String profession) {
+        Optional<Profession> existingProfession = professionRepository.findById(profession);
+        if (!existingProfession.isPresent()) {
+            Profession prof = new Profession(profession);
+            professionRepository.save(prof);
+        }
+    }
+
     @Transactional
-    public User createUser(CreateUserRequest request) {
+    public User createUser(UserRequest request) {
         Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
         if (existingUser.isPresent()) {
             throw new IllegalArgumentException("A user with email " + request.getEmail() + " already exists.");
@@ -86,11 +100,7 @@ public class UserService {
 
         if (request.getProfessions() != null && !request.getProfessions().isEmpty()) {
             for (String profession : request.getProfessions()) {
-                Optional<Profession> existingProfession = professionRepository.findById(profession);
-                if (!existingProfession.isPresent()) {
-                    Profession prof = new Profession(profession);
-                    professionRepository.save(prof);
-                }
+                addProfession(profession);
                 UserProfession userProfession = new UserProfession(user.getId(), profession);
                 userProfession.setUser(user);
                 userProfessionRepository.save(userProfession);
@@ -103,17 +113,49 @@ public class UserService {
         return user;
     }
 
-    public User updateUser(long id, User user) {
+    /**
+     * Update inforamition related to the user with id ´id´ in the database
+     * 
+     * @param id the id of the user to update
+     * @param request UserRequest object containing the data about the user to update 
+     * @return the updated user
+     */
+    @Transactional
+    public User updateUser(long id, UserRequest request) {
         Optional<User> userData = userRepository.findById(id);
-        if (userData.isPresent()) {
-            User _user = userData.get();
-            _user.setFirstName(user.getFirstName());
-            _user.setLastName(user.getLastName());
-            _user.setEmail(user.getEmail());
-            return userRepository.save(_user);
-        } else {
+        if (!userData.isPresent()) {
             throw new IllegalArgumentException("User not found with id " + id);
         }
+
+        User _user = userData.get();
+        _user.setFirstName(request.getFirstName());
+        _user.setLastName(request.getLastName());
+        _user.setEmail(request.getEmail());
+        List<UserProfession> existingUserProfessions = userProfessionRepository.findByUserId(userData.get().getId());
+        List<String> existingProfessions = existingUserProfessions.stream().map(UserProfession::getProfession)
+                .collect(Collectors.toList());
+        List<String> updatedProfessions = request.getProfessions();
+        // Delet professions not present anymore
+        for (UserProfession userProfession : existingUserProfessions) {
+            if (!updatedProfessions.contains(userProfession.getProfession())) {
+                userProfessionRepository.delete(userProfession);
+            }
+        }
+        // add new professions
+        for (String profession : updatedProfessions) {
+            if (!existingProfessions.contains(profession)) {
+                addProfession(profession);
+                UserProfession newUserProfession = new UserProfession(userData.get().getId(), profession);
+                userProfessionRepository.save(newUserProfession);
+            }
+        }
+        if (request.getIsOrganizer()) { 
+            if (!organizerRepository.existsByUserId(_user.getId())) { 
+                Organizer organizer = new Organizer(_user.getId());
+                organizerRepository.save(organizer);
+            }
+        }
+        return userRepository.save(_user);
     }
 
     public void deleteUser(long id) {

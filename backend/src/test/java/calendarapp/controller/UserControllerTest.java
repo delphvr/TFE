@@ -259,4 +259,25 @@ public class UserControllerTest {
             .json("['Danseur']");
     }
 
+    /*
+     * Tests update a user //TODO test changing the professions
+     */
+    @Test
+    public void testUpdateUser() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}".replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        String updatedUserJson = "{'firstName': 'Deli', 'lastName': 'vr', 'email': 'deli.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}".replace('\'', '"');
+
+        webTestClient.put().uri("/api/users/" + user.getId())
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(updatedUserJson)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.firstName").isEqualTo("Deli")
+            .jsonPath("$.lastName").isEqualTo("vr")
+            .jsonPath("$.email").isEqualTo("deli.vr@mail.com");
+    }
+
 }

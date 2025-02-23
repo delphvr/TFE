@@ -2,7 +2,7 @@ package calendarapp.request;
 
 import java.util.List;
 
-public class CreateUserRequest {
+public class UserRequest {
     private String firstName;
     private String lastName;
     private String email;

@@ -4,16 +4,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class RoleOrParticipantElement extends StatefulWidget {
-  final int projectId;
-  final int userId;
-  final String role;
+  final int? projectId;
+  final int? userId;
+  final String name;
   final VoidCallback? onUpdate;
 
   const RoleOrParticipantElement({
     super.key,
-    required this.projectId,
-    required this.userId,
-    required this.role,
+    this.projectId,
+    this.userId,
+    required this.name,
     this.onUpdate,
   });
 
@@ -23,7 +23,7 @@ class RoleOrParticipantElement extends StatefulWidget {
 
 class _RoleOrParticipantElementState extends State<RoleOrParticipantElement> {
   void _deleteRole() async {
-    final String url = '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles/${widget.role}';
+    final String url = '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles/${widget.name}';
     try {
       final response = await http.delete(Uri.parse(url));
 
@@ -45,20 +45,20 @@ class _RoleOrParticipantElementState extends State<RoleOrParticipantElement> {
           border: Border.all(),
         ),
         child: Padding(
-          padding: widget.role == "Non défini" || widget.onUpdate == null
+          padding: widget.name == "Non défini" || widget.onUpdate == null
               ? const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0)
               : const EdgeInsets.symmetric(vertical: 1.0, horizontal: 10.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.role,
+                widget.name,
                 style: const TextStyle(
                   fontSize: 17,
                   color: Colors.black,
                 ),
               ),
-              if (widget.role != "Non défini" && widget.onUpdate != null)
+              if (widget.name != "Non défini" && widget.onUpdate != null)
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: _deleteRole,

@@ -2,7 +2,7 @@ package calendarapp.controller;
 
 import calendarapp.model.User;
 import calendarapp.repository.UserRepository;
-import calendarapp.request.CreateUserRequest;
+import calendarapp.request.UserRequest;
 import calendarapp.services.UserService;
 import jakarta.validation.Valid;
 
@@ -51,13 +51,13 @@ public class UserController {
 	}
 
 	@PostMapping("/users")
-	public ResponseEntity<User> createUser(@Valid @RequestBody CreateUserRequest request) {
+	public ResponseEntity<User> createUser(@Valid @RequestBody UserRequest request) {
 		User createdUser = userService.createUser(request);
 		return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
 	}
 
 	@PutMapping("/users/{id}")
-	public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody User user) {
+	public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody UserRequest user) {
 		try {
 			User updatedUser = userService.updateUser(id, user);
 			return new ResponseEntity<>(updatedUser, HttpStatus.OK);

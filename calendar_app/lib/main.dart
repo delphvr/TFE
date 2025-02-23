@@ -1,4 +1,5 @@
 import 'package:calendar_app/auth/login_or_register.dart';
+import 'package:calendar_app/profil/profil.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/home.dart';
@@ -55,7 +56,7 @@ class _MyAppState extends State<MyApp> {
     return [
       HomePage(),
       if (isOrganizer == true) const ProjectPage(),
-      HomePage(),
+      ProfilPage(),
     ];
   }
 
