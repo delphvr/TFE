@@ -50,7 +50,7 @@ public class ProjectService {
      * 
      * @param id long reprensenting the id of the project
      * @return the project with id ´id´
-     * @throws IllegalArgumentException if no project is found with the given ID
+     * @throws IllegalArgumentException if no project is found with the given Id
      */
     public Project getProject(Long id) {
         Optional<Project> projectData = projectRepository.findById(id);
