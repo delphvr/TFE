@@ -92,58 +92,70 @@ class _UserRehearsalPageState extends State<UserRehearsalPage> {
       ),
       body: Align(
           alignment: Alignment.topCenter,
-          child: Column(
-            children: [
-              Text(
-                "Vos répétitions pour le projet ${widget.projectName}",
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 27,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 17.0),
+            child: Column(
+              children: [
+                Text(
+                  "Vos répétitions pour le projet ${widget.projectName}",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 27,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 25),
-              Flexible(
-                child: FutureBuilder<List>(
-                  future: rehearsals,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text("Erreur: ${snapshot.error}"),
-                      );
-                    } else if (snapshot.hasData) {
-                      final rehearsals = snapshot.data!;
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: rehearsals.length,
-                        itemBuilder: (context, index) {
-                          return RehearsalElement(
-                            rehearsalId: rehearsals[index]['id'],
-                            name: rehearsals[index]['name'],
-                            description: rehearsals[index]['description'],
-                            date: rehearsals[index]['date'],
-                            duration: rehearsals[index]['duration'],
-                            projectId: rehearsals[index]['projectId'],
-                            participantsIds: rehearsals[index]
-                                ['participantsIds'],
-                            organizerPage: false,
-                            onUpdate: refreshRehearsals,
+                const SizedBox(height: 25),
+                Flexible(
+                  child: FutureBuilder<List>(
+                    future: rehearsals,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text("Erreur: ${snapshot.error}"),
+                        );
+                      } else if (snapshot.hasData) {
+                        final rehearsals = snapshot.data!;
+                        if (rehearsals.isEmpty) {
+                          return const Text(
+                            'Vous n\'êtes assigné à aucune répétition dans ce projet.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
                           );
-                        },
-                      );
-                    } else {
-                      return const Center(
-                        child: Text('Aucune répétition trouvé'),
-                      );
-                    }
-                  },
+                        }
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: rehearsals.length,
+                          itemBuilder: (context, index) {
+                            return RehearsalElement(
+                              rehearsalId: rehearsals[index]['id'],
+                              name: rehearsals[index]['name'],
+                              description: rehearsals[index]['description'],
+                              date: rehearsals[index]['date'],
+                              duration: rehearsals[index]['duration'],
+                              projectId: rehearsals[index]['projectId'],
+                              participantsIds: rehearsals[index]
+                                  ['participantsIds'],
+                              organizerPage: false,
+                              onUpdate: refreshRehearsals,
+                            );
+                          },
+                        );
+                      } else {
+                        return const Center(
+                          child: Text('Aucune répétition trouvé'),
+                        );
+                      }
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           )),
     );
   }
