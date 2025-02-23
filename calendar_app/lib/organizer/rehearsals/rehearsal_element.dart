@@ -10,6 +10,7 @@ class RehearsalElement extends StatefulWidget {
   final String? date;
   final String? duration;
   final List participantsIds;
+  final bool organizerPage;
   final VoidCallback onUpdate;
 
   const RehearsalElement({
@@ -21,6 +22,7 @@ class RehearsalElement extends StatefulWidget {
     required this.date,
     required this.duration,
     required this.participantsIds,
+    required this.organizerPage,
     required this.onUpdate,
   });
 
@@ -64,6 +66,7 @@ class _RehearsalElementState extends State<RehearsalElement> {
                 date: widget.date,
                 duration: widget.duration,
                 participantsIds: widget.participantsIds,
+                organizerPage: widget.organizerPage
               ),
             ),
           ).then((_) {

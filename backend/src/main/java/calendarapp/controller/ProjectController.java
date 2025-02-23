@@ -1,13 +1,11 @@
 package calendarapp.controller;
 
 import calendarapp.model.Project;
-import calendarapp.repository.ProjectRepository;
 import calendarapp.request.CreateProjectRequest;
 import calendarapp.services.ProjectService;
 import jakarta.validation.Valid;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,18 +24,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ProjectController {
 
     @Autowired
-    private ProjectRepository projectRepository;
-    @Autowired
     private ProjectService projectService;
 
     @GetMapping("/projects/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable("id") long id) {
-        Optional<Project> projectData = projectRepository.findById(id);
-        if (projectData.isPresent()) {
-            return new ResponseEntity<>(projectData.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        Project project = projectService.getProject(id);
+        return new ResponseEntity<>(project, HttpStatus.OK);
     }
 
     @GetMapping("/projects/user/{email}")

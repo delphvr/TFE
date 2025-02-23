@@ -182,13 +182,13 @@ public class RehearsalService {
             List<Long> existingParticipantIds = existingParticipations.stream().map(Participation::getUserId)
                     .collect(Collectors.toList());
             List<Long> updatedParticipantIds = request.getParticipantsIds();
-            //Delet participants not present anymore
+            // Delet participants not present anymore
             for (Participation participation : existingParticipations) {
                 if (!updatedParticipantIds.contains(participation.getUserId())) {
                     participationRepository.delete(participation);
                 }
             }
-            //add new participant
+            // add new participant
             for (Long participantId : updatedParticipantIds) {
                 if (!existingParticipantIds.contains(participantId)) {
                     userService.isUser(participantId);
@@ -218,6 +218,40 @@ public class RehearsalService {
      */
     public void deleteRehearsal(Long id) {
         rehearsalRepository.deleteById(id);
+    }
+
+    /**
+     * Get all the rehearsal the user is a part of in the project with id
+     * ´projectId´
+     * 
+     * @param email     the user email
+     * @param projectId the id of the project
+     * @return the list of rehearsal the user is a part of in the project with id
+     *         ´projectid´
+     * @throws IllegalArgumentException if no user found with the given email
+     *                                  or if no project found with the given id
+     */
+    public List<RehearsalResponse> getUserRehearsalsForProject(String email, Long projectId) {
+        projectService.isProject(projectId);
+        List<RehearsalResponse> res = new ArrayList<>();
+        User user = userService.getUser(email);
+        List<Rehearsal> rehearsals = rehearsalRepository.findByProjectId(projectId);
+        for (Rehearsal rehearsal : rehearsals) {
+            List<Participation> participations = participationRepository.findByRehearsalId(rehearsal.getId());
+            List<Long> participationIds = participations.stream().map(Participation::getUserId)
+                    .collect(Collectors.toList());
+            if (participationIds.contains(user.getId())) {
+                RehearsalResponse rehearsalResponse = new RehearsalResponse(rehearsal.getId(), rehearsal.getName(),
+                        rehearsal.getDescription(), rehearsal.getDate(), rehearsal.getDuration(),
+                        rehearsal.getProjectId(),
+                        participationIds);
+                res.add(rehearsalResponse);
+            }
+        }
+        res.sort(Comparator
+                .comparing(RehearsalResponse::getDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(RehearsalResponse::getName, Comparator.naturalOrder()));
+        return res;
     }
 
 }

@@ -59,9 +59,17 @@ public class RehearsalController {
     }
 
     @PutMapping("/rehearsals/{id}")
-	public ResponseEntity<Rehearsal> updateReheasal(@PathVariable("id") long id, @RequestBody RehearsalRequest rehearsal) {
-		Rehearsal updatedRehearsal = rehearsalService.updateReheasal(id, rehearsal);
-		return new ResponseEntity<>(updatedRehearsal, HttpStatus.OK);
-	}
+    public ResponseEntity<Rehearsal> updateReheasal(@PathVariable("id") long id,
+            @RequestBody RehearsalRequest rehearsal) {
+        Rehearsal updatedRehearsal = rehearsalService.updateReheasal(id, rehearsal);
+        return new ResponseEntity<>(updatedRehearsal, HttpStatus.OK);
+    }
+
+    @GetMapping("/users/{email}/projects/{projectId}/rehearsals")
+    public ResponseEntity<List<RehearsalResponse>> getUserRehearsalsForProject(@PathVariable("email") String email,
+            @PathVariable("projectId") long projectId) {
+        List<RehearsalResponse> rehearsals = rehearsalService.getUserRehearsalsForProject(email, projectId);
+        return new ResponseEntity<>(rehearsals, HttpStatus.OK);
+    }
 
 }

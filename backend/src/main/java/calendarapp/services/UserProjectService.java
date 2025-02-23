@@ -111,7 +111,7 @@ public class UserProjectService {
             projects.add(p.get());
         }
         List<Project> res = new ArrayList<>(projects);
-        // Sort based on endingDate, then beginningDate
+        // Sort based on endingDate, then beginningDate, the project name
         res.sort(Comparator
                 .comparing(Project::getEndingDate, Comparator.nullsLast(Comparator.naturalOrder()))
                 .thenComparing(Project::getBeginningDate, Comparator.nullsLast(Comparator.naturalOrder()))

@@ -226,6 +226,28 @@ POST "http://localhost:8080/api/projects"
 - `201 Created`: Project successfully created.
 - `400 Bad Request`: Invalid request body, invalid email, ending date before beginning date, ... .
 
+### Get a project
+
+```
+GET "http://localhost:8080/api/projects/{id}"
+```
+
+**If successful return the project** e.g: 
+```
+{
+    id : 3,
+    name: "Christmas show", 
+    description: "Winter show with santa...", 
+    beginningDate: "2020-07-01",
+    endingDate: "2020-12-26"
+}
+```
+
+**Possible Response Codes:**
+
+- `200 OK`: Project successfully retrieved.
+- `404 Not Found`: No project found with the given id.
+
 ### Get the projects of a user
 
 ```
@@ -518,7 +540,7 @@ GET "http://localhost:8080/api/projects/{id}/rehearsals"
 - `404 Not Found`: No project found with the given id.
 
 
-### Delete a rehearsals
+### Delete a rehearsal
 
 ```
 DELETE "http://localhost:8080/api/rehearsals/{id}"
@@ -616,3 +638,29 @@ GET "http://localhost:8080/api/rehearsals/{id}"
 
 - `200 OK`: Rehearsal successfully retrieved.
 - `404 Not Found`: No rehearsal found with the given id.
+
+### Get a rehearsal of a user on a project
+
+```
+GET "http://localhost:8080/api/users/{email}/projects/{projectId}/rehearsals"
+```
+
+**If successful return the rehearsals** e.g: 
+```
+[
+    {
+        "id" : 3,
+        "name": "General rehearsal", 
+        "description": "Last rehearsal with everyone",
+        "date": "2025-07-01",
+        "duration": "PT3H",
+        "projectId": "2",
+        "participantsIds": []
+    }
+]
+```
+
+**Possible Response Codes:**
+
+- `200 OK`: Rehearsals successfully retrieved.
+- `404 Not Found`: No user or project found with the given email or id.

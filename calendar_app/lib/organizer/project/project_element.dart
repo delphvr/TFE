@@ -1,22 +1,19 @@
 import 'package:calendar_app/organizer/project/project_details.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:convert';
 
 class ProjectElement extends StatefulWidget {
   final int id;
-  final String name;
-  final String? description;
-  final String? beginningDate;
-  final String? endingDate;
+  final bool organizerPage;
   final VoidCallback onUpdate;
 
   const ProjectElement({
     super.key,
     required this.id,
-    required this.name,
-    this.description,
-    this.beginningDate,
-    this.endingDate,
+    required this.organizerPage,
     required this.onUpdate,
   });
 
@@ -26,18 +23,39 @@ class ProjectElement extends StatefulWidget {
 
 class _ProjectElementState extends State<ProjectElement> {
 
-  late String name;
-  late String? description;
-  late String? beginningDate;
-  late String? endingDate;
+  String? name;
+  String? description;
+  String? beginningDate;
+  String? endingDate;
 
   @override
   void initState() {
     super.initState();
-    name = widget.name;
-    description = widget.description;
-    beginningDate = widget.beginningDate;
-    endingDate = widget.endingDate;
+    getProjectData(context);
+  }
+
+  void getProjectData(BuildContext context) async {
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/projects/${widget.id}';
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        setState(() {
+          name = data['name'];
+          description = data['description'];
+          beginningDate = data['beginningDate'];
+          endingDate = data['endingDate'];
+        });
+      } else {
+        Utils.errorMess('Une erreur c\'est produite',
+            'Merci de réessayer plus tard.', context);
+      }
+    } catch (e) {
+      Utils.errorMess('Une erreur c\'est produite',
+          'Merci de réessayer plus tard.', context);
+    }
   }
 
   @override
@@ -49,12 +67,9 @@ class _ProjectElementState extends State<ProjectElement> {
           Navigator.push(
             context, //MaterialPageRoute(builder: (context) => NewProjectPage())
             MaterialPageRoute(
-              builder: (context) => ProjectDetailsPage(
+              builder: (context) => ProjectDetailsOrganizerPage(
                 id: widget.id,
-                name: name,
-                description: description,
-                beginningDate: beginningDate,
-                endingDate: endingDate,
+                organizerPage: widget.organizerPage,
               ),
             ),
           ).then((_) {
@@ -73,7 +88,7 @@ class _ProjectElementState extends State<ProjectElement> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name,
+                  name ?? '',
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,

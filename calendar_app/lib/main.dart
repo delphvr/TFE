@@ -1,8 +1,8 @@
 import 'package:calendar_app/auth/login_or_register.dart';
 import 'package:calendar_app/profil/profil.dart';
+import 'package:calendar_app/project/project_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:calendar_app/home.dart';
 import 'package:calendar_app/organizer/project/project_admin.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -54,9 +54,9 @@ class _MyAppState extends State<MyApp> {
 
   List<Widget> _pages() {
     return [
-      HomePage(),
-      if (isOrganizer == true) const ProjectPage(),
-      ProfilPage(),
+      const ProjectsUserPage(),
+      if (isOrganizer == true) const ProjectOrganizerPage(),
+      const ProfilPage(),
     ];
   }
 

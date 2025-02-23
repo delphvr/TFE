@@ -172,7 +172,7 @@ public class ProjectControllerTest {
     }
 
     /*
-     * Tests update a project
+     * Tests delete a project
      */
 
     @Test
@@ -199,6 +199,37 @@ public class ProjectControllerTest {
     @Test
     public void testDeleteProjectNotFound() {
         webTestClient.delete().uri("/api/projects/1")
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+
+    /*
+     * Tests get a project
+     */
+
+    @Test
+    public void testGetProject() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+            .replace('\'', '"');
+        Utils.pushUser(userJson, webTestClient);
+
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"'); 
+        Project project = Utils.pushProject(projectJson, webTestClient);
+        
+        webTestClient.get().uri("/api/projects/" + project.getId())
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.name").isEqualTo("Christmas show")
+            .jsonPath("$.description").isEqualTo("Winter show with santa...")
+            .jsonPath("$.beginningDate").isEqualTo("2020-07-01")
+            .jsonPath("$.endingDate").isEqualTo(futureEndingDate);
+    }
+
+    @Test
+    public void testGetProjectNotFound() {
+        webTestClient.get().uri("/api/projects/0")
             .exchange()
             .expectStatus().isNotFound();
     }

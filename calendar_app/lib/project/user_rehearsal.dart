@@ -1,28 +1,26 @@
 import 'package:calendar_app/auth/auth.dart';
-import 'package:calendar_app/organizer/rehearsals/add_rehearsal.dart';
 import 'package:calendar_app/organizer/rehearsals/rehearsal_element.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:calendar_app/components/button_custom.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class RehearsalPage extends StatefulWidget {
+class UserRehearsalPage extends StatefulWidget {
   final int projectId;
   final String projectName;
 
-  const RehearsalPage({
+  const UserRehearsalPage({
     super.key,
     required this.projectId,
     required this.projectName,
   });
 
   @override
-  State<RehearsalPage> createState() => _RehearsalPage();
+  State<UserRehearsalPage> createState() => _UserRehearsalPageState();
 }
 
-class _RehearsalPage extends State<RehearsalPage> {
+class _UserRehearsalPageState extends State<UserRehearsalPage> {
   final user = FirebaseAuth.instance.currentUser!;
   late Future<List>? rehearsals;
 
@@ -34,12 +32,12 @@ class _RehearsalPage extends State<RehearsalPage> {
 
   Future<List> getRehearsals(BuildContext context) async {
     final String url =
-        '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/rehearsals';
+        '${dotenv.env['API_BASE_URL']}/users/${user.email}/projects/${widget.projectId}/rehearsals';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-        final List<dynamic> userProjects = data.map((item) {
+        final List<dynamic> userRehearsals = data.map((item) {
           return {
             'id': item['id'],
             'name': item['name'],
@@ -50,7 +48,7 @@ class _RehearsalPage extends State<RehearsalPage> {
             'participantsIds': item['participantsIds']
           };
         }).toList();
-        return userProjects;
+        return userRehearsals;
       }
       return [];
     } catch (e) {
@@ -97,30 +95,11 @@ class _RehearsalPage extends State<RehearsalPage> {
           child: Column(
             children: [
               Text(
-                "Répétitions du projet ${widget.projectName}",
+                "Vos répétitions pour le projet ${widget.projectName}",
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 27,
                 ),
-              ),
-              const SizedBox(height: 25),
-              ButtonCustom(
-                text: 'Ajouter une répétition',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddRehearsal(
-                        projectId: widget.projectId,
-                        projectName: widget.projectName,
-                      ),
-                    ),
-                  ).then((_) {
-                    setState(() {
-                      rehearsals = getRehearsals(context);
-                    });
-                  });
-                },
               ),
               const SizedBox(height: 25),
               Flexible(
@@ -151,7 +130,7 @@ class _RehearsalPage extends State<RehearsalPage> {
                             projectId: rehearsals[index]['projectId'],
                             participantsIds: rehearsals[index]
                                 ['participantsIds'],
-                            organizerPage: true,
+                            organizerPage: false,
                             onUpdate: refreshRehearsals,
                           );
                         },

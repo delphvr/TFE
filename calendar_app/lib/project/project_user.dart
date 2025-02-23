@@ -1,21 +1,19 @@
-import 'package:calendar_app/organizer/project/new_project.dart';
 import 'package:calendar_app/organizer/project/project_element.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:calendar_app/components/button_custom.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 
-class ProjectOrganizerPage extends StatefulWidget {
-  const ProjectOrganizerPage({super.key});
+class ProjectsUserPage extends StatefulWidget {
+  const ProjectsUserPage({super.key});
 
   @override
-  State<ProjectOrganizerPage> createState() => _ProjectOrganizerPageState();
+  State<ProjectsUserPage> createState() => _ProjectsUserPageState();
 }
 
-class _ProjectOrganizerPageState extends State<ProjectOrganizerPage> {
+class _ProjectsUserPageState extends State<ProjectsUserPage> {
   final user = FirebaseAuth.instance.currentUser!;
   late Future<List>? projects;
 
@@ -32,7 +30,7 @@ class _ProjectOrganizerPageState extends State<ProjectOrganizerPage> {
   Future<List> getProjects(BuildContext context) async {
     final email = user.email;
     final String url =
-        '${dotenv.env['API_BASE_URL']}/userProjects/organizer/$email';
+        '${dotenv.env['API_BASE_URL']}/projects/user/$email';
     try {
       final response = await http.get(Uri.parse(url));
 
@@ -87,24 +85,6 @@ class _ProjectOrganizerPageState extends State<ProjectOrganizerPage> {
       body: Center(
         child: Column(
           children: [
-            const SizedBox(height: 25),
-            SizedBox(
-              width: 250,
-              child: ButtonCustom(
-                text: "Nouveau projet",
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => NewProjectPage()),
-                  ).then((_) {
-                    setState(() {
-                      projects = getProjects(context);
-                    });
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: 25),
             Expanded(
               child: FutureBuilder<List>(
                 future: projects,
@@ -125,7 +105,7 @@ class _ProjectOrganizerPageState extends State<ProjectOrganizerPage> {
                       itemBuilder: (context, index) {
                         return ProjectElement(
                           id: projects[index]['id'],
-                          organizerPage: true,
+                          organizerPage: false,
                           onUpdate: refreshProjects,
                         );
                       },

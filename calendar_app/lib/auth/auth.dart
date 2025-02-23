@@ -29,7 +29,7 @@ class Auth extends StatelessWidget {
                         return HomePage();
                       }
                       if (isOrganize == true) {
-                        return ProjectPage();
+                        return const ProjectOrganizerPage();
                       } else if (isOrganize == false) {
                         return HomePage();
                       }

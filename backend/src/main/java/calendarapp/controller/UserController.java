@@ -58,14 +58,8 @@ public class UserController {
 
 	@PutMapping("/users/{id}")
 	public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody UserRequest user) {
-		try {
-			User updatedUser = userService.updateUser(id, user);
-			return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-		} catch (IllegalArgumentException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		User updatedUser = userService.updateUser(id, user);
+		return new ResponseEntity<>(updatedUser, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/users/{id}")

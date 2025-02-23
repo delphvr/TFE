@@ -17,6 +17,7 @@ class RehearsalDetailsPage extends StatefulWidget {
   final String? date;
   final String? duration;
   final List participantsIds;
+  final bool organizerPage;
 
   const RehearsalDetailsPage({
     super.key,
@@ -27,6 +28,7 @@ class RehearsalDetailsPage extends StatefulWidget {
     required this.date,
     required this.duration,
     required this.participantsIds, //TODO delete ?
+    required this.organizerPage,
   });
 
   @override
@@ -205,7 +207,6 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 10),
               Flexible(
                 child: FutureBuilder<List>(
@@ -247,40 +248,42 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                   },
                 ),
               ),
-              const SizedBox(height: 25),
-              ButtonCustom(
-                text: 'Modifier',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RehearsalModificationPage(
-                        rehearsalId: widget.rehearsalId,
-                        projectId: widget.projectId,
-                        name: name,
-                        description: description,
-                        date: date,
-                        duration: duration,
-                        participantsIds: participantsIds,
+              if (widget.organizerPage) ...[
+                const SizedBox(height: 25),
+                ButtonCustom(
+                  text: 'Modifier',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RehearsalModificationPage(
+                          rehearsalId: widget.rehearsalId,
+                          projectId: widget.projectId,
+                          name: name,
+                          description: description,
+                          date: date,
+                          duration: duration,
+                          participantsIds: participantsIds,
+                        ),
                       ),
-                    ),
-                  ).then((_) {
-                    getRehearsal();
-                    refreshUsers();
-                  });
-                },
-              ),
-              const SizedBox(height: 20),
-              ButtonCustom(
-                text: 'Suprimmer la répétition',
-                onTap: () {
-                  Utils.confirmation(
-                      'Action Irrévesible',
-                      'Êtes-vous sûre de vouloir supprimer la répétition ?',
-                      deleteRehearsal,
-                      context);
-                },
-              ),
+                    ).then((_) {
+                      getRehearsal();
+                      refreshUsers();
+                    });
+                  },
+                ),
+                const SizedBox(height: 20),
+                ButtonCustom(
+                  text: 'Suprimmer la répétition',
+                  onTap: () {
+                    Utils.confirmation(
+                        'Action Irrévesible',
+                        'Êtes-vous sûre de vouloir supprimer la répétition ?',
+                        deleteRehearsal,
+                        context);
+                  },
+                ),
+              ],
             ],
           )),
     );
