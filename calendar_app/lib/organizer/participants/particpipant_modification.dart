@@ -49,7 +49,10 @@ class _ParticpipantModificationPage
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-        return data;
+        List<String> modifiedRoles = data.map((role) {
+        return role == "Organizer" ? "Organisateur" : role as String;
+      }).toList();
+        return modifiedRoles;
       }
       return [];
     } catch (e) {
@@ -183,7 +186,7 @@ class _ParticpipantModificationPage
             ),
             const SizedBox(height: 25),
             ButtonCustom(
-              text: 'Ajouter un rôle',
+              text: 'Modifier les rôles',
               onTap: () {
                 Navigator.push(
                   context,

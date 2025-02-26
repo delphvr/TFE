@@ -23,11 +23,12 @@ class RoleOrParticipantElement extends StatefulWidget {
 
 class _RoleOrParticipantElementState extends State<RoleOrParticipantElement> {
   void _deleteRole() async {
-    final String url = '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles/${widget.name}';
+    final String url = '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles/${widget.name == "Organisateur" ? "Organizer" : widget.name}';
     try {
       final response = await http.delete(Uri.parse(url));
-
-      if (response.statusCode != 204) {
+      if (response.statusCode == 400){
+        Utils.errorMess('Erreur lors de la supression du role', 'Il doit rester au moins un organisateur sur le projet.', context);
+      } else if (response.statusCode != 204) {
         Utils.errorMess('Erreur lors de la supression du role', 'Erreur lors de la suppression. Merci de réessayez plus tard.', context);
       }
     } catch (_) {}

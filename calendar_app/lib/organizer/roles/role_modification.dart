@@ -16,7 +16,7 @@ class Role {
   Role({required this.name});
 
   factory Role.fromJson(Map<String, dynamic> json) {
-    String name = json['role'] == "Organizer" ? "Orgnaisateur" : json['role'];
+    String name = json['role'] == "Organizer" ? "Organisateur" : json['role'];
     return Role(
       name: name,
     );
@@ -59,6 +59,26 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
   void initState() {
     super.initState();
     _loadRoles();
+    getUserRoles();
+  }
+
+  void getUserRoles() async {
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles';
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        setState(() {
+          selectedRoles = data.map((role) {
+            return Role(name: role == "Organizer" ? "Organisateur" : role);
+          }).toList();
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   //TODO mettre roles dans fichier aux ?
@@ -106,32 +126,29 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
         '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles';
 
     final Map<String, dynamic> requestBody = {
-      "roles": selectedRoles.map((p) => p.name).toList(),
+      "roles": selectedRoles.map((p) => p.name == "Organisateur" ? "Organizer" : p.name).toList(),
     };
 
     try {
-      final response = await http.post(
+      final response = await http.put(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(requestBody),
       );
-
-      print("DEBUGG : ${requestBody}");
-
-      print("DEBUGG : ${response.statusCode}");
-
-      print("DEBUGG : ${response.body}");
-      if (response.statusCode == 201) {
-        print("DEBUGG : ${response.body}");
+      if (response.statusCode == 200) {
         if (mounted) {
           Navigator.pop(context);
         }
-      } else {
-        Utils.errorMess('Erreur lors de l\'ajout de rôles au participant',
+      } else if (response.statusCode == 400){
+        
+         Utils.errorMess('Erreur la modification des rôles du participant', 'Il doit rester au moins un organisateur sur le projet.', context);
+      }
+      else {
+        Utils.errorMess('Erreur la modification des rôles du participant',
             'Merci de réessayez plus tard.', context);
       }
     } catch (e) {
-      Utils.errorMess('Erreur lors de l\'ajout de rôles au participant',
+      Utils.errorMess('Erreur la modification des rôles du participant',
           'Impossible de se connecter au serveur.', context);
     }
   }

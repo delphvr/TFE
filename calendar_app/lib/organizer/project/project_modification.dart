@@ -122,7 +122,6 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
           });
         }
       } else {
-        print(response.body);
         Utils.errorMess(
             'Erreur lors de la modification du project',
             'Erreur lors de la modification du projet. Merci de réessayez plus tard.',

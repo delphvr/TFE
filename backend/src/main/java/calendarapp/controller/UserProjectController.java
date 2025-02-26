@@ -13,6 +13,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,12 @@ public class UserProjectController {
     public ResponseEntity<UserProjectResponse> addUserRoles(@PathVariable Long projectId, @PathVariable Long userId, @RequestBody RolesRequest roles) {
         UserProjectResponse response = userProjectService.addUserRolesToUserInProject(userId, projectId, roles.getRoles());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/projects/{projectId}/users/{userId}/roles")
+    public ResponseEntity<UserProjectResponse> updateUserRoles(@PathVariable Long projectId, @PathVariable Long userId, @RequestBody RolesRequest roles) {
+        UserProjectResponse response = userProjectService.updateUserRolesToUserInProject(userId, projectId, roles.getRoles());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("projects/{projectId}/users/{userId}")

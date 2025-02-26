@@ -11,6 +11,8 @@ public interface UserProjectRepository extends JpaRepository<UserProject, UserPr
     List<UserProject> findByUserId(Long userId);
     List<UserProject> findByProjectId(Long projectId);
     List<UserProject> findByUserIdAndProjectId(Long userId, Long projectId);
+    List<UserProject> findByProjectIdAndRole(Long projectId, String role);
+    List<UserProject> findByUserIdAndProjectIdAndRole(Long userId, Long projectId, String role);
     List<UserProject> deleteByProjectIdAndUserId(Long projectId, Long userId);
     List<UserProject> deleteByProjectIdAndUserIdAndRole(Long projectId, Long userId, String role);
 }

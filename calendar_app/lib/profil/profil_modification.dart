@@ -133,8 +133,6 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
       "email": email,
       "professions": selectedProfessions.map((p) => p.name).toList(),
     };
-
-    print(requestBody);
     try {
       final response = await http.put(
         Uri.parse(url),
@@ -147,8 +145,6 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
           Navigator.pop(context);
         }
       } else {
-        print(response.body);
-        print(response.statusCode);
         Utils.errorMess(
             errorTitle,
             'Erreur lors de la modification. Merci de réessayez plus tard.',

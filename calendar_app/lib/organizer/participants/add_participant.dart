@@ -2,6 +2,7 @@ import 'package:calendar_app/auth/auth.dart';
 import 'package:calendar_app/components/bottom_sheet_selector.dart';
 import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
+import 'package:calendar_app/organizer/roles/role_modification.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,19 +10,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-class Role {
-  final String name;
-
-  Role({required this.name});
-
-  factory Role.fromJson(Map<String, dynamic> json) {
-    String name = json['role'] == "Organizer" ? "Orgnaisateur" : json['role'];
-    return Role(
-      name: name,
-    );
-  }
-}
 
 class AddParticipant extends StatefulWidget {
   final int projectId;
@@ -112,7 +100,7 @@ class _AddParticipant extends State<AddParticipant> {
       final Map<String, dynamic> requestBody = {
         "userEmail": emailController.text,
         "projectId": widget.projectId,
-        "roles": selectedRoles.map((p) => p.name).toList(),
+        "roles": selectedRoles.map((p) => p.name == "Organisateur" ? "Organizer" : p.name).toList(),
       };
 
       try {

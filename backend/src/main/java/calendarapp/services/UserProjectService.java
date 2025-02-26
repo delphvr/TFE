@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserProjectService {
@@ -35,6 +36,22 @@ public class UserProjectService {
     private UserRepository userRepository;
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private UserService userService;
+
+    /**
+     * Checks if a project with the given ´projectId´ exists in the database.
+     * If it does not exist, throws an IllegalArgumentException.
+     * 
+     * @param projectId: the id of a project
+     * @throws IllegalArgumentException if no project is found with the given ID
+     */
+    public void isProject(Long projectId) {
+        Optional<Project> project = projectRepository.findById(projectId);
+        if (!project.isPresent()) {
+            throw new IllegalArgumentException("Project not found with id " + projectId);
+        }
+    }
 
     public List<UserProject> getAllUserProjects() {
         List<UserProject> userProjects = new ArrayList<UserProject>();
@@ -52,11 +69,7 @@ public class UserProjectService {
             throw new IllegalArgumentException("User not found with email " + request.getUserEmail());
         }
         Long userId = user.get().getId();
-
-        Optional<Project> project = projectRepository.findById(request.getProjectId());
-        if (!project.isPresent()) {
-            throw new IllegalArgumentException("Project not found with ID " + request.getProjectId());
-        }
+        isProject(request.getProjectId());
 
         if (request.getRoles() != null && !request.getRoles().isEmpty()) {
             for (String role : request.getRoles()) {
@@ -131,10 +144,7 @@ public class UserProjectService {
 
     public List<User> getProjectUsers(Long id) {
         Set<User> users = new HashSet<>();
-        Optional<Project> projcet = projectRepository.findById(id);
-        if (!projcet.isPresent()) {
-            throw new IllegalArgumentException("Project not found with id " + id);
-        }
+        isProject(id);
         List<UserProject> userProjects = userProjectRepository.findByProjectId(id);
         if (userProjects.isEmpty()) {
             return new ArrayList<>(users);
@@ -152,26 +162,14 @@ public class UserProjectService {
 
     @Transactional
     public void deleteUserProject(Long projectId, Long userId) {
-        Optional<Project> projcet = projectRepository.findById(projectId);
-        if (!projcet.isPresent()) {
-            throw new IllegalArgumentException("Project not found with id " + projectId);
-        }
-        Optional<User> user = userRepository.findById(userId);
-        if (!user.isPresent()) {
-            throw new IllegalArgumentException("User not found with id " + userId);
-        }
+        userService.isUser(userId);
+        isProject(projectId);
         userProjectRepository.deleteByProjectIdAndUserId(projectId, userId);
     }
 
     public List<String> getUserRolesForProject(Long userId, Long projectId) {
-        Optional<Project> projcet = projectRepository.findById(projectId);
-        if (!projcet.isPresent()) {
-            throw new IllegalArgumentException("Project not found with id " + projectId);
-        }
-        Optional<User> user = userRepository.findById(userId);
-        if (!user.isPresent()) {
-            throw new IllegalArgumentException("User not found with id " + userId);
-        }
+        userService.isUser(userId);
+        isProject(projectId);
         List<String> res = new ArrayList<>();
         List<UserProject> userProjects = userProjectRepository.findByUserIdAndProjectId(userId, projectId);
         for (UserProject userProject : userProjects) {
@@ -180,28 +178,36 @@ public class UserProjectService {
         return res;
     }
 
+    /**
+     * Remove the ´role´ from the user with id ´userId´ in the project ´projectId´
+     * from the database.
+     * 
+     * @param projectId the id of the project
+     * @param userId    the id of the user
+     * @param role      the role to be delete
+     * @throws IllegalArgumentException if no user is found with the given id,
+     *                                  or no project found with the given id,
+     *                                  or the role is "Organizer" and the user is
+     *                                  the only organizer on the project
+     */
     @Transactional
     public void deleteUserRole(Long projectId, Long userId, String role) {
-        Optional<Project> projcet = projectRepository.findById(projectId);
-        if (!projcet.isPresent()) {
-            throw new IllegalArgumentException("Project not found with id " + projectId);
-        }
-        Optional<User> user = userRepository.findById(userId);
-        if (!user.isPresent()) {
-            throw new IllegalArgumentException("User not found with id " + userId);
-        }
-        List<UserProject> userProjects = userProjectRepository.findByUserIdAndProjectId(userId, projectId);
-        boolean roleFound = false;
-        for (UserProject userProject : userProjects) {
-            if (userProject.getRole().equals(role)) {
-                roleFound = true;
-                userProjectRepository.deleteByProjectIdAndUserIdAndRole(projectId, userId, role);
+        userService.isUser(userId);
+        isProject(projectId);
+        if (role.equals("Organizer")) {
+            List<UserProject> organizers = userProjectRepository.findByProjectIdAndRole(projectId, "Organizer");
+            if (organizers.size() == 1) {
+                throw new IllegalArgumentException("Au moins un organisateur dois être présent sur le projet");
             }
         }
-        if (!roleFound) {
+        List<UserProject> userProjects = userProjectRepository.findByUserIdAndProjectIdAndRole(userId, projectId, role);
+        if (!userProjects.isEmpty()) {
+            userProjectRepository.deleteByProjectIdAndUserIdAndRole(projectId, userId, role);
+        } else {
             throw new IllegalArgumentException("Role " + role + " not found.");
         }
-        if (userProjects.size() == 1 && roleFound) {
+        userProjects = userProjectRepository.findByUserIdAndProjectId(userId, projectId);
+        if (userProjects.isEmpty()) {
             Optional<Role> existingRole = roleRepository.findById("Non défini");
             if (!existingRole.isPresent()) {
                 Role r = new Role("Non défini");
@@ -214,14 +220,8 @@ public class UserProjectService {
 
     @Transactional
     public UserProjectResponse addUserRolesToUserInProject(Long userId, Long projectId, List<String> roles) {
-        Optional<User> user = userRepository.findById(userId);
-        if (!user.isPresent()) {
-            throw new IllegalArgumentException("User not found with id " + userId);
-        }
-        Optional<Project> project = projectRepository.findById(projectId);
-        if (!project.isPresent()) {
-            throw new IllegalArgumentException("Project not found with id " + projectId);
-        }
+        userService.isUser(userId);
+        isProject(projectId);
         List<String> addedRoles = new ArrayList<>();
         for (String role : roles) {
             Optional<Role> existingRole = roleRepository.findById(role);
@@ -246,6 +246,62 @@ public class UserProjectService {
             }
         }
         return new UserProjectResponse(userId, projectId, addedRoles);
+    }
+
+    /**
+     * Updates the roles of the user with id ´userId´ in the project ´projectId´ to
+     * the list of roles ´roles´.
+     * 
+     * @param userId    the id of the user
+     * @param projectId the id of the project
+     * @param roles     the updated roles of the user on the project
+     * @throws IllegalArgumentException if no user is found with the given id,
+     *                                  or no project found with the given id,
+     *                                  or the role is "Organizer" and the user is
+     *                                  the only organizer on the project
+     * @return the project id, user id, and the updated list of roles
+     */
+    @Transactional
+    public UserProjectResponse updateUserRolesToUserInProject(Long userId, Long projectId, List<String> roles) {
+        userService.isUser(userId);
+        isProject(projectId);
+        List<UserProject> existingUserProjects = userProjectRepository.findByUserIdAndProjectId(userId, projectId);
+        List<String> existingRoles = existingUserProjects.stream().map(UserProject::getRole)
+                .collect(Collectors.toList());
+        List<String> rolesToRemove = existingRoles.stream().filter(role -> !roles.contains(role))
+                .collect(Collectors.toList());
+        for (String roleToRemove : rolesToRemove) {
+            if (roleToRemove.equals("Organizer")) {
+                List<UserProject> organizers = userProjectRepository.findByProjectIdAndRole(projectId, "Organizer");
+                if (organizers.size() == 1) {
+                    throw new IllegalArgumentException("Au moins un organisateur dois être présent sur le projet");
+                }
+            }
+            userProjectRepository.deleteById(new UserProjectId(userId, projectId, roleToRemove));
+        }
+        List<String> roleToAdd = roles.stream().filter(role -> !existingRoles.contains(role))
+                .collect(Collectors.toList());
+        for (String role : roleToAdd) {
+            Optional<Role> existingRole = roleRepository.findById(role);
+            if (!existingRole.isPresent()) {
+                Role newRole = new Role(role);
+                roleRepository.save(newRole);
+            }
+            Optional<UserProject> existingUserProject = userProjectRepository
+                    .findById(new UserProjectId(userId, projectId, role));
+            if (!existingUserProject.isPresent()) {
+                UserProject userProject = new UserProject(userId, projectId, role);
+                userProjectRepository.save(userProject);
+            }
+        }
+        if (!roleToAdd.isEmpty() && !roleToAdd.contains("Non défini")) {
+            Optional<UserProject> userProject = userProjectRepository
+                    .findById(new UserProjectId(userId, projectId, "Non défini"));
+            userProject.ifPresent(
+                    up -> userProjectRepository.deleteById(new UserProjectId(userId, projectId, "Non défini")));
+        }
+
+        return new UserProjectResponse(userId, projectId, roles);
     }
 
 }

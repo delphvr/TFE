@@ -430,11 +430,41 @@ DELETE "http://localhost:8080/api/projects/{projectId}/users/{userId}/roles/{rol
 
 - `204 No Content`: Successfully delete the user role in the project.
 - `404 Not Found`: No user or project or role found with the given id.
+- `400 Bad Request`: Can't delete the last user on the project.
 
-### Add role to a user participating in the project
+### Add roles to a user participating in the project
 
 ```
 POST "http://localhost:8080/api/projects/{projectId}/users/{userId}/roles"
+```
+
+**Request Body Example**:
+
+```
+{
+    "roles": ["Danseur", "Organizer"]
+}
+```
+
+
+**If successful return** e.g: 
+```
+{
+    "projectId": 3,
+    "userId": 2,
+    "roles": ["Danseur", "Organizer"]
+}
+```
+
+**Possible Response Codes:**
+
+- `201 Created`: User roles successfully added to the project.
+- `404 Not Found`: No Project or user found with the given id.
+
+### Update the roles of a user participating in the project
+
+```
+PUT "http://localhost:8080/api/projects/{projectId}/users/{userId}/roles"
 ```
 
 **Request Body Example**:
