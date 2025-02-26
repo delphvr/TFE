@@ -21,6 +21,13 @@ class Role {
       name: name,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is Role && other.name == name);
+
+  @override
+  int get hashCode => name.hashCode;
 }
 
 class RoleModificationPage extends StatefulWidget {

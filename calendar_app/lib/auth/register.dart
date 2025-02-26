@@ -27,6 +27,13 @@ class Profession {
       'profession': name,
     };
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is Profession && other.name == name);
+
+  @override
+  int get hashCode => name.hashCode;
 }
 
 class Register extends StatefulWidget {

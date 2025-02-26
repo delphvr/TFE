@@ -102,17 +102,21 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
-          selectedProfessions =
-              data.map((name) => Profession(name: name)).toList();
+          selectedProfessions = data.map((name) => Profession(name: name)).toList();
         });
       } else {
         Utils.errorMess('Une erreur est survenue',
             'Merci de réessayer plus tard.', context);
-        selectedProfessions = [];
+        setState(() {
+          selectedProfessions = [];
+        });
       }
     } catch (e) {
       Utils.errorMess(
           'Une erreur est survenue', 'Merci de réessayer plus tard.', context);
+      setState(() {
+        selectedProfessions = [];
+      });
     }
   }
 
@@ -134,10 +138,9 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
       "lastName": lastname,
       "email": email,
       "professions": selectedProfessions.map((p) => p.name).toList(),
-      "isOrganizer": prefs.getBool("isOrganizer"),
+      "isOrganizer": prefs.getBool("isOrganizer"), //TODO to be removed
     };
 
-    //TODO if isorganizer changed
     print(requestBody);
     try {
       final response = await http.put(
@@ -248,66 +251,6 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
                 ),
 
                 const SizedBox(height: 15),
-                const Text(
-                  'Êtes-vous organisateur ?',
-                  style: TextStyle(fontSize: 18),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: [
-                        Radio<bool>(
-                          value: true,
-                          groupValue: isOrganizer,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              isOrganizer = value!;
-                            });
-                          },
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isOrganizer = true;
-                            });
-                          },
-                          child: const Text(
-                            'Oui',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Radio<bool>(
-                          value: false,
-                          groupValue: isOrganizer,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              isOrganizer = value!;
-                            });
-                          },
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isOrganizer = false;
-                            });
-                          },
-                          child: const Text(
-                            'Non',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 10),
                 ButtonCustom(
                   text: 'Modifier',
                   onTap: () => update(context),

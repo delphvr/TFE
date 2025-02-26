@@ -165,13 +165,6 @@ class _ProfilPageSate extends State<ProfilPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      'Profil organisateur : ${isOrganizer == true ? 'Oui' : 'Non'}',
-                      style: const TextStyle(
-                        fontSize: 20,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
                     const Text(
                       "Professions :",
                       style: TextStyle(

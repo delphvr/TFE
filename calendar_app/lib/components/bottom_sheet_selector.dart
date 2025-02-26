@@ -87,7 +87,7 @@ class BottomSheetSelector<T> extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 250, // Ensuring the button width is consistent
+          width: 250,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFF2F2F2),
@@ -118,6 +118,7 @@ class BottomSheetSelector<T> extends StatelessWidget {
         SizedBox(
           width: 250,
           child: Wrap(
+            spacing: 8.0,
             children: selectedItems
                 .map((item) => Chip(
                       label: Text(itemLabel(item)),
