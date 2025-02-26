@@ -49,11 +49,11 @@ public class UserProjectControllerTest {
 
     @Test
     public void testAddUser() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
-        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': false}"
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice']}"
             .replace('\'', '"');
         User user = Utils.pushUser(user2Json, webTestClient);
 
@@ -80,7 +80,7 @@ public class UserProjectControllerTest {
 
     @Test
     public void testAddUserUserNotExist() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
         
@@ -101,11 +101,11 @@ public class UserProjectControllerTest {
 
     @Test
     public void testAddUserProjectNotExist() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
-        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': false}"
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice']}"
             .replace('\'', '"');
         Utils.pushUser(user2Json, webTestClient);
 
@@ -121,7 +121,7 @@ public class UserProjectControllerTest {
 
     @Test
     public void testAddUserWrongMail() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
@@ -142,11 +142,11 @@ public class UserProjectControllerTest {
 
     @Test
     public void testAddUserNoRole() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
-        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': false}"
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice']}"
             .replace('\'', '"');
         User user = Utils.pushUser(user2Json, webTestClient);
 
@@ -176,11 +176,11 @@ public class UserProjectControllerTest {
 
     @Test
     public void testGetOrganizerProject() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
              .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
  
-        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': false}"
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice']}"
              .replace('\'', '"');
         Utils.pushUser(user2Json, webTestClient);
  
@@ -220,11 +220,11 @@ public class UserProjectControllerTest {
 
     @Test
     public void testGetOrganizerProjectEmpty() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
              .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
  
-        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': true}"
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice']}"
              .replace('\'', '"');
         Utils.pushUser(user2Json, webTestClient);
  
@@ -261,11 +261,11 @@ public class UserProjectControllerTest {
 
     @Test
     public void testGetProjectUsers() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
-        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': false}"
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice']}"
             .replace('\'', '"');
         Utils.pushUser(user2Json, webTestClient);
 
@@ -305,7 +305,7 @@ public class UserProjectControllerTest {
 
     @Test
     public void testGetRoles() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
@@ -332,7 +332,7 @@ public class UserProjectControllerTest {
 
     @Test
     public void testGetRoleProjectNotFound() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
@@ -343,7 +343,7 @@ public class UserProjectControllerTest {
 
     @Test
     public void testGetRolesUserNotFound() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
@@ -362,11 +362,11 @@ public class UserProjectControllerTest {
 
     @Test
     public void testDeleteRole() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
-        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': false}"
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice']}"
             .replace('\'', '"');
         User user = Utils.pushUser(user2Json, webTestClient);
 
@@ -397,11 +397,11 @@ public class UserProjectControllerTest {
 
     @Test
     public void testDeleteAllRole() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
-        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': false}"
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice']}"
             .replace('\'', '"');
         User user = Utils.pushUser(user2Json, webTestClient);
 
@@ -440,11 +440,11 @@ public class UserProjectControllerTest {
 
     @Test
     public void testAddRole() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
-        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': false}"
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice']}"
             .replace('\'', '"');
         User user = Utils.pushUser(user2Json, webTestClient);
 
@@ -489,11 +489,11 @@ public class UserProjectControllerTest {
 
     @Test
     public void testDeleteParticipant() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
-        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': false}"
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice']}"
             .replace('\'', '"');
         User user = Utils.pushUser(user2Json, webTestClient);
 
@@ -523,7 +523,7 @@ public class UserProjectControllerTest {
 
     @Test
     public void testDeleteParticipantNotFound() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
@@ -538,7 +538,7 @@ public class UserProjectControllerTest {
 
     @Test
     public void testDeleteParticipantProjectNotFound() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 

@@ -9,9 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:multi_select_flutter/multi_select_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileModificationPage extends StatefulWidget {
   final int id;
@@ -19,7 +17,6 @@ class ProfileModificationPage extends StatefulWidget {
   final String lastname;
   final String email;
   final List professions;
-  final bool isOrganizer;
 
   const ProfileModificationPage(
       {super.key,
@@ -28,7 +25,7 @@ class ProfileModificationPage extends StatefulWidget {
       required this.lastname,
       required this.email,
       required this.professions,
-      required this.isOrganizer});
+      });
 
   @override
   State<ProfileModificationPage> createState() =>
@@ -45,7 +42,6 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
   List<Profession> professions = [];
   List<Profession> selectedProfessions = [];
   List<MultiSelectItem<Profession>> items = [];
-  late bool isOrganizer;
 
   @override
   void initState() {
@@ -53,7 +49,6 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
     firstNameController = TextEditingController(text: widget.firstname);
     lastNameController = TextEditingController(text: widget.lastname);
     emailController = TextEditingController(text: widget.email);
-    isOrganizer = widget.isOrganizer;
     getProfessions(context);
     getUserProfessions(context);
   }
@@ -130,7 +125,6 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
       return;
     }
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     final String url = '${dotenv.env['API_BASE_URL']}/users/${widget.id}';
 
     final Map<String, dynamic> requestBody = {
@@ -138,7 +132,6 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
       "lastName": lastname,
       "email": email,
       "professions": selectedProfessions.map((p) => p.name).toList(),
-      "isOrganizer": prefs.getBool("isOrganizer"), //TODO to be removed
     };
 
     print(requestBody);
@@ -150,8 +143,6 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
       );
 
       if (response.statusCode == 200) {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setBool('isOrganizer', isOrganizer);
         if (mounted) {
           Navigator.pop(context);
         }

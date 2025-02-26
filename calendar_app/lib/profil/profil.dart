@@ -9,8 +9,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
 class ProfilPage extends StatefulWidget {
   const ProfilPage({
     super.key,
@@ -27,14 +25,12 @@ class _ProfilPageSate extends State<ProfilPage> {
   String? email;
   int? id;
   Future<List>? professions;
-  bool? isOrganizer;
 
   @override
   void initState() {
     super.initState();
     initUserData(context);
     initUserProfessions(context);
-    initIsOrganizer(context);
   }
 
   void initUserData(BuildContext context) async {
@@ -51,29 +47,6 @@ class _ProfilPageSate extends State<ProfilPage> {
           email = data['email'];
           id = data['id'];
         });
-      } else {
-        Utils.errorMess('Une erreur est survenue',
-            'Merci de réessayer plus tard.', context);
-      }
-    } catch (e) {
-      Utils.errorMess(
-          'Une erreur est survenue', 'Merci de réessayer plus tard.', context);
-    }
-  }
-
-  void initIsOrganizer(BuildContext context) async {
-    String url = '${dotenv.env['API_BASE_URL']}/users/organizer/${user.email!}';
-    try {
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
-      );
-      if (response.statusCode == 200) {
-        setState(() {
-          isOrganizer = response.body == "true";
-        });
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setBool('isOrganizer', isOrganizer!);
       } else {
         Utils.errorMess('Une erreur est survenue',
             'Merci de réessayer plus tard.', context);
@@ -224,7 +197,6 @@ class _ProfilPageSate extends State<ProfilPage> {
                         lastname: lastName!,
                         id: id!,
                         professions:professionsList, 
-                        isOrganizer: isOrganizer!,
                       ),
                     ),
                   ).then((_) {

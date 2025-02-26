@@ -7,8 +7,6 @@ import 'package:calendar_app/organizer/project/project_admin.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 
 void main() async {
   await dotenv.load(fileName: "lib/.env");
@@ -26,7 +24,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
-  bool? isOrganizer;
   bool isUserLoggedIn = false; 
 
   @override
@@ -36,12 +33,6 @@ class _MyAppState extends State<MyApp> {
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       setState(() {
         isUserLoggedIn = user != null;
-      });
-    });
-
-    SharedPreferences.getInstance().then((prefs) {
-      setState(() {
-        isOrganizer = prefs.getBool("isOrganizer");
       });
     });
   }
@@ -55,7 +46,7 @@ class _MyAppState extends State<MyApp> {
   List<Widget> _pages() {
     return [
       const ProjectsUserPage(),
-      if (isOrganizer == true) const ProjectOrganizerPage(),
+      const ProjectOrganizerPage(),
       const ProfilPage(),
     ];
   }

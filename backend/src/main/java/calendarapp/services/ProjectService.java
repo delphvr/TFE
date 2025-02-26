@@ -26,9 +26,6 @@ public class ProjectService {
     private UserProjectService userProjectService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private UserRepository userRepository;
 
     /**
@@ -85,9 +82,6 @@ public class ProjectService {
         Optional<User> user = userRepository.findByEmail(request.getOrganizerEmail());
         if (!user.isPresent()) {
             throw new IllegalArgumentException("User not found with email " + request.getOrganizerEmail());
-        }
-        if (!userService.isUserOrganizer(request.getOrganizerEmail())) {
-            throw new IllegalArgumentException("User needs to be an organizer to create a project");
         }
         Project project = new Project(null, request.getName(), request.getDescription(), request.getBeginningDate(),
                 request.getEndingDate());

@@ -46,7 +46,7 @@ public class RehearsalControllerTest {
 
     @Test
     public void testCreateRehearsal() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
@@ -85,7 +85,7 @@ public class RehearsalControllerTest {
 
     @Test
     public void testCreateRehearsalWrongDate() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
@@ -106,11 +106,11 @@ public class RehearsalControllerTest {
 
     @Test
     public void testCreateRehearsalWithParticipant() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
-        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice'], 'isOrganizer': false}"
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice']}"
             .replace('\'', '"');
         User user = Utils.pushUser(user2Json, webTestClient);
 
@@ -140,7 +140,7 @@ public class RehearsalControllerTest {
      */
     @Test
     public void testGetProjectRehearsals() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
@@ -171,7 +171,7 @@ public class RehearsalControllerTest {
      */
     @Test
     public void testDeleteRehearsal() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
@@ -200,7 +200,7 @@ public class RehearsalControllerTest {
      */
     @Test
     public void testGetRehearsalParticipants() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
@@ -228,7 +228,7 @@ public class RehearsalControllerTest {
      */
     @Test
     public void testUpdateRehearsal() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
@@ -273,7 +273,7 @@ public class RehearsalControllerTest {
      */
     @Test
     public void testGetRehearsal() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
@@ -303,7 +303,7 @@ public class RehearsalControllerTest {
      */
     @Test
     public void testGetUserRehearsalOnProject() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 

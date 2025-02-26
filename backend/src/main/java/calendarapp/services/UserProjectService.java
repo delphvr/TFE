@@ -1,12 +1,10 @@
 package calendarapp.services;
 
-import calendarapp.model.Organizer;
 import calendarapp.model.Project;
 import calendarapp.model.Role;
 import calendarapp.model.User;
 import calendarapp.model.UserProject;
 import calendarapp.model.UserProjectId;
-import calendarapp.repository.OrganizerRepository;
 import calendarapp.repository.ProjectRepository;
 import calendarapp.repository.RoleRepository;
 import calendarapp.repository.UserProjectRepository;
@@ -33,8 +31,6 @@ public class UserProjectService {
     private UserProjectRepository userProjectRepository;
     @Autowired
     private RoleRepository roleRepository;
-    @Autowired
-    private OrganizerRepository organizerRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -68,10 +64,6 @@ public class UserProjectService {
                 if (!existingRole.isPresent()) {
                     Role r = new Role(role);
                     roleRepository.save(r);
-                }
-                if ("Organizer".equals(role)) {
-                    Organizer organizer = new Organizer(userId);
-                    organizerRepository.save(organizer);
                 }
                 UserProject userProject = new UserProject(userId, request.getProjectId(), role);
                 userProjectRepository.save(userProject);
@@ -240,10 +232,6 @@ public class UserProjectService {
             Optional<UserProject> existingUserProject = userProjectRepository
                     .findById(new UserProjectId(userId, projectId, role));
             if (!existingUserProject.isPresent()) {
-                if ("Organizer".equals(role)) {
-                    Organizer organizer = new Organizer(userId);
-                    organizerRepository.save(organizer);
-                }
                 UserProject userProject = new UserProject(userId, projectId, role);
                 userProjectRepository.save(userProject);
                 addedRoles.add(role);

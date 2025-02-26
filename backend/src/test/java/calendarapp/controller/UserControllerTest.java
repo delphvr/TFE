@@ -36,7 +36,7 @@ public class UserControllerTest {
 
     @Test
     public void testCreateUser() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
 
         webTestClient.post().uri("/api/users")
@@ -52,7 +52,7 @@ public class UserControllerTest {
 
     @Test
     public void testCreateUserWrongMail() throws Exception {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'wrong', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'wrong', 'professions': ['Danseur']}"
                 .replace('\'', '"');
 
         webTestClient.post().uri("/api/users")
@@ -64,7 +64,7 @@ public class UserControllerTest {
 
     @Test
     public void testCreateUserMailNull() throws Exception {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': null, 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': null, 'professions': ['Danseur']}"
                 .replace('\'', '"');
 
         webTestClient.post().uri("/api/users")
@@ -76,7 +76,7 @@ public class UserControllerTest {
 
     @Test
     public void testCreateUserMailBlank() throws Exception {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': '', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': '', 'professions': ['Danseur']}"
                 .replace('\'', '"');
 
         webTestClient.post().uri("/api/users")
@@ -88,7 +88,7 @@ public class UserControllerTest {
 
     @Test
     public void testCreateUserMailConflit() throws Exception {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'd@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'd@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
 
         webTestClient.post().uri("/api/users")
@@ -96,7 +96,7 @@ public class UserControllerTest {
             .bodyValue(userJson)
             .exchange();
 
-        String userJsonbis = "{'firstName': 'F', 'lastName': 'l', 'email': 'd@mail.com', 'professions': ['Danseur'], 'isOrganizer': false}"
+        String userJsonbis = "{'firstName': 'F', 'lastName': 'l', 'email': 'd@mail.com', 'professions': ['Danseur']}"
                 .replace('\'', '"');
 
         webTestClient.post().uri("/api/users")
@@ -107,55 +107,12 @@ public class UserControllerTest {
     }
 
     /*
-     * Test isOrganizer based on user email
-     */
-
-    @Test
-    public void testIsOrganizerT() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
-                .replace('\'', '"');
-
-        webTestClient.post().uri("/api/users")
-            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-            .bodyValue(userJson)
-            .exchange();
-
-        webTestClient.get().uri("/api/users/organizer/del.vr@mail.com")
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(Boolean.class).isEqualTo(true);
-    }
-
-    @Test
-    public void testIsOrganizerNotFound() {
-        webTestClient.get().uri("/api/users/organizer/del.vr@mail.com")
-            .exchange()
-            .expectStatus().isNotFound();
-    }
-
-    @Test
-    public void testIsOrganizerF() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': false}"
-                .replace('\'', '"');
-
-        webTestClient.post().uri("/api/users")
-            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-            .bodyValue(userJson)
-            .exchange();
-
-        webTestClient.get().uri("/api/users/organizer/del.vr@mail.com")
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(Boolean.class).isEqualTo(false);
-    }
-
-    /*
      * Tests delete user based on id
      */
 
     @Test
     public void testDeleteUser() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
                 .replace('\'', '"');
 
         User user = webTestClient.post().uri("/api/users")
@@ -177,7 +134,7 @@ public class UserControllerTest {
 
     @Test
     public void testDeleteUserNotFound() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}"
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
                 .replace('\'', '"');
 
         User user = webTestClient.post().uri("/api/users")
@@ -199,7 +156,7 @@ public class UserControllerTest {
 
     @Test
     public void testGetUser() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}".replace('\'', '"');
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}".replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
         webTestClient.get().uri("/api/users/" + user.getId())
@@ -224,7 +181,7 @@ public class UserControllerTest {
 
     @Test
     public void testGetUserWithEmail() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}".replace('\'', '"');
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}".replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
         webTestClient.get().uri("/api/users?email=" + user.getEmail())
@@ -249,7 +206,7 @@ public class UserControllerTest {
 
     @Test
     public void testGetUserProfessions() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}".replace('\'', '"');
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}".replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
         webTestClient.get().uri("/api/users/" + user.getEmail() +"/professions")
@@ -264,10 +221,10 @@ public class UserControllerTest {
      */
     @Test
     public void testUpdateUser() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}".replace('\'', '"');
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}".replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
-        String updatedUserJson = "{'firstName': 'Deli', 'lastName': 'vr', 'email': 'deli.vr@mail.com', 'professions': ['Danseur'], 'isOrganizer': true}".replace('\'', '"');
+        String updatedUserJson = "{'firstName': 'Deli', 'lastName': 'vr', 'email': 'deli.vr@mail.com', 'professions': ['Danseur']}".replace('\'', '"');
 
         webTestClient.put().uri("/api/users/" + user.getId())
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)

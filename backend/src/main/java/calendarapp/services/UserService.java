@@ -1,10 +1,8 @@
 package calendarapp.services;
 
-import calendarapp.model.Organizer;
 import calendarapp.model.Profession;
 import calendarapp.model.User;
 import calendarapp.model.UserProfession;
-import calendarapp.repository.OrganizerRepository;
 import calendarapp.repository.ProfessionRepository;
 import calendarapp.repository.UserProfessionRepository;
 import calendarapp.repository.UserRepository;
@@ -24,8 +22,6 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private OrganizerRepository organizerRepository;
     @Autowired
     private UserProfessionRepository userProfessionRepository;
     @Autowired
@@ -106,10 +102,6 @@ public class UserService {
                 userProfessionRepository.save(userProfession);
             }
         }
-        if (request.getIsOrganizer()) {
-            Organizer organizer = new Organizer(user.getId());
-            organizerRepository.save(organizer);
-        }
         return user;
     }
 
@@ -149,26 +141,11 @@ public class UserService {
                 userProfessionRepository.save(newUserProfession);
             }
         }
-        if (request.getIsOrganizer()) { 
-            if (!organizerRepository.existsByUserId(_user.getId())) { 
-                Organizer organizer = new Organizer(_user.getId());
-                organizerRepository.save(organizer);
-            }
-        }
         return userRepository.save(_user);
     }
 
     public void deleteUser(long id) {
         userRepository.deleteById(id);
-    }
-
-    public boolean isUserOrganizer(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
-        if (user.isPresent()) {
-            return organizerRepository.existsById(user.get().getId());
-        } else {
-            throw new IllegalArgumentException("User not found with email " + email);
-        }
     }
 
     /**

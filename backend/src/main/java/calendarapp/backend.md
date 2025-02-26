@@ -27,8 +27,7 @@ POST "http://localhost:8080/api/users"
     firstName: "Del", 
     lastName: "vr", 
     email: "del.vr@mail.com",
-    professions: ["Danseur"], 
-    isOrganizer: true
+    professions: ["Danseur"]
 }
 ```
 
@@ -103,8 +102,7 @@ PUT "http://localhost:8080/api/users/{id}"
     firstName: "Del", 
     lastName: "vr", 
     email: "del.vr@mail.com",
-    professions: ["Danseur"], 
-    isOrganizer: true
+    professions: ["Danseur"]
 }
 ```
 

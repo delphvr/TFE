@@ -7,7 +7,6 @@ public class UserRequest {
     private String lastName;
     private String email;
     private List<String> professions;
-    private boolean isOrganizer; 
 
     public String getFirstName() {
         return firstName;
@@ -41,14 +40,6 @@ public class UserRequest {
         this.professions = professions;
     }
 
-    public boolean getIsOrganizer() {
-        return isOrganizer;
-    }
-
-    public void setIsOrganizer(boolean isOrganizer) {
-        this.isOrganizer = isOrganizer;
-    }
-
     @Override
     public String toString() {
         return "CreateUserRequest{" +
@@ -56,7 +47,6 @@ public class UserRequest {
                ", lastName='" + lastName + '\'' +
                ", email='" + email + '\'' +
                ", professions=" + professions +
-               ", isOrganizer=" + isOrganizer +
                '}';
     }
 }

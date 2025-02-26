@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 //source: https://www.youtube.com/watch?v=qlVj-0vpaW0
 
@@ -50,7 +49,6 @@ class _RegisterState extends State<Register> {
   final confirmpasswordController = TextEditingController();
   final firstnameController = TextEditingController();
   final lastnameController = TextEditingController();
-  bool isOrganizer = false;
   String url = '${dotenv.env['API_BASE_URL']}/users';
   List<Profession> professions = [];
   List<Profession> selectedProfessions = [];
@@ -110,7 +108,6 @@ class _RegisterState extends State<Register> {
           "firstName": firstName,
           "lastName": lastName,
           "email": email,
-          "isOrganizer": isOrganizer,
           "professions": selectedProfessions.map((p) => p.name).toList(),
         }),
       );
@@ -193,8 +190,6 @@ class _RegisterState extends State<Register> {
         firstnameController.text.trim(),
         lastnameController.text.trim(),
       );
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setBool('isOrganizer', isOrganizer);
       if (userId != -1) {
         try {
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -299,68 +294,6 @@ class _RegisterState extends State<Register> {
                 ),
 
                 const SizedBox(height: 10),
-
-                const Text(
-                  'Êtes-vous organisateur ?',
-                  style: TextStyle(fontSize: 18),
-                ),
-                const SizedBox(height: 10),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: [
-                        Radio<bool>(
-                          value: true,
-                          groupValue: isOrganizer,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              isOrganizer = value!;
-                            });
-                          },
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isOrganizer = true;
-                            });
-                          },
-                          child: const Text(
-                            'Oui',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Radio<bool>(
-                          value: false,
-                          groupValue: isOrganizer,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              isOrganizer = value!;
-                            });
-                          },
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isOrganizer = false;
-                            });
-                          },
-                          child: const Text(
-                            'Non',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 15),
 
                 //button se connecter
                 ButtonCustom(

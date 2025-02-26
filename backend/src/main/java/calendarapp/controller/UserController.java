@@ -71,12 +71,6 @@ public class UserController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
-	@GetMapping("/users/organizer/{email}")
-	public ResponseEntity<Boolean> isUserOrganizer(@PathVariable("email") String email) {
-		boolean isOrganizer = userService.isUserOrganizer(email);
-		return new ResponseEntity<>(isOrganizer, HttpStatus.OK);
-	}
-
 	@GetMapping("/users/{email}/professions")
 	public ResponseEntity<List<String>> getUserProfessions(@PathVariable("email") String email) {
 		List<String> professions = userService.getUserProfessions(email);

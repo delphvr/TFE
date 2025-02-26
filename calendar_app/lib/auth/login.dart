@@ -3,9 +3,6 @@ import 'package:calendar_app/components/textfield_custom.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 //source: https://www.youtube.com/watch?v=Dh-cTQJgM-Q
 
 class LoginScreen extends StatefulWidget {
@@ -20,26 +17,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
 
   final passwordController = TextEditingController();
-
-  Future<bool> isOrganizer(String email) async {
-    String url = '${dotenv.env['API_BASE_URL']}/users/organizer/$email';
-    try {
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
-      );
-
-      if (response.statusCode == 200) {
-        //Map<String, dynamic> parsedJson = json.decode(utf8.decode(response.bodyBytes));
-        //print(parsedJson);
-        return response.body == "true";
-      } else {
-        return false;
-      }
-    } catch (e) {
-      return false;
-    }
-  }
 
   void login() async {
     showDialog(
@@ -64,9 +41,6 @@ class _LoginScreenState extends State<LoginScreen> {
         }
         Utils.errorMess('Erreur de connexion', 'Email non Valide.', context);
       } else {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        bool isOrga = await isOrganizer(emailController.text);
-        prefs.setBool('isOrganizer', isOrga);
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text,
           password: passwordController.text,

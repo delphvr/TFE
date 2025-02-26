@@ -95,7 +95,7 @@ class _ProjectOrganizerPageState extends State<ProjectOrganizerPage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => NewProjectPage()),
+                    MaterialPageRoute(builder: (context) => const NewProjectPage()),
                   ).then((_) {
                     setState(() {
                       projects = getProjects(context);
