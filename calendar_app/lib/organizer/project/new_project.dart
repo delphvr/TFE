@@ -9,7 +9,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class NewProjectPage extends StatefulWidget {
-  NewProjectPage({super.key});
+  const NewProjectPage({super.key});
 
   @override
   State<NewProjectPage> createState() => _NewProjectPageState();
@@ -23,7 +23,8 @@ class _NewProjectPageState extends State<NewProjectPage> {
   final beginningDateController = TextEditingController();
   final endingDateController = TextEditingController();
 
-  DateTime? _selectedDate;
+  DateTime? _selectedBeginningDate;
+  DateTime? _selectedEndingDate;
 
   void logout(Function onLogoutSuccess) async {
     await FirebaseAuth.instance.signOut();
@@ -33,8 +34,8 @@ class _NewProjectPageState extends State<NewProjectPage> {
   void save(BuildContext context) async {
     final projectName = projectNameController.text;
     final description = descriptionController.text;
-    final beginningDate = beginningDateController.text;
-    final endingDate = endingDateController.text;
+    final beginningDate = Utils.formatDateTime(_selectedBeginningDate);
+    final endingDate = Utils.formatDateTime(_selectedEndingDate);
 
     if (projectName.isEmpty) {
       Utils.errorMess('Erreur lors de la création du project',
@@ -92,24 +93,6 @@ class _NewProjectPageState extends State<NewProjectPage> {
     } catch (e) {
       Utils.errorMess('Erreur lors de la création du project',
           'Impossible de se connecter au serveur.', context);
-    }
-  }
-
-  //Done with the help of chatgpt
-  Future<void> _selectDate(
-      BuildContext context, TextEditingController controller) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-        controller.text =
-            "${picked.toLocal()}".split(' ')[0]; // Format as yyyy-MM-dd
-      });
     }
   }
 
@@ -173,7 +156,12 @@ class _NewProjectPageState extends State<NewProjectPage> {
           SizedBox(
             width: 250,
             child: GestureDetector(
-              onTap: () => _selectDate(context, beginningDateController),
+              onTap: () => Utils.selectDate(context, beginningDateController, _selectedBeginningDate,
+                          (pickedDate) {
+                        setState(() {
+                          _selectedBeginningDate = pickedDate;
+                        });
+                      }),
               child: AbsorbPointer(
                 child: TextField(
                   controller: beginningDateController,
@@ -193,7 +181,12 @@ class _NewProjectPageState extends State<NewProjectPage> {
           SizedBox(
             width: 250,
             child: GestureDetector(
-              onTap: () => _selectDate(context, endingDateController),
+              onTap: () => Utils.selectDate(context, endingDateController, _selectedEndingDate,
+                          (pickedDate) {
+                        setState(() {
+                          _selectedEndingDate = pickedDate;
+                        });
+                      }),
               child: AbsorbPointer(
                 child: TextField(
                   controller: endingDateController,

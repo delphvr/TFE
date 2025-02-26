@@ -167,14 +167,14 @@ class _ProjectDetailsPage extends State<ProjectDetailsOrganizerPage> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Date de début: ${beginningDate != null ? Utils.formatDate(beginningDate) : "-"}',
+                        'Date de début: ${beginningDate != null ? Utils.formatDateString(beginningDate) : "-"}',
                         style: const TextStyle(
                           fontSize: 20,
                         ),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Date de fin: ${endingDate != null ? Utils.formatDate(endingDate) : "-"}',
+                        'Date de fin: ${endingDate != null ? Utils.formatDateString(endingDate) : "-"}',
                         style: const TextStyle(
                           fontSize: 20,
                         ),
@@ -235,7 +235,7 @@ class _ProjectDetailsPage extends State<ProjectDetailsOrganizerPage> {
                 ),
                 const SizedBox(height: 40),
                 ButtonCustom(
-                  text: 'Suprimmer le projet',
+                  text: 'Supprimer le projet',
                   onTap: () {
                     Utils.confirmation(
                         'Action Irrévesible',

@@ -1,6 +1,7 @@
 import 'package:calendar_app/auth/auth.dart';
 import 'package:calendar_app/organizer/rehearsals/add_rehearsal.dart';
 import 'package:calendar_app/organizer/rehearsals/rehearsal_element.dart';
+import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/components/button_custom.dart';
@@ -146,7 +147,7 @@ class _RehearsalPage extends State<RehearsalPage> {
                             rehearsalId: rehearsals[index]['id'],
                             name: rehearsals[index]['name'],
                             description: rehearsals[index]['description'],
-                            date: rehearsals[index]['date'],
+                            date: Utils.formatDateString(rehearsals[index]['date']),
                             duration: rehearsals[index]['duration'],
                             projectId: rehearsals[index]['projectId'],
                             participantsIds: rehearsals[index]

@@ -184,7 +184,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Date: ${date != null ? Utils.formatDate(date) : "-"}',
+                        'Date: ${date != null ? Utils.formatDateString(date) : "-"}',
                         style: const TextStyle(
                           fontSize: 20,
                         ),
@@ -274,7 +274,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                 ),
                 const SizedBox(height: 20),
                 ButtonCustom(
-                  text: 'Suprimmer la répétition',
+                  text: 'Supprimer la répétition',
                   onTap: () {
                     Utils.confirmation(
                         'Action Irrévesible',

@@ -35,14 +35,29 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
   late TextEditingController descriptionController;
   late TextEditingController beginningDateController;
   late TextEditingController endingDateController;
+  DateTime? _selectedBeginningDate;
+  DateTime? _selectedEndingDate;
 
   @override
   void initState() {
     super.initState();
     titleController = TextEditingController(text: widget.name);
     descriptionController = TextEditingController(text: widget.description);
-    beginningDateController = TextEditingController(text: widget.beginningDate);
-    endingDateController = TextEditingController(text: widget.endingDate);
+    beginningDateController = TextEditingController(
+        text: widget.beginningDate != null
+            ? Utils.formatDateString(widget.beginningDate)
+            : "");
+    endingDateController = TextEditingController(
+        text: widget.endingDate != null
+            ? Utils.formatDateString(widget.endingDate)
+            : "");
+    if (widget.beginningDate != null) {
+      _selectedBeginningDate = DateTime.parse(widget.beginningDate!);
+    }
+
+    if (widget.endingDate != null) {
+      _selectedEndingDate = DateTime.parse(widget.endingDate!);
+    }
   }
 
   @override
@@ -54,8 +69,6 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
     super.dispose();
   }
 
-  DateTime? selectedDate;
-
   void logout(Function onLogoutSuccess) async {
     await FirebaseAuth.instance.signOut();
     onLogoutSuccess();
@@ -64,8 +77,8 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
   void update(BuildContext context) async {
     final projectName = titleController.text;
     final description = descriptionController.text;
-    final beginningDate = beginningDateController.text;
-    final endingDate = endingDateController.text;
+    final beginningDate = Utils.formatDateTime(_selectedBeginningDate);
+    final endingDate = Utils.formatDateTime(_selectedEndingDate);
 
     if (projectName.isEmpty) {
       Utils.errorMess('Erreur lors de la modification du project',
@@ -118,24 +131,6 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
     } catch (e) {
       Utils.errorMess('Erreur lors de la modification du project',
           'Impossible de se connecter au serveur.', context);
-    }
-  }
-
-  //Done with the help of chatgpt
-  Future<void> selectDate(
-      BuildContext context, TextEditingController controller) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-        controller.text =
-            "${picked.toLocal()}".split(' ')[0]; // Format as yyyy-MM-dd
-      });
     }
   }
 
@@ -202,7 +197,13 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
             SizedBox(
               width: 250,
               child: GestureDetector(
-                onTap: () => selectDate(context, beginningDateController),
+                onTap: () => Utils.selectDate(
+                    context, beginningDateController, _selectedBeginningDate,
+                    (pickedDate) {
+                  setState(() {
+                    _selectedBeginningDate = pickedDate;
+                  });
+                }),
                 child: AbsorbPointer(
                   child: TextField(
                     controller: beginningDateController,
@@ -222,7 +223,13 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
             SizedBox(
               width: 250,
               child: GestureDetector(
-                onTap: () => selectDate(context, endingDateController),
+                onTap: () => Utils.selectDate(
+                    context, endingDateController, _selectedEndingDate,
+                    (pickedDate) {
+                  setState(() {
+                    _selectedEndingDate = pickedDate;
+                  });
+                }),
                 child: AbsorbPointer(
                   child: TextField(
                     controller: endingDateController,

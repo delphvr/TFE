@@ -63,11 +63,11 @@ class _AddRehearsal extends State<AddRehearsal> {
   void addRehearsal(BuildContext context) async {
     final rehearsalName = nameController.text;
     final description = descriptionController.text;
-    final date = dateController.text;
+    final date = Utils.formatDateTime(_selectedDate);
     final duration = isoDuration;
     final String url = '${dotenv.env['API_BASE_URL']}/rehearsals';
 
-    //TODO check que la date rentre dans les dates du projet
+    //TODO check que la date rentre dans les dates du projet, le passer à select date?
     if (rehearsalName.isEmpty) {
       Utils.errorMess('Erreur lors de la création de la répétition',
           'Merci de donner un nom à la répétition', context);
@@ -138,42 +138,6 @@ class _AddRehearsal extends State<AddRehearsal> {
     }
   }
 
-  //Done with the help of chatgpt
-  Future<void> _selectDate(
-      BuildContext context, TextEditingController controller) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-        controller.text =
-            "${picked.toLocal()}".split(' ')[0]; // Format as yyyy-MM-dd
-      });
-    }
-  }
-
-  //Done with the help of chatgpt
-  Future<void> _selectDuration(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay(hour: 0, minute: 0), // Default to 0h 0m
-    );
-
-    if (picked != null) {
-      setState(() {
-        // Store ISO-8601 format for backend
-        isoDuration = "PT${picked.hour}H${picked.minute}M";
-        // Display format (e.g., "2h 30m")
-        String displayDuration = "${picked.hour}h ${picked.minute}m";
-        durationController.text = displayDuration;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -237,7 +201,12 @@ class _AddRehearsal extends State<AddRehearsal> {
                   SizedBox(
                     width: 250,
                     child: GestureDetector(
-                      onTap: () => _selectDate(context, dateController),
+                      onTap: () => Utils.selectDate(context, dateController, _selectedDate,
+                          (pickedDate) {
+                        setState(() {
+                          _selectedDate = pickedDate;
+                        });
+                      }),
                       child: AbsorbPointer(
                         child: TextField(
                           controller: dateController,
@@ -257,7 +226,16 @@ class _AddRehearsal extends State<AddRehearsal> {
                   SizedBox(
                     width: 250,
                     child: GestureDetector(
-                      onTap: () => _selectDuration(context),
+                      onTap: () => Utils.selectDuration(
+                        context,
+                        durationController,
+                        durationController.text,
+                        (newDuration) {
+                          setState(() {
+                            isoDuration = newDuration;
+                          });
+                        },
+                      ),
                       child: AbsorbPointer(
                         child: TextField(
                           controller: durationController,

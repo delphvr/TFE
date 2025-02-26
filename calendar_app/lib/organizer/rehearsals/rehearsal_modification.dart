@@ -12,7 +12,6 @@ import 'dart:convert';
 
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 
-
 class RehearsalModificationPage extends StatefulWidget {
   final int projectId;
   final int rehearsalId;
@@ -50,15 +49,25 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
   List<Participant> participants = [];
   List<Participant> selectedParticipants = [];
   List<MultiSelectItem<Participant>> items = [];
+  DateTime? selectedDate;
 
   @override
   void initState() {
     super.initState();
     nameController = TextEditingController(text: widget.name);
     descriptionController = TextEditingController(text: widget.description);
-    dateController = TextEditingController(text: widget.date);
-    isoDuration = widget.duration !=null ? widget.duration! : '' ;
-    durationController = TextEditingController(text: widget.duration !=null ? Utils.formatDuration(widget.duration!) : null);
+    dateController = TextEditingController(
+        text: widget.date != null
+            ? Utils.formatDateString(widget.date)
+            : "");
+    if (widget.date != null) {
+      selectedDate = DateTime.parse(widget.date!);
+    }
+    isoDuration = widget.duration != null ? widget.duration! : '';
+    durationController = TextEditingController(
+        text: widget.duration != null
+            ? Utils.formatDuration(widget.duration!)
+            : null);
     getUsersOnProject(
         context); //initiate participants list with the participants of the project
     //init selectedParticipants to user already participating in the rehearsal
@@ -73,8 +82,6 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     durationController.dispose();
     super.dispose();
   }
-
-  DateTime? selectedDate;
 
   void logout(Function onLogoutSuccess) async {
     await FirebaseAuth.instance.signOut();
@@ -129,7 +136,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
   void update(BuildContext context) async {
     final rehearsalName = nameController.text;
     final description = descriptionController.text;
-    final date = dateController.text;
+    final date = Utils.formatDateTime(selectedDate);
     final duration = isoDuration;
 
     if (rehearsalName.isEmpty) {
@@ -177,65 +184,30 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     }
   }
 
-  //Done with the help of chatgpt
-  Future<void> _selectDate(
-      BuildContext context, TextEditingController controller) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-        controller.text =
-            "${picked.toLocal()}".split(' ')[0]; // Format as yyyy-MM-dd
-      });
-    }
-  }
-
-  //Done with the help of chatgpt
-  Future<void> _selectDuration(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: const TimeOfDay(hour: 0, minute: 0),
-    );
-    if (picked != null) {
-      setState(() {
-        // Store ISO-8601 format for backend
-        isoDuration = "PT${picked.hour}H${picked.minute}M";
-        // Display format (e.g., "2h 30m")
-        String displayDuration = "${picked.hour}h ${picked.minute}m";
-        durationController.text = displayDuration;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
         backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: () {
-              logout(() {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const Auth()),
-                  (route) => false,
-                );
-              });
-            },
-            icon: const Icon(
-              Icons.logout,
-              size: 40,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          actions: [
+            IconButton(
+              onPressed: () {
+                logout(() {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const Auth()),
+                    (route) => false,
+                  );
+                });
+              },
+              icon: const Icon(
+                Icons.logout,
+                size: 40,
+              ),
             ),
-          ),
-        ],
-      ),
-      body: Center(
+          ],
+        ),
+        body: Center(
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(25.0),
@@ -275,7 +247,12 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
                   SizedBox(
                     width: 250,
                     child: GestureDetector(
-                      onTap: () => _selectDate(context, dateController),
+                      onTap: () => Utils.selectDate(
+                          context, dateController, selectedDate, (pickedDate) {
+                        setState(() {
+                          selectedDate = pickedDate;
+                        });
+                      }),
                       child: AbsorbPointer(
                         child: TextField(
                           controller: dateController,
@@ -295,8 +272,16 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
                   SizedBox(
                     width: 250,
                     child: GestureDetector(
-                      onTap: () =>
-                          _selectDuration(context), 
+                      onTap: () => Utils.selectDuration(
+                        context,
+                        durationController,
+                        durationController.text,
+                        (newDuration) {
+                          setState(() {
+                            isoDuration = newDuration;
+                          });
+                        },
+                      ),
                       child: AbsorbPointer(
                         child: TextField(
                           controller: durationController,
@@ -306,7 +291,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
                             labelText: 'Durée',
                             fillColor: Color(0xFFF2F2F2),
                             filled: true,
-                            prefixIcon: Icon(Icons.timer), 
+                            prefixIcon: Icon(Icons.timer),
                           ),
                         ),
                       ),
