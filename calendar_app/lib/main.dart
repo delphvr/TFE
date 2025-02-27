@@ -1,12 +1,23 @@
 import 'package:calendar_app/auth/login_or_register.dart';
-import 'package:calendar_app/profil/profil.dart';
 import 'package:calendar_app/project/project_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:calendar_app/organizer/project/project_admin.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+//Source: https://gist.github.com/bicasoftware/d222e76e81d367f947f89d006a10165b
+class SadPageTransition extends PageTransitionsBuilder {
+  @override
+  Widget buildTransitions<T>(
+      PageRoute<T> route,
+      BuildContext context,
+      Animation<double> animation,
+      Animation<double> secondaryAnimation,
+      Widget child) {
+    return child;
+  }
+}
 
 void main() async {
   await dotenv.load(fileName: "lib/.env");
@@ -23,7 +34,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  int _selectedIndex = 0;
   bool isUserLoggedIn = false; 
 
   @override
@@ -35,20 +45,6 @@ class _MyAppState extends State<MyApp> {
         isUserLoggedIn = user != null;
       });
     });
-  }
-
-  void _navigateBottomBar(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  List<Widget> _pages() {
-    return [
-      const ProjectsUserPage(),
-      const ProjectOrganizerPage(),
-      const ProfilPage(),
-    ];
   }
 
   @override
@@ -67,22 +63,14 @@ class _MyAppState extends State<MyApp> {
           onError: Colors.white,
         ),
         useMaterial3: true,
+        pageTransitionsTheme: PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: SadPageTransition()
+      }
+    )
       ),
       home: isUserLoggedIn
-          ? Scaffold(
-              body: _pages()[_selectedIndex],
-              bottomNavigationBar: BottomNavigationBar(
-                currentIndex: _selectedIndex,
-                onTap: _navigateBottomBar,
-                type: BottomNavigationBarType.fixed,
-                items: const [
-                  BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Projets'),
-                  BottomNavigationBarItem(
-                      icon: Icon(Icons.assignment), label: 'Organisateurs'),
-                  BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
-                ],
-              ),
-            )
+          ? const ProjectsUserPage()
           : const LoginOrRegister(),
     );
   }

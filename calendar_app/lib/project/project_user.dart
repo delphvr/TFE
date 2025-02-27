@@ -1,3 +1,4 @@
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/organizer/project/project_element.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,14 +24,9 @@ class _ProjectsUserPageState extends State<ProjectsUserPage> {
     projects = getProjects(context);
   }
 
-  void logout() {
-    FirebaseAuth.instance.signOut();
-  }
-
   Future<List> getProjects(BuildContext context) async {
     final email = user.email;
-    final String url =
-        '${dotenv.env['API_BASE_URL']}/projects/user/$email';
+    final String url = '${dotenv.env['API_BASE_URL']}/projects/user/$email';
     try {
       final response = await http.get(Uri.parse(url));
 
@@ -50,13 +46,17 @@ class _ProjectsUserPageState extends State<ProjectsUserPage> {
         //}
         return userProjects;
       } else {
-        Utils.errorMess('Erreur lors de la récupérations des projects',
-            'Une erreur c\'est produite', context);
+        if (context.mounted) {
+          Utils.errorMess('Erreur lors de la récupérations des projects',
+              'Une erreur c\'est produite', context);
+        }
         return [];
       }
     } catch (e) {
-      Utils.errorMess('Erreur lors de la récupérations des projects',
-          'Une erreur c\'est produite', context);
+      if (context.mounted) {
+        Utils.errorMess('Erreur lors de la récupérations des projects',
+            'Une erreur c\'est produite', context);
+      }
       return [];
     }
   }
@@ -69,19 +69,7 @@ class _ProjectsUserPageState extends State<ProjectsUserPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-              onPressed: logout,
-              icon: const Icon(
-                Icons.logout,
-                size: 40,
-              ))
-        ],
-      ),
+    return CustomScaffold(
       body: Center(
         child: Column(
           children: [
@@ -121,6 +109,7 @@ class _ProjectsUserPageState extends State<ProjectsUserPage> {
           ],
         ),
       ),
+      selectedIndex: 0,
     );
   }
 }

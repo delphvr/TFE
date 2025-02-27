@@ -1,3 +1,4 @@
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/organizer/project/new_project.dart';
 import 'package:calendar_app/organizer/project/project_element.dart';
 import 'package:calendar_app/utils.dart';
@@ -52,13 +53,17 @@ class _ProjectOrganizerPageState extends State<ProjectOrganizerPage> {
         //}
         return userProjects;
       } else {
-        Utils.errorMess('Erreur lors de la récupérations des projects',
-            'Une erreur c\'est produite', context);
+        if (context.mounted) {
+          Utils.errorMess('Erreur lors de la récupérations des projects',
+              'Une erreur c\'est produite', context);
+        }
         return [];
       }
     } catch (e) {
-      Utils.errorMess('Erreur lors de la récupérations des projects',
-          'Une erreur c\'est produite', context);
+      if (context.mounted) {
+        Utils.errorMess('Erreur lors de la récupérations des projects',
+            'Une erreur c\'est produite', context);
+      }
       return [];
     }
   }
@@ -71,76 +76,65 @@ class _ProjectOrganizerPageState extends State<ProjectOrganizerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-              onPressed: logout,
-              icon: const Icon(
-                Icons.logout,
-                size: 40,
-              ))
-        ],
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            const SizedBox(height: 25),
-            SizedBox(
-              width: 250,
-              child: ButtonCustom(
-                text: "Nouveau projet",
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const NewProjectPage()),
-                  ).then((_) {
-                    setState(() {
-                      projects = getProjects(context);
+    return CustomScaffold(
+        body: Center(
+          child: Column(
+            children: [
+              const SizedBox(height: 25),
+              SizedBox(
+                width: 250,
+                child: ButtonCustom(
+                  text: "Nouveau projet",
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const NewProjectPage()),
+                    ).then((_) {
+                      setState(() {
+                        projects = getProjects(context);
+                      });
                     });
-                  });
-                },
+                  },
+                ),
               ),
-            ),
-            const SizedBox(height: 25),
-            Expanded(
-              child: FutureBuilder<List>(
-                future: projects,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text("Erreur: ${snapshot.error}"),
-                    );
-                  } else if (snapshot.hasData) {
-                    final projects = snapshot.data!;
+              const SizedBox(height: 25),
+              Expanded(
+                child: FutureBuilder<List>(
+                  future: projects,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text("Erreur: ${snapshot.error}"),
+                      );
+                    } else if (snapshot.hasData) {
+                      final projects = snapshot.data!;
 
-                    return ListView.builder(
-                      itemCount: projects.length,
-                      itemBuilder: (context, index) {
-                        return ProjectElement(
-                          id: projects[index]['id'],
-                          organizerPage: true,
-                          onUpdate: refreshProjects,
-                        );
-                      },
-                    );
-                  } else {
-                    return const Center(
-                      child: Text('Aucun projet trouvé'),
-                    );
-                  }
-                },
+                      return ListView.builder(
+                        itemCount: projects.length,
+                        itemBuilder: (context, index) {
+                          return ProjectElement(
+                            id: projects[index]['id'],
+                            organizerPage: true,
+                            onUpdate: refreshProjects,
+                          );
+                        },
+                      );
+                    } else {
+                      return const Center(
+                        child: Text('Aucun projet trouvé'),
+                      );
+                    }
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+        selectedIndex: 1);
   }
 }

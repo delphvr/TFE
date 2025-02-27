@@ -1,7 +1,7 @@
-import 'package:calendar_app/auth/auth.dart';
 import 'package:calendar_app/auth/register.dart';
 import 'package:calendar_app/components/bottom_sheet_selector.dart';
 import 'package:calendar_app/components/button_custom.dart';
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,14 +18,14 @@ class ProfileModificationPage extends StatefulWidget {
   final String email;
   final List professions;
 
-  const ProfileModificationPage(
-      {super.key,
-      required this.id,
-      required this.firstname,
-      required this.lastname,
-      required this.email,
-      required this.professions,
-      });
+  const ProfileModificationPage({
+    super.key,
+    required this.id,
+    required this.firstname,
+    required this.lastname,
+    required this.email,
+    required this.professions,
+  });
 
   @override
   State<ProfileModificationPage> createState() =>
@@ -63,11 +63,6 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
 
   DateTime? selectedDate;
 
-  void logout(Function onLogoutSuccess) async {
-    await FirebaseAuth.instance.signOut();
-    onLogoutSuccess();
-  }
-
   Future<void> getProfessions(BuildContext context) async {
     String url = '${dotenv.env['API_BASE_URL']}/professions';
     try {
@@ -97,18 +92,23 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
-          selectedProfessions = data.map((name) => Profession(name: name)).toList();
+          selectedProfessions =
+              data.map((name) => Profession(name: name)).toList();
         });
       } else {
-        Utils.errorMess('Une erreur est survenue',
-            'Merci de réessayer plus tard.', context);
+        if (context.mounted) {
+          Utils.errorMess('Une erreur est survenue',
+              'Merci de réessayer plus tard.', context);
+        }
         setState(() {
           selectedProfessions = [];
         });
       }
     } catch (e) {
-      Utils.errorMess(
-          'Une erreur est survenue', 'Merci de réessayer plus tard.', context);
+      if (context.mounted) {
+        Utils.errorMess('Une erreur est survenue',
+            'Merci de réessayer plus tard.', context);
+      }
       setState(() {
         selectedProfessions = [];
       });
@@ -141,45 +141,28 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
       );
 
       if (response.statusCode == 200) {
-        if (mounted) {
+        if (context.mounted) {
           Navigator.pop(context);
         }
       } else {
+        if (context.mounted) {
         Utils.errorMess(
             errorTitle,
             'Erreur lors de la modification. Merci de réessayez plus tard.',
             context);
+        }
       }
     } catch (e) {
-      print(e);
+      if (context.mounted) {
       Utils.errorMess(
           errorTitle, 'Impossible de se connecter au serveur.', context);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          actions: [
-            IconButton(
-              onPressed: () {
-                logout(() {
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const Auth()),
-                    (route) => false,
-                  );
-                });
-              },
-              icon: const Icon(
-                Icons.logout,
-                size: 40,
-              ),
-            ),
-          ],
-        ),
+    return CustomScaffold(
         body: Center(
           child: SingleChildScrollView(
             child: Column(
@@ -245,6 +228,7 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
               ],
             ),
           ),
-        ));
+        ),
+        selectedIndex: 2);
   }
 }

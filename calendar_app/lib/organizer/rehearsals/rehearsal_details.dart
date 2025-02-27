@@ -1,4 +1,4 @@
-import 'package:calendar_app/auth/auth.dart';
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/organizer/rehearsals/rehearsal_modification.dart';
 import 'package:calendar_app/organizer/rehearsals/rehearsal_participant_element.dart';
 import 'package:calendar_app/utils.dart';
@@ -87,11 +87,6 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
     });
   }
 
-  void logout(Function onLogoutSuccess) async {
-    await FirebaseAuth.instance.signOut();
-    onLogoutSuccess();
-  }
-
   void deleteRehearsal() async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/rehearsals/${widget.rehearsalId}';
@@ -99,14 +94,20 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
       final response = await http.delete(Uri.parse(url));
 
       if (response.statusCode != 204) {
-        Utils.errorMess('Erreur lors de la suppression de la répétition',
-            'Merci de réessayer plus tard', context);
+        if (mounted) {
+          Utils.errorMess('Erreur lors de la suppression de la répétition',
+              'Merci de réessayer plus tard', context);
+        }
       } else {
-        Navigator.pop(context);
+        if (mounted) {
+          Navigator.pop(context);
+        }
       }
     } catch (e) {
-      Utils.errorMess('Erreur lors de la suppression de la répétition',
-          'Merci de réessayer plus tard', context);
+      if (mounted) {
+        Utils.errorMess('Erreur lors de la suppression de la répétition',
+            'Merci de réessayer plus tard', context);
+      }
     }
   }
 
@@ -125,167 +126,150 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
           duration = data['duration'];
         });
       } else {
+        if (mounted) {
+          Utils.errorMess('Une erreur est survenue',
+              'Merci de réessayer plus tard', context);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         Utils.errorMess(
             'Une erreur est survenue', 'Merci de réessayer plus tard', context);
       }
-    } catch (e) {
-      Utils.errorMess(
-          'Une erreur est survenue', 'Merci de réessayer plus tard', context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        actions: [
-          //TODO in utils ?
-          IconButton(
-            onPressed: () {
-              logout(() {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const Auth()),
-                  (route) => false,
-                );
-              });
-            },
-            icon: const Icon(
-              Icons.logout,
-              size: 40,
-            ),
-          ),
-        ],
-      ),
-      body: Align(
-          alignment: Alignment.topCenter,
-          child: Column(
-            children: [
-              Text(
-                name,
-                style: const TextStyle(
-                  fontSize: 30,
-                ),
-              ),
-              const SizedBox(height: 25),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 35),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Description: ${description != null && description != '' ? description : "-"}",
-                        style: const TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Date: ${date != null ? Utils.formatDateString(date) : "-"}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Durée: ${duration != null ? Utils.formatDuration(duration!) : "-"}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Participants: ${participantsIds.isEmpty ? "-" : ""}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                    ],
+    return CustomScaffold(
+        body: Align(
+            alignment: Alignment.topCenter,
+            child: Column(
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 30,
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Flexible(
-                child: FutureBuilder<List>(
-                  future: users,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text("Erreur: ${snapshot.error}"),
-                      );
-                    } else if (snapshot.hasData) {
-                      final users = snapshot.data!;
-
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: users.length,
-                        itemBuilder: (context, index) {
-                          return ParticipantElement(
-                            projectId: widget.projectId,
-                            rehearsalId: widget.rehearsalId,
-                            userId: users[index]['id'],
-                            firstName: users[index]['firstName'],
-                            lastName: users[index]['lastName'],
-                            email: users[index]['email'],
-                            //roles: users[index]['roles'],
-                            onUpdate: refreshUsers,
-                          );
-                        },
-                      );
-                    } else {
-                      return const Center(
-                        child: Text('Aucun participant trouvé'),
-                      );
-                    }
-                  },
-                ),
-              ),
-              if (widget.organizerPage) ...[
                 const SizedBox(height: 25),
-                ButtonCustom(
-                  text: 'Modifier',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RehearsalModificationPage(
-                          rehearsalId: widget.rehearsalId,
-                          projectId: widget.projectId,
-                          name: name,
-                          description: description,
-                          date: date,
-                          duration: duration,
-                          participantsIds: participantsIds,
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 35),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Description: ${description != null && description != '' ? description : "-"}",
+                          style: const TextStyle(
+                            fontSize: 20,
+                          ),
                         ),
-                      ),
-                    ).then((_) {
-                      getRehearsal();
-                      refreshUsers();
-                    });
-                  },
+                        const SizedBox(height: 10),
+                        Text(
+                          'Date: ${date != null ? Utils.formatDateString(date) : "-"}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Durée: ${duration != null ? Utils.formatDuration(duration!) : "-"}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Participants: ${participantsIds.isEmpty ? "-" : ""}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 20),
-                ButtonCustom(
-                  text: 'Supprimer la répétition',
-                  onTap: () {
-                    Utils.confirmation(
-                        'Action Irrévesible',
-                        'Êtes-vous sûre de vouloir supprimer la répétition ?',
-                        deleteRehearsal,
-                        context);
-                  },
+                const SizedBox(height: 10),
+                Flexible(
+                  child: FutureBuilder<List>(
+                    future: users,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text("Erreur: ${snapshot.error}"),
+                        );
+                      } else if (snapshot.hasData) {
+                        final users = snapshot.data!;
+
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: users.length,
+                          itemBuilder: (context, index) {
+                            return ParticipantElement(
+                              projectId: widget.projectId,
+                              rehearsalId: widget.rehearsalId,
+                              userId: users[index]['id'],
+                              firstName: users[index]['firstName'],
+                              lastName: users[index]['lastName'],
+                              email: users[index]['email'],
+                              //roles: users[index]['roles'],
+                              onUpdate: refreshUsers,
+                            );
+                          },
+                        );
+                      } else {
+                        return const Center(
+                          child: Text('Aucun participant trouvé'),
+                        );
+                      }
+                    },
+                  ),
                 ),
+                if (widget.organizerPage) ...[
+                  const SizedBox(height: 25),
+                  ButtonCustom(
+                    text: 'Modifier',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RehearsalModificationPage(
+                            rehearsalId: widget.rehearsalId,
+                            projectId: widget.projectId,
+                            name: name,
+                            description: description,
+                            date: date,
+                            duration: duration,
+                            participantsIds: participantsIds,
+                          ),
+                        ),
+                      ).then((_) {
+                        getRehearsal();
+                        refreshUsers();
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  ButtonCustom(
+                    text: 'Supprimer la répétition',
+                    onTap: () {
+                      Utils.confirmation(
+                          'Action Irrévesible',
+                          'Êtes-vous sûre de vouloir supprimer la répétition ?',
+                          deleteRehearsal,
+                          context);
+                    },
+                  ),
+                ],
               ],
-            ],
-          )),
-    );
+            )),
+        selectedIndex: 1);
   }
 }

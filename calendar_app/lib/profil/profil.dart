@@ -1,5 +1,5 @@
-import 'package:calendar_app/auth/auth.dart';
 import 'package:calendar_app/components/button_custom.dart';
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/organizer/roles/role_and_participant_element.dart';
 import 'package:calendar_app/profil/profil_modification.dart';
 import 'package:calendar_app/utils.dart';
@@ -48,12 +48,16 @@ class _ProfilPageSate extends State<ProfilPage> {
           id = data['id'];
         });
       } else {
+        if (context.mounted) {
+          Utils.errorMess('Une erreur est survenue',
+              'Merci de réessayer plus tard.', context);
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
         Utils.errorMess('Une erreur est survenue',
             'Merci de réessayer plus tard.', context);
       }
-    } catch (e) {
-      Utils.errorMess(
-          'Une erreur est survenue', 'Merci de réessayer plus tard.', context);
     }
   }
 
@@ -71,8 +75,10 @@ class _ProfilPageSate extends State<ProfilPage> {
         professions = Future.value([]);
       }
     } catch (e) {
-      Utils.errorMess(
-          'Une erreur est survenue', 'Merci de réessayer plus tard.', context);
+      if (context.mounted) {
+        Utils.errorMess('Une erreur est survenue',
+            'Merci de réessayer plus tard.', context);
+      }
     }
   }
 
@@ -83,27 +89,7 @@ class _ProfilPageSate extends State<ProfilPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: () {
-              logout(() {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const Auth()),
-                  (route) => false,
-                );
-              });
-            },
-            icon: const Icon(
-              Icons.logout,
-              size: 40,
-            ),
-          ),
-        ],
-      ),
+    return CustomScaffold(
       body: Align(
         alignment: Alignment.topCenter,
         child: Column(
@@ -187,22 +173,26 @@ class _ProfilPageSate extends State<ProfilPage> {
               text: 'Modifier',
               onTap: () async {
                 if (professions != null) {
-                  List professionsList = await professions!; 
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProfileModificationPage(
-                        email: email!,
-                        firstname: firstName!,
-                        lastname: lastName!,
-                        id: id!,
-                        professions:professionsList, 
+                  List professionsList = await professions!;
+                  if (context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileModificationPage(
+                          email: email!,
+                          firstname: firstName!,
+                          lastname: lastName!,
+                          id: id!,
+                          professions: professionsList,
+                        ),
                       ),
-                    ),
-                  ).then((_) {
-                    initUserData(context);
-                    initUserProfessions(context);
-                  });
+                    ).then((_) {
+                      if (context.mounted) {
+                        initUserData(context);
+                        initUserProfessions(context);
+                      }
+                    });
+                  }
                 } else {
                   Utils.errorMess('Erreur',
                       'Impossible de charger les professions.', context);
@@ -212,6 +202,7 @@ class _ProfilPageSate extends State<ProfilPage> {
           ],
         ),
       ),
+      selectedIndex: 2,
     );
   }
 }

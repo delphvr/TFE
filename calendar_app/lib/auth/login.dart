@@ -18,41 +18,21 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final passwordController = TextEditingController();
 
-  void login() async {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-
+  void login() async { //TODO check that the user exist in the db?
     try {
       if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-        if (mounted) {
-          Navigator.pop(context);
-        }
         Utils.errorMess(
             'Erreur de connexion', 'Merci de remplir tous les champs', context);
       } else if (!Utils.isValidEmail(emailController.text)) {
-        if (mounted) {
-          Navigator.pop(context);
-        }
         Utils.errorMess('Erreur de connexion', 'Email non Valide.', context);
       } else {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text,
           password: passwordController.text,
         );
-        if (mounted) {
-          Navigator.pop(context);
-        }
+        return;
       }
     } on FirebaseAuthException catch (e) {
-      if (mounted) {
-        Navigator.pop(context);
-      }
       if (e.code == 'invalid-credential') {
         Utils.errorMess(
             'Erreur de connexion', 'Email ou mot de passe incorect', context);

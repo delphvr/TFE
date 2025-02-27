@@ -1,6 +1,6 @@
-import 'package:calendar_app/auth/auth.dart';
 import 'package:calendar_app/components/bottom_sheet_selector.dart';
 import 'package:calendar_app/components/button_custom.dart';
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -55,11 +55,6 @@ class _AddRehearsal extends State<AddRehearsal> {
         context); //initiate participants list with the participants of the project
   }
 
-  void logout(Function onLogoutSuccess) async {
-    await FirebaseAuth.instance.signOut();
-    onLogoutSuccess();
-  }
-
   void addRehearsal(BuildContext context) async {
     final rehearsalName = nameController.text;
     final description = descriptionController.text;
@@ -101,16 +96,20 @@ class _AddRehearsal extends State<AddRehearsal> {
       );
 
       if (response.statusCode == 201) {
-        if (mounted) {
+        if (context.mounted) {
           Navigator.pop(context);
         }
       } else {
-        Utils.errorMess('Erreur lors de l\'ajout du participant',
-            'Merci de réessayez plus tard.', context);
+        if (context.mounted) {
+          Utils.errorMess('Erreur lors de l\'ajout du participant',
+              'Merci de réessayez plus tard.', context);
+        }
       }
     } catch (e) {
-      Utils.errorMess('Erreur lors de l\'ajout du participant',
-          'Impossible de se connecter au serveur.', context);
+      if (context.mounted) {
+        Utils.errorMess('Erreur lors de l\'ajout du participant',
+            'Impossible de se connecter au serveur.', context);
+      }
     }
   }
 
@@ -140,27 +139,7 @@ class _AddRehearsal extends State<AddRehearsal> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          actions: [
-            IconButton(
-              onPressed: () {
-                logout(() {
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const Auth()),
-                    (route) => false,
-                  );
-                });
-              },
-              icon: const Icon(
-                Icons.logout,
-                size: 40,
-              ),
-            ),
-          ],
-        ),
+    return CustomScaffold(
         body: Center(
           child: SingleChildScrollView(
             child: Padding(
@@ -201,8 +180,8 @@ class _AddRehearsal extends State<AddRehearsal> {
                   SizedBox(
                     width: 250,
                     child: GestureDetector(
-                      onTap: () => Utils.selectDate(context, dateController, _selectedDate,
-                          (pickedDate) {
+                      onTap: () => Utils.selectDate(
+                          context, dateController, _selectedDate, (pickedDate) {
                         setState(() {
                           _selectedDate = pickedDate;
                         });
@@ -275,6 +254,7 @@ class _AddRehearsal extends State<AddRehearsal> {
               ),
             ),
           ),
-        ));
+        ),
+        selectedIndex: 1);
   }
 }

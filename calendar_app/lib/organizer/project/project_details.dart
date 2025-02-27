@@ -1,4 +1,4 @@
-import 'package:calendar_app/auth/auth.dart';
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/organizer/participants/participants.dart';
 import 'package:calendar_app/organizer/rehearsals/rehearsals.dart';
 import 'package:calendar_app/organizer/project/project_modification.dart';
@@ -81,12 +81,16 @@ class _ProjectDetailsPage extends State<ProjectDetailsOrganizerPage> {
           endingDate = data['endingDate'];
         });
       } else {
+        if (context.mounted) {
+          Utils.errorMess('Une erreur c\'est produite',
+              'Merci de réessayer plus tard.', context);
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
         Utils.errorMess('Une erreur c\'est produite',
             'Merci de réessayer plus tard.', context);
       }
-    } catch (e) {
-      Utils.errorMess('Une erreur c\'est produite',
-          'Merci de réessayer plus tard.', context);
     }
   }
 
@@ -107,40 +111,26 @@ class _ProjectDetailsPage extends State<ProjectDetailsOrganizerPage> {
       final response = await http.delete(Uri.parse(url));
 
       if (response.statusCode != 204) {
-        Utils.errorMess('Erreur lors de la suppression du project',
-            'Merci de réessayer plus tard', context);
+        if (mounted) {
+          Utils.errorMess('Erreur lors de la suppression du project',
+              'Merci de réessayer plus tard', context);
+        }
       } else {
-        Navigator.pop(context);
+        if (mounted) {
+          Navigator.pop(context);
+        }
       }
     } catch (e) {
-      Utils.errorMess('Erreur lors de la suppression du project',
-          'Merci de réessayer plus tard', context);
+      if (mounted) {
+        Utils.errorMess('Erreur lors de la suppression du project',
+            'Merci de réessayer plus tard', context);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: () {
-              logout(() {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const Auth()),
-                  (route) => false,
-                );
-              });
-            },
-            icon: const Icon(
-              Icons.logout,
-              size: 40,
-            ),
-          ),
-        ],
-      ),
+    return CustomScaffold(
       body: Align(
           alignment: Alignment.topCenter,
           child: Column(
@@ -200,8 +190,10 @@ class _ProjectDetailsPage extends State<ProjectDetailsOrganizerPage> {
                         ),
                       ),
                     ).then((_) {
-                      users = getUsersOnProject(context);
-                      getProjectData(context);
+                      if (context.mounted) {
+                        users = getUsersOnProject(context);
+                        getProjectData(context);
+                      }
                     });
                   },
                 ),
@@ -253,7 +245,10 @@ class _ProjectDetailsPage extends State<ProjectDetailsOrganizerPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => UserRehearsalPage(projectId: widget.id, projectName: name!,),
+                        builder: (context) => UserRehearsalPage(
+                          projectId: widget.id,
+                          projectName: name!,
+                        ),
                       ),
                     );
                   },
@@ -261,6 +256,7 @@ class _ProjectDetailsPage extends State<ProjectDetailsOrganizerPage> {
               ]
             ],
           )),
+      selectedIndex: widget.organizerPage ? 1 : 0,
     );
   }
 }

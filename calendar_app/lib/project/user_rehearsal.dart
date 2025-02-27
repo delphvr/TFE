@@ -1,4 +1,4 @@
-import 'package:calendar_app/auth/auth.dart';
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/organizer/rehearsals/rehearsal_element.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -63,101 +63,78 @@ class _UserRehearsalPageState extends State<UserRehearsalPage> {
     });
   }
 
-  void logout(Function onLogoutSuccess) async {
-    await FirebaseAuth.instance.signOut();
-    onLogoutSuccess();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: () {
-              logout(() {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const Auth()),
-                  (route) => false,
-                );
-              });
-            },
-            icon: const Icon(
-              Icons.logout,
-              size: 40,
-            ),
-          ),
-        ],
-      ),
-      body: Align(
-          alignment: Alignment.topCenter,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 17.0),
-            child: Column(
-              children: [
-                Text(
-                  "Vos répétitions pour le projet ${widget.projectName}",
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 27,
+    return CustomScaffold(
+        body: Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 17.0),
+              child: Column(
+                children: [
+                  Text(
+                    "Vos répétitions pour le projet ${widget.projectName}",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 27,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 25),
-                Flexible(
-                  child: FutureBuilder<List>(
-                    future: rehearsals,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Center(
-                          child: Text("Erreur: ${snapshot.error}"),
-                        );
-                      } else if (snapshot.hasData) {
-                        final rehearsals = snapshot.data!;
-                        if (rehearsals.isEmpty) {
-                          return const Text(
-                            'Vous n\'êtes assigné à aucune répétition dans ce projet.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
+                  const SizedBox(height: 25),
+                  Flexible(
+                    child: FutureBuilder<List>(
+                      future: rehearsals,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text("Erreur: ${snapshot.error}"),
+                          );
+                        } else if (snapshot.hasData) {
+                          final rehearsals = snapshot.data!;
+                          if (rehearsals.isEmpty) {
+                            return const Text(
+                              'Vous n\'êtes assigné à aucune répétition dans ce projet.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            );
+                          }
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: rehearsals.length,
+                            itemBuilder: (context, index) {
+                              return RehearsalElement(
+                                rehearsalId: rehearsals[index]['id'],
+                                name: rehearsals[index]['name'],
+                                description: rehearsals[index]['description'],
+                                date: Utils.formatDateString(
+                                    rehearsals[index]['date']),
+                                duration: rehearsals[index]['duration'],
+                                projectId: rehearsals[index]['projectId'],
+                                participantsIds: rehearsals[index]
+                                    ['participantsIds'],
+                                organizerPage: false,
+                                onUpdate: refreshRehearsals,
+                              );
+                            },
+                          );
+                        } else {
+                          return const Center(
+                            child: Text('Aucune répétition trouvé'),
                           );
                         }
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: rehearsals.length,
-                          itemBuilder: (context, index) {
-                            return RehearsalElement(
-                              rehearsalId: rehearsals[index]['id'],
-                              name: rehearsals[index]['name'],
-                              description: rehearsals[index]['description'],
-                              date: Utils.formatDateString(rehearsals[index]['date']),
-                              duration: rehearsals[index]['duration'],
-                              projectId: rehearsals[index]['projectId'],
-                              participantsIds: rehearsals[index]
-                                  ['participantsIds'],
-                              organizerPage: false,
-                              onUpdate: refreshRehearsals,
-                            );
-                          },
-                        );
-                      } else {
-                        return const Center(
-                          child: Text('Aucune répétition trouvé'),
-                        );
-                      }
-                    },
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-          )),
-    );
+                ],
+              ),
+            )),
+        selectedIndex: 0);
   }
 }

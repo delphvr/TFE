@@ -1,4 +1,4 @@
-import 'package:calendar_app/auth/auth.dart';
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -26,11 +26,6 @@ class _NewProjectPageState extends State<NewProjectPage> {
   DateTime? _selectedBeginningDate;
   DateTime? _selectedEndingDate;
 
-  void logout(Function onLogoutSuccess) async {
-    await FirebaseAuth.instance.signOut();
-    onLogoutSuccess();
-  }
-
   void save(BuildContext context) async {
     final projectName = projectNameController.text;
     final description = descriptionController.text;
@@ -51,7 +46,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
             context);
         return;
       }
-      if (DateTime.now().isAfter(DateTime.parse(endingDate))){
+      if (DateTime.now().isAfter(DateTime.parse(endingDate))) {
         Utils.errorMess(
             'Erreur lors de la création du project',
             'La date de fin du projet ne peut pas avoir lieu dans le passé.',
@@ -78,137 +73,125 @@ class _NewProjectPageState extends State<NewProjectPage> {
       );
 
       if (response.statusCode == 201) {
-        if (mounted) {
+        if (context.mounted) {
           Navigator.pop(context);
         }
       } else if (response.statusCode == 409) {
-        Utils.errorMess('Erreur lors de la création du project',
-            'Un projet avec ce nom existe déjà.', context);
+        if (context.mounted) {
+          Utils.errorMess('Erreur lors de la création du project',
+              'Un projet avec ce nom existe déjà.', context);
+        }
       } else {
-        Utils.errorMess(
-            'Erreur lors de la création du project',
-            'Erreur lors de la création du projet. Merci de réessayez plus tard.',
-            context);
+        if (context.mounted) {
+          Utils.errorMess(
+              'Erreur lors de la création du project',
+              'Erreur lors de la création du projet. Merci de réessayez plus tard.',
+              context);
+        }
       }
     } catch (e) {
-      Utils.errorMess('Erreur lors de la création du project',
-          'Impossible de se connecter au serveur.', context);
+      if (context.mounted) {
+        Utils.errorMess('Erreur lors de la création du project',
+            'Impossible de se connecter au serveur.', context);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: () {
-              logout(() {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const Auth()),
-                  (route) => false,
-                );
-              });
-            },
-            icon: const Icon(
-              Icons.logout,
-              size: 40,
-            ),
-          ),
-        ],
-      ),
-      body: Center(
-          child: SingleChildScrollView(
-              child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            'Initialiser un projet',
-            style: TextStyle(
-              fontSize: 30,
-            ),
-          ),
-          const SizedBox(height: 25),
-          TextFieldcustom(
-            labelText: 'Nom du projet*',
-            controller: projectNameController,
-            obscureText: false,
-            keyboardType: TextInputType.text,
-          ),
-          const SizedBox(height: 25),
-          SizedBox(
-            width: 250,
-            child: TextField(
-              controller: descriptionController,
-              maxLines: null,
-              minLines: 2,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Description',
-                fillColor: Color(0xFFF2F2F2),
-                filled: true,
+    return CustomScaffold(
+        body: Center(
+            child: SingleChildScrollView(
+                child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Initialiser un projet',
+              style: TextStyle(
+                fontSize: 30,
               ),
             ),
-          ),
-          const SizedBox(height: 25),
-          SizedBox(
-            width: 250,
-            child: GestureDetector(
-              onTap: () => Utils.selectDate(context, beginningDateController, _selectedBeginningDate,
-                          (pickedDate) {
-                        setState(() {
-                          _selectedBeginningDate = pickedDate;
-                        });
-                      }),
-              child: AbsorbPointer(
-                child: TextField(
-                  controller: beginningDateController,
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Date de début',
-                    fillColor: Color(0xFFF2F2F2),
-                    filled: true,
-                    prefixIcon: Icon(Icons.calendar_today),
+            const SizedBox(height: 25),
+            TextFieldcustom(
+              labelText: 'Nom du projet*',
+              controller: projectNameController,
+              obscureText: false,
+              keyboardType: TextInputType.text,
+            ),
+            const SizedBox(height: 25),
+            SizedBox(
+              width: 250,
+              child: TextField(
+                controller: descriptionController,
+                maxLines: null,
+                minLines: 2,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Description',
+                  fillColor: Color(0xFFF2F2F2),
+                  filled: true,
+                ),
+              ),
+            ),
+            const SizedBox(height: 25),
+            SizedBox(
+              width: 250,
+              child: GestureDetector(
+                onTap: () => Utils.selectDate(
+                    context, beginningDateController, _selectedBeginningDate,
+                    (pickedDate) {
+                  setState(() {
+                    _selectedBeginningDate = pickedDate;
+                  });
+                }),
+                child: AbsorbPointer(
+                  child: TextField(
+                    controller: beginningDateController,
+                    readOnly: true,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Date de début',
+                      fillColor: Color(0xFFF2F2F2),
+                      filled: true,
+                      prefixIcon: Icon(Icons.calendar_today),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 25),
-          SizedBox(
-            width: 250,
-            child: GestureDetector(
-              onTap: () => Utils.selectDate(context, endingDateController, _selectedEndingDate,
-                          (pickedDate) {
-                        setState(() {
-                          _selectedEndingDate = pickedDate;
-                        });
-                      }),
-              child: AbsorbPointer(
-                child: TextField(
-                  controller: endingDateController,
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Date de fin',
-                    fillColor: Color(0xFFF2F2F2),
-                    filled: true,
-                    prefixIcon: Icon(Icons.calendar_today),
+            const SizedBox(height: 25),
+            SizedBox(
+              width: 250,
+              child: GestureDetector(
+                onTap: () => Utils.selectDate(
+                    context, endingDateController, _selectedEndingDate,
+                    (pickedDate) {
+                  setState(() {
+                    _selectedEndingDate = pickedDate;
+                  });
+                }),
+                child: AbsorbPointer(
+                  child: TextField(
+                    controller: endingDateController,
+                    readOnly: true,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Date de fin',
+                      fillColor: Color(0xFFF2F2F2),
+                      filled: true,
+                      prefixIcon: Icon(Icons.calendar_today),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 25),
-          ButtonCustom(
-            text: 'Enregistrer',
-            onTap: () => save(context),
-          ),
-        ],
-      ))),
-    );
+            const SizedBox(height: 25),
+            ButtonCustom(
+              text: 'Enregistrer',
+              onTap: () => save(context),
+            ),
+          ],
+        ))),
+        selectedIndex: 1);
   }
 }

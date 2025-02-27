@@ -1,6 +1,6 @@
-import 'package:calendar_app/auth/auth.dart';
 import 'package:calendar_app/components/bottom_sheet_selector.dart';
 import 'package:calendar_app/components/button_custom.dart';
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
 import 'package:calendar_app/organizer/rehearsals/add_rehearsal.dart';
 import 'package:calendar_app/utils.dart';
@@ -57,9 +57,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     nameController = TextEditingController(text: widget.name);
     descriptionController = TextEditingController(text: widget.description);
     dateController = TextEditingController(
-        text: widget.date != null
-            ? Utils.formatDateString(widget.date)
-            : "");
+        text: widget.date != null ? Utils.formatDateString(widget.date) : "");
     if (widget.date != null) {
       selectedDate = DateTime.parse(widget.date!);
     }
@@ -81,11 +79,6 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     dateController.dispose();
     durationController.dispose();
     super.dispose();
-  }
-
-  void logout(Function onLogoutSuccess) async {
-    await FirebaseAuth.instance.signOut();
-    onLogoutSuccess();
   }
 
   Future<void> getUsersOnProject(BuildContext context) async {
@@ -169,44 +162,28 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
       );
 
       if (response.statusCode == 200) {
-        if (mounted) {
+        if (context.mounted) {
           Navigator.pop(context);
         }
       } else {
-        Utils.errorMess(
-            errorTitle,
-            'Erreur lors de la modification. Merci de réessayez plus tard.',
-            context);
+        if (context.mounted) {
+          Utils.errorMess(
+              errorTitle,
+              'Erreur lors de la modification. Merci de réessayez plus tard.',
+              context);
+        }
       }
     } catch (e) {
-      Utils.errorMess(
-          errorTitle, 'Impossible de se connecter au serveur.', context);
+      if (context.mounted) {
+        Utils.errorMess(
+            errorTitle, 'Impossible de se connecter au serveur.', context);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          actions: [
-            IconButton(
-              onPressed: () {
-                logout(() {
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const Auth()),
-                    (route) => false,
-                  );
-                });
-              },
-              icon: const Icon(
-                Icons.logout,
-                size: 40,
-              ),
-            ),
-          ],
-        ),
+    return CustomScaffold(
         body: Center(
           child: SingleChildScrollView(
             child: Padding(
@@ -323,6 +300,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
               ),
             ),
           ),
-        ));
+        ),
+        selectedIndex: 1);
   }
 }

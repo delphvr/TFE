@@ -1,6 +1,6 @@
-import 'package:calendar_app/auth/auth.dart';
 import 'package:calendar_app/components/bottom_sheet_selector.dart';
 import 'package:calendar_app/components/button_custom.dart';
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
 import 'package:calendar_app/organizer/roles/role_modification.dart';
 import 'package:calendar_app/utils.dart';
@@ -36,11 +36,6 @@ class _AddParticipant extends State<AddParticipant> {
     _loadRoles();
   }
 
-  void logout(Function onLogoutSuccess) async {
-    await FirebaseAuth.instance.signOut();
-    onLogoutSuccess();
-  }
-
   Future<List<Role>> getRoles() async {
     String url = '${dotenv.env['API_BASE_URL']}/roles';
     try {
@@ -51,7 +46,7 @@ class _AddParticipant extends State<AddParticipant> {
         List<Role> res = jsonData.isEmpty
             ? []
             : jsonData.map((json) => Role.fromJson(json)).toList();
-         res.removeWhere((role) => role.name == "Non défini");
+        res.removeWhere((role) => role.name == "Non défini");
         return res;
       } else if (response.statusCode == 204) {
         return [];
@@ -100,7 +95,9 @@ class _AddParticipant extends State<AddParticipant> {
       final Map<String, dynamic> requestBody = {
         "userEmail": emailController.text,
         "projectId": widget.projectId,
-        "roles": selectedRoles.map((p) => p.name == "Organisateur" ? "Organizer" : p.name).toList(),
+        "roles": selectedRoles
+            .map((p) => p.name == "Organisateur" ? "Organizer" : p.name)
+            .toList(),
       };
 
       try {
@@ -111,47 +108,35 @@ class _AddParticipant extends State<AddParticipant> {
         );
 
         if (response.statusCode == 201) {
-          if (mounted) {
+          if (context.mounted) {
             Navigator.pop(context);
           }
         } else if (response.statusCode == 404) {
           //TODO ajouter l'utilisateur et l'inviter a ce faire un compte
-          Utils.errorMess('TODO',
-              'Utilisateur existe pas. Lui envoyer une invitation ?', context);
+          if (context.mounted) {
+            Utils.errorMess(
+                'TODO',
+                'Utilisateur existe pas. Lui envoyer une invitation ?',
+                context);
+          }
         } else {
-          Utils.errorMess('Erreur lors de l\'ajout du participant',
-              'Merci de réessayez plus tard.', context);
+          if (context.mounted) {
+            Utils.errorMess('Erreur lors de l\'ajout du participant',
+                'Merci de réessayez plus tard.', context);
+          }
         }
       } catch (e) {
-        Utils.errorMess('Erreur lors de l\'ajout du participant',
-            'Impossible de se connecter au serveur.', context);
+        if (context.mounted) {
+          Utils.errorMess('Erreur lors de l\'ajout du participant',
+              'Impossible de se connecter au serveur.', context);
+        }
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          actions: [
-            IconButton(
-              onPressed: () {
-                logout(() {
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const Auth()),
-                    (route) => false,
-                  );
-                });
-              },
-              icon: const Icon(
-                Icons.logout,
-                size: 40,
-              ),
-            ),
-          ],
-        ),
+    return CustomScaffold(
         body: Center(
           child: SingleChildScrollView(
             child: Padding(
@@ -197,6 +182,7 @@ class _AddParticipant extends State<AddParticipant> {
               ),
             ),
           ),
-        ));
+        ),
+        selectedIndex: 1);
   }
 }

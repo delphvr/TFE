@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 class Utils {
   static void errorMess(String title, String message, BuildContext context) {
+    print("5");
+    print(title);
+    print(message);
     showDialog(
       context: context,
       builder: (context) {

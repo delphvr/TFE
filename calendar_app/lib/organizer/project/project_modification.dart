@@ -1,4 +1,4 @@
-import 'package:calendar_app/auth/auth.dart';
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -69,11 +69,6 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
     super.dispose();
   }
 
-  void logout(Function onLogoutSuccess) async {
-    await FirebaseAuth.instance.signOut();
-    onLogoutSuccess();
-  }
-
   void update(BuildContext context) async {
     final projectName = titleController.text;
     final description = descriptionController.text;
@@ -113,7 +108,7 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
       );
 
       if (response.statusCode == 200) {
-        if (mounted) {
+        if (context.mounted) {
           Navigator.pop(context, {
             'name': projectName,
             'description': description,
@@ -122,138 +117,122 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
           });
         }
       } else {
-        Utils.errorMess(
-            'Erreur lors de la modification du project',
-            'Erreur lors de la modification du projet. Merci de réessayez plus tard.',
-            context);
+        if (context.mounted) {
+          Utils.errorMess(
+              'Erreur lors de la modification du project',
+              'Erreur lors de la modification du projet. Merci de réessayez plus tard.',
+              context);
+        }
       }
     } catch (e) {
-      Utils.errorMess('Erreur lors de la modification du project',
-          'Impossible de se connecter au serveur.', context);
+      if (context.mounted) {
+        Utils.errorMess('Erreur lors de la modification du project',
+            'Impossible de se connecter au serveur.', context);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: () {
-              logout(() {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const Auth()),
-                  (route) => false,
-                );
-              });
-            },
-            icon: const Icon(
-              Icons.logout,
-              size: 40,
-            ),
+    return CustomScaffold(
+        body: Center(
+            child: SingleChildScrollView(
+                child: Padding(
+          padding: const EdgeInsets.all(25.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Modification du projet ${widget.name}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 27,
+                ),
+              ),
+              const SizedBox(height: 25),
+              TextFieldcustom(
+                labelText: 'Nom du projet*',
+                controller: titleController,
+                obscureText: false,
+                keyboardType: TextInputType.text,
+              ),
+              const SizedBox(height: 25),
+              SizedBox(
+                width: 250,
+                child: TextField(
+                  controller: descriptionController,
+                  maxLines: null,
+                  minLines: 2,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Description',
+                    fillColor: Color(0xFFF2F2F2),
+                    filled: true,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 25),
+              SizedBox(
+                width: 250,
+                child: GestureDetector(
+                  onTap: () => Utils.selectDate(
+                      context, beginningDateController, _selectedBeginningDate,
+                      (pickedDate) {
+                    setState(() {
+                      _selectedBeginningDate = pickedDate;
+                    });
+                  }),
+                  child: AbsorbPointer(
+                    child: TextField(
+                      controller: beginningDateController,
+                      readOnly: true,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Date de début',
+                        fillColor: Color(0xFFF2F2F2),
+                        filled: true,
+                        prefixIcon: Icon(Icons.calendar_today),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 25),
+              SizedBox(
+                width: 250,
+                child: GestureDetector(
+                  onTap: () => Utils.selectDate(
+                      context, endingDateController, _selectedEndingDate,
+                      (pickedDate) {
+                    setState(() {
+                      _selectedEndingDate = pickedDate;
+                    });
+                  }),
+                  child: AbsorbPointer(
+                    child: TextField(
+                      controller: endingDateController,
+                      readOnly: true,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Date de fin',
+                        fillColor: Color(0xFFF2F2F2),
+                        filled: true,
+                        prefixIcon: Icon(Icons.calendar_today),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 25),
+              ButtonCustom(
+                text: 'Sauvgarder',
+                onTap: () {
+                  update(context);
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: Center(
-          child: SingleChildScrollView(
-              child: Padding(
-        padding: const EdgeInsets.all(25.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Modification du projet ${widget.name}',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 27,
-              ),
-            ),
-            const SizedBox(height: 25),
-            TextFieldcustom(
-              labelText: 'Nom du projet*',
-              controller: titleController,
-              obscureText: false,
-              keyboardType: TextInputType.text,
-            ),
-            const SizedBox(height: 25),
-            SizedBox(
-              width: 250,
-              child: TextField(
-                controller: descriptionController,
-                maxLines: null,
-                minLines: 2,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Description',
-                  fillColor: Color(0xFFF2F2F2),
-                  filled: true,
-                ),
-              ),
-            ),
-            const SizedBox(height: 25),
-            SizedBox(
-              width: 250,
-              child: GestureDetector(
-                onTap: () => Utils.selectDate(
-                    context, beginningDateController, _selectedBeginningDate,
-                    (pickedDate) {
-                  setState(() {
-                    _selectedBeginningDate = pickedDate;
-                  });
-                }),
-                child: AbsorbPointer(
-                  child: TextField(
-                    controller: beginningDateController,
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Date de début',
-                      fillColor: Color(0xFFF2F2F2),
-                      filled: true,
-                      prefixIcon: Icon(Icons.calendar_today),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 25),
-            SizedBox(
-              width: 250,
-              child: GestureDetector(
-                onTap: () => Utils.selectDate(
-                    context, endingDateController, _selectedEndingDate,
-                    (pickedDate) {
-                  setState(() {
-                    _selectedEndingDate = pickedDate;
-                  });
-                }),
-                child: AbsorbPointer(
-                  child: TextField(
-                    controller: endingDateController,
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Date de fin',
-                      fillColor: Color(0xFFF2F2F2),
-                      filled: true,
-                      prefixIcon: Icon(Icons.calendar_today),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 25),
-            ButtonCustom(
-              text: 'Sauvgarder',
-              onTap: () {
-                update(context);
-              },
-            ),
-          ],
-        ),
-      ))),
-    );
+        ))),
+        selectedIndex: 1);
   }
 }

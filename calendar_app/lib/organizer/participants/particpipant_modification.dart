@@ -1,4 +1,4 @@
-import 'package:calendar_app/auth/auth.dart';
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/organizer/roles/role_and_participant_element.dart';
 import 'package:calendar_app/organizer/roles/role_modification.dart';
 import 'package:calendar_app/utils.dart';
@@ -43,15 +43,16 @@ class _ParticpipantModificationPage
   }
 
   Future<List> getRoles(BuildContext context) async {
-    final String url = '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles'; 
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles';
     try {
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         List<String> modifiedRoles = data.map((role) {
-        return role == "Organizer" ? "Organisateur" : role as String;
-      }).toList();
+          return role == "Organizer" ? "Organisateur" : role as String;
+        }).toList();
         return modifiedRoles;
       }
       return [];
@@ -66,50 +67,33 @@ class _ParticpipantModificationPage
     });
   }
 
-  void logout(Function onLogoutSuccess) async {
-    await FirebaseAuth.instance.signOut();
-    onLogoutSuccess();
-  }
-
-  void deleteParticipant() async{
+  void deleteParticipant() async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}';
     try {
       final response = await http.delete(Uri.parse(url));
 
       if (response.statusCode != 204) {
-        Utils.errorMess('Erreur lors de la suppression du participant', 'Merci de réessayer plus tard', context);
-      }else{
-        Navigator.pop(context);
+        if (mounted) {
+          Utils.errorMess('Erreur lors de la suppression du participant',
+              'Merci de réessayer plus tard', context);
+        }
+      } else {
+        if (mounted) {
+          Navigator.pop(context);
+        }
       }
     } catch (e) {
-      Utils.errorMess('Erreur lors de la suppression du participant', 'Merci de réessayer plus tard', context);
+      if (mounted) {
+        Utils.errorMess('Erreur lors de la suppression du participant',
+            'Merci de réessayer plus tard', context);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: () {
-              logout(() {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const Auth()),
-                  (route) => false,
-                );
-              });
-            },
-            icon: const Icon(
-              Icons.logout,
-              size: 40,
-            ),
-          ),
-        ],
-      ),
+    return CustomScaffold(
       body: Align(
         alignment: Alignment.topCenter,
         child: Column(
@@ -162,7 +146,7 @@ class _ParticpipantModificationPage
                     );
                   } else if (snapshot.hasData) {
                     final roles = snapshot.data!;
-        
+
                     return ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -190,22 +174,33 @@ class _ParticpipantModificationPage
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RoleModificationPage(projectId: widget.projectId, userId: widget.userId, firstName: widget.firstName, lastName: widget.lastName,)),
+                  MaterialPageRoute(
+                      builder: (context) => RoleModificationPage(
+                            projectId: widget.projectId,
+                            userId: widget.userId,
+                            firstName: widget.firstName,
+                            lastName: widget.lastName,
+                          )),
                 ).then((_) {
                   refreshRoles();
                 });
               },
             ),
             const SizedBox(height: 25),
-              ButtonCustom(
-                text: 'Supprimer le participant',
-                onTap: () {
-                  Utils.confirmation('Action Irrévesible', 'Êtes-vous sûre de vouloir supprimer le participant du projet ?', deleteParticipant, context);
-                },
-              ),
+            ButtonCustom(
+              text: 'Supprimer le participant',
+              onTap: () {
+                Utils.confirmation(
+                    'Action Irrévesible',
+                    'Êtes-vous sûre de vouloir supprimer le participant du projet ?',
+                    deleteParticipant,
+                    context);
+              },
+            ),
           ],
         ),
       ),
+      selectedIndex: 1,
     );
   }
 }

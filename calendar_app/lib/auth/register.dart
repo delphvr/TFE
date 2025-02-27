@@ -113,29 +113,36 @@ class _RegisterState extends State<Register> {
       );
 
       if (response.statusCode == 201) {
-        Map<String, dynamic> parsedJson = json.decode(utf8.decode(response.bodyBytes));
+        Map<String, dynamic> parsedJson =
+            json.decode(utf8.decode(response.bodyBytes));
         return parsedJson["id"];
       } else if (response.statusCode == 409) {
         if (mounted) {
           Navigator.pop(context);
         }
-        Utils.errorMess('Erreur lors de la création du compte',
-            "Adresse email déjà utilisé", context);
+        if (mounted) {
+          Utils.errorMess('Erreur lors de la création du compte',
+              "Adresse email déjà utilisé", context);
+        }
         return -1;
       } else {
         if (mounted) {
           Navigator.pop(context);
         }
-        Utils.errorMess('Erreur lors de la création du compte',
-            "Echecs de l'envoie des données au server", context);
+        if (mounted) {
+          Utils.errorMess('Erreur lors de la création du compte',
+              "Echecs de l'envoie des données au server", context);
+        }
         return -1;
       }
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
       }
-      Utils.errorMess('Erreur lors de la création du compte',
-          "Echecs de l'envoie des données au server", context);
+      if (mounted) {
+        Utils.errorMess('Erreur lors de la création du compte',
+            "Echecs de l'envoie des données au server", context);
+      }
       return -1;
     }
   }
@@ -203,9 +210,9 @@ class _RegisterState extends State<Register> {
           );
           if (mounted) {
             Navigator.pop(context);
-          }
-          Utils.errorMess(
+            Utils.errorMess(
               'Erreur lors de la création du compte', e.code, context);
+          }
         }
       }
     }

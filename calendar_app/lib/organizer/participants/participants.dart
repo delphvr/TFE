@@ -1,4 +1,4 @@
-import 'package:calendar_app/auth/auth.dart';
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/organizer/participants/add_participant.dart';
 import 'package:calendar_app/organizer/participants/participant_element.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -62,106 +62,81 @@ class _ParticipantsPage extends State<ParticipantsPage> {
     });
   }
 
-  void logout(Function onLogoutSuccess) async {
-    await FirebaseAuth.instance.signOut();
-    onLogoutSuccess();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: () {
-              logout(() {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const Auth()),
-                  (route) => false,
-                );
-              });
-            },
-            icon: const Icon(
-              Icons.logout,
-              size: 40,
-            ),
-          ),
-        ],
-      ),
-      body: Align(
-          alignment: Alignment.topCenter,
-          child: Column(
-            children: [
-              Text(
-                "Participants sur le projet ${widget.name}",
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 27,
+    return CustomScaffold(
+        body: Align(
+            alignment: Alignment.topCenter,
+            child: Column(
+              children: [
+                Text(
+                  "Participants sur le projet ${widget.name}",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 27,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 25),
-              ButtonCustom(
-                text: 'Ajouter un participant',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddParticipant(
-                        projectId: widget.id,
-                        projectName: widget.name,
+                const SizedBox(height: 25),
+                ButtonCustom(
+                  text: 'Ajouter un participant',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddParticipant(
+                          projectId: widget.id,
+                          projectName: widget.name,
+                        ),
                       ),
-                    ),
-                  ).then((_) {
-                    setState(() {
-                      users = getUsersOnProject(context);
+                    ).then((_) {
+                      setState(() {
+                        users = getUsersOnProject(context);
+                      });
                     });
-                  });
-                },
-              ),
-              const SizedBox(height: 25),
-              Flexible(
-                child: FutureBuilder<List>(
-                  future: users,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text("Erreur: ${snapshot.error}"),
-                      );
-                    } else if (snapshot.hasData) {
-                      final users = snapshot.data!;
-
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: users.length,
-                        itemBuilder: (context, index) {
-                          return UsersElement(
-                            projectId: widget.id,
-                            userId: users[index]['id'],
-                            firstName: users[index]['firstName'],
-                            lastName: users[index]['lastName'],
-                            email: users[index]['email'],
-                            //roles: users[index]['roles'],
-                            onUpdate: refreshUsers,
-                          );
-                        },
-                      );
-                    } else {
-                      return const Center(
-                        child: Text('Aucun participant trouvé'),
-                      );
-                    }
                   },
                 ),
-              ),
-            ],
-          )),
-    );
+                const SizedBox(height: 25),
+                Flexible(
+                  child: FutureBuilder<List>(
+                    future: users,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text("Erreur: ${snapshot.error}"),
+                        );
+                      } else if (snapshot.hasData) {
+                        final users = snapshot.data!;
+
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: users.length,
+                          itemBuilder: (context, index) {
+                            return UsersElement(
+                              projectId: widget.id,
+                              userId: users[index]['id'],
+                              firstName: users[index]['firstName'],
+                              lastName: users[index]['lastName'],
+                              email: users[index]['email'],
+                              //roles: users[index]['roles'],
+                              onUpdate: refreshUsers,
+                            );
+                          },
+                        );
+                      } else {
+                        return const Center(
+                          child: Text('Aucun participant trouvé'),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ],
+            )),
+        selectedIndex: 1);
   }
 }

@@ -22,7 +22,6 @@ class ProjectElement extends StatefulWidget {
 }
 
 class _ProjectElementState extends State<ProjectElement> {
-
   String? name;
   String? description;
   String? beginningDate;
@@ -35,13 +34,13 @@ class _ProjectElementState extends State<ProjectElement> {
   }
 
   void getProjectData(BuildContext context) async {
-    final String url =
-        '${dotenv.env['API_BASE_URL']}/projects/${widget.id}';
+    final String url = '${dotenv.env['API_BASE_URL']}/projects/${widget.id}';
     try {
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        final Map<String, dynamic> data =
+            json.decode(utf8.decode(response.bodyBytes));
         setState(() {
           name = data['name'];
           description = data['description'];
@@ -49,12 +48,18 @@ class _ProjectElementState extends State<ProjectElement> {
           endingDate = data['endingDate'];
         });
       } else {
+        if (context.mounted) {
+        Utils.errorMess('Une erreur c\'est produite',
+            'Merci de réessayer plus tard.', context);
+        }
+      }
+    } catch (e) {
+      print("7");
+      print(e);
+      if (context.mounted) {
         Utils.errorMess('Une erreur c\'est produite',
             'Merci de réessayer plus tard.', context);
       }
-    } catch (e) {
-      Utils.errorMess('Une erreur c\'est produite',
-          'Merci de réessayer plus tard.', context);
     }
   }
 

@@ -1,5 +1,5 @@
-import 'package:calendar_app/auth/auth.dart';
 import 'package:calendar_app/components/bottom_sheet_selector.dart';
+import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -126,7 +126,9 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
         '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles';
 
     final Map<String, dynamic> requestBody = {
-      "roles": selectedRoles.map((p) => p.name == "Organisateur" ? "Organizer" : p.name).toList(),
+      "roles": selectedRoles
+          .map((p) => p.name == "Organisateur" ? "Organizer" : p.name)
+          .toList(),
     };
 
     try {
@@ -136,93 +138,75 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
         body: jsonEncode(requestBody),
       );
       if (response.statusCode == 200) {
-        if (mounted) {
+        if (context.mounted) {
           Navigator.pop(context);
         }
-      } else if (response.statusCode == 400){
-        
-         Utils.errorMess('Erreur la modification des rôles du participant', 'Il doit rester au moins un organisateur sur le projet.', context);
-      }
-      else {
-        Utils.errorMess('Erreur la modification des rôles du participant',
-            'Merci de réessayez plus tard.', context);
+      } else if (response.statusCode == 400) {
+        if (context.mounted) {
+          Utils.errorMess(
+              'Erreur la modification des rôles du participant',
+              'Il doit rester au moins un organisateur sur le projet.',
+              context);
+        }
+      } else {
+        if (context.mounted) {
+          Utils.errorMess('Erreur la modification des rôles du participant',
+              'Merci de réessayez plus tard.', context);
+        }
       }
     } catch (e) {
-      Utils.errorMess('Erreur la modification des rôles du participant',
-          'Impossible de se connecter au serveur.', context);
+      if (context.mounted) {
+        Utils.errorMess('Erreur la modification des rôles du participant',
+            'Impossible de se connecter au serveur.', context);
+      }
     }
-  }
-
-  void logout(Function onLogoutSuccess) async {
-    await FirebaseAuth.instance.signOut();
-    onLogoutSuccess();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: () {
-              logout(() {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const Auth()),
-                  (route) => false,
-                );
-              });
-            },
-            icon: const Icon(
-              Icons.logout,
-              size: 40,
-            ),
-          ),
-        ],
-      ),
-      body: Center(
-        heightFactor: 3,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(25.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  "Ajout de rôles pour ${widget.lastName} ${widget.firstName}",
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 27,
+    return CustomScaffold(
+        body: Center(
+          heightFactor: 3,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(25.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Ajout de rôles pour ${widget.lastName} ${widget.firstName}",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 27,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 25),
-                BottomSheetSelector<Role>(
-                  items: roles,
-                  selectedItems: selectedRoles,
-                  onSelectionChanged: (selectedList) {
-                    setState(() {
-                      selectedRoles = selectedList;
-                    });
-                  },
-                  title: "Sélectionnez les rôles à ajouter",
-                  buttonLabel: "Valider",
-                  itemLabel: (role) => role.name,
-                  textfield: "Roles",
-                ),
-                const SizedBox(height: 10),
-                ButtonCustom(
-                  text: 'Ajouter',
-                  onTap: () {
-                    addUserRole(context);
-                  },
-                ),
-              ],
+                  const SizedBox(height: 25),
+                  BottomSheetSelector<Role>(
+                    items: roles,
+                    selectedItems: selectedRoles,
+                    onSelectionChanged: (selectedList) {
+                      setState(() {
+                        selectedRoles = selectedList;
+                      });
+                    },
+                    title: "Sélectionnez les rôles à ajouter",
+                    buttonLabel: "Valider",
+                    itemLabel: (role) => role.name,
+                    textfield: "Roles",
+                  ),
+                  const SizedBox(height: 10),
+                  ButtonCustom(
+                    text: 'Ajouter',
+                    onTap: () {
+                      addUserRole(context);
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+        selectedIndex: 1);
   }
 }
