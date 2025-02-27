@@ -80,7 +80,7 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
         });
       }
     } catch (e) {
-      print("Error fetching users: $e");
+      return;
     }
   }
 

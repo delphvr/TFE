@@ -54,8 +54,6 @@ class _ProjectElementState extends State<ProjectElement> {
         }
       }
     } catch (e) {
-      print("7");
-      print(e);
       if (context.mounted) {
         Utils.errorMess('Une erreur c\'est produite',
             'Merci de réessayer plus tard.', context);

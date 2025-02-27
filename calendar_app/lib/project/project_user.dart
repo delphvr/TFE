@@ -41,9 +41,6 @@ class _ProjectsUserPageState extends State<ProjectsUserPage> {
             'endingDate': item['endingDate'],
           };
         }).toList();
-        //if (mounted) {
-        //  Navigator.pop(context);
-        //}
         return userProjects;
       } else {
         if (context.mounted) {

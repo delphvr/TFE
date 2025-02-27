@@ -94,7 +94,7 @@ class _RegisterState extends State<Register> {
             .toList();
       });
     } catch (e) {
-      print("Error loading professions: $e");
+      return;
     }
   }
 

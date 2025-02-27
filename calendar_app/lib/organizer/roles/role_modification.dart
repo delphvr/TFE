@@ -77,7 +77,7 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
         });
       }
     } catch (e) {
-      print(e);
+      return;
     }
   }
 
@@ -117,7 +117,7 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
             .toList();
       });
     } catch (e) {
-      print("Error loading Roles: $e");
+      return;
     }
   }
 

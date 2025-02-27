@@ -71,7 +71,7 @@ class _AddParticipant extends State<AddParticipant> {
             .toList();
       });
     } catch (e) {
-      print("Error loading Roles: $e");
+      return;
     }
   }
 

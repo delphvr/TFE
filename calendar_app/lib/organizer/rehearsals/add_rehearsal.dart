@@ -133,7 +133,7 @@ class _AddRehearsal extends State<AddRehearsal> {
         });
       }
     } catch (e) {
-      print("Error fetching users: $e");
+      return;
     }
   }
 

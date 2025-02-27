@@ -101,7 +101,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
         });
       }
     } catch (e) {
-      print("Error fetching users: $e");
+      return;
     }
   }
 
@@ -122,7 +122,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
         });
       }
     } catch (e) {
-      print(e);
+      return;
     }
   }
 
