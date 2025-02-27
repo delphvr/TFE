@@ -10,8 +10,10 @@ import calendarapp.request.CreateUserProjectRequest;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,17 +60,18 @@ public class ProjectService {
     }
 
     public List<Project> getProjectOfUser(String email) {
-        List<Project> projects = new ArrayList<Project>();
+        Set<Project> projects = new HashSet<>();
         List<Long> projectsId = userProjectService.getUserProjects(email);
         for (Long projectId : projectsId) {
             Optional<Project> project = projectRepository.findById(projectId);
             project.ifPresent(projects::add);
         }
-        projects.sort(Comparator
+        List<Project> res = new ArrayList<>(projects);
+        res.sort(Comparator
                 .comparing(Project::getEndingDate, Comparator.nullsLast(Comparator.naturalOrder()))
                 .thenComparing(Project::getBeginningDate, Comparator.nullsLast(Comparator.naturalOrder()))
                 .thenComparing(Project::getName, Comparator.naturalOrder()));
-        return projects;
+        return res;
     }
 
     public Project createProject(CreateProjectRequest request) {

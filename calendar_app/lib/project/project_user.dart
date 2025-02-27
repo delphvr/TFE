@@ -1,5 +1,5 @@
+import 'package:calendar_app/components/project_list.dart';
 import 'package:calendar_app/components/scaffold_custom.dart';
-import 'package:calendar_app/organizer/project/project_element.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -71,36 +71,10 @@ class _ProjectsUserPageState extends State<ProjectsUserPage> {
         child: Column(
           children: [
             Expanded(
-              child: FutureBuilder<List>(
-                future: projects,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text("Erreur: ${snapshot.error}"),
-                    );
-                  } else if (snapshot.hasData) {
-                    final projects = snapshot.data!;
-
-                    return ListView.builder(
-                      itemCount: projects.length,
-                      itemBuilder: (context, index) {
-                        return ProjectElement(
-                          id: projects[index]['id'],
-                          organizerPage: false,
-                          onUpdate: refreshProjects,
-                        );
-                      },
-                    );
-                  } else {
-                    return const Center(
-                      child: Text('Aucun projet trouvé'),
-                    );
-                  }
-                },
+              child: ProjectList(
+                projects: projects!,
+                refreshProjects: refreshProjects,
+                isOrganizerPage: false,
               ),
             ),
           ],
