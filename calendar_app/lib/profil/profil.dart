@@ -124,12 +124,21 @@ class _ProfilPageSate extends State<ProfilPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      "Professions :",
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
-                    ),
+                    FutureBuilder<List<dynamic>>(
+                      future: professions, 
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return const Text(
+                            "Professions : -",
+                            style: TextStyle(fontSize: 20),
+                          );
+                        }
+                        return const Text(
+                          "Professions :",
+                          style: TextStyle(fontSize: 20),
+                        );
+                      },
+                    )
                   ],
                 ),
               ),

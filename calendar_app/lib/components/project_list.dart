@@ -52,6 +52,18 @@ class ProjectList extends StatelessWidget {
                       onUpdate: refreshProjects,
                     )),
               ],
+              if (activeProjects.isEmpty && !isOrganizerPage)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 30, horizontal: 16),
+                  child: Center(
+                    child: Text(
+                          'Vous n\'avez pas de projet actif pour le moment.',
+                          style: TextStyle(
+                            fontSize: 15.0,
+                          ),
+                        ),
+                  ),
+                ),
               if (archivedProjects.isNotEmpty) ...[
                 ExpansionTile(
                   shape: Border.all(color: Colors.transparent),
