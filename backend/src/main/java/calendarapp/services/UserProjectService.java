@@ -18,8 +18,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
@@ -44,7 +46,7 @@ public class UserProjectService {
      * If it does not exist, throws an IllegalArgumentException.
      * 
      * @param projectId: the id of a project
-     * @throws IllegalArgumentException if no project is found with the given ID
+     * @throws IllegalArgumentException if no project is found with the given Id
      */
     public void isProject(Long projectId) {
         Optional<Project> project = projectRepository.findById(projectId);
@@ -302,6 +304,32 @@ public class UserProjectService {
         }
 
         return new UserProjectResponse(userId, projectId, roles);
+    }
+
+    /**
+     * Retun a map to know if the user with email ´email´ is an organizer on the project with id ´id´.
+     * 
+     * @param email the user email
+     * @param projectId the id of the project
+     * @return a map {"isOrganizer": true/false}
+     * @throws IllegalArgumentException if no project is found with the given Id,
+     *                                  or no user found with the given email
+     */
+    public Map<String, Boolean> isUserOrganizer(String email, Long projectId) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found with email " + email);
+        }
+        Long userId = user.get().getId();
+        isProject(projectId);
+        List<UserProject> userProjects = userProjectRepository.findByUserIdAndProjectIdAndRole(userId, projectId, "Organizer");
+        boolean isOrganizer = false;
+        if (!userProjects.isEmpty()) {
+            isOrganizer = true;
+        }         
+        Map<String, Boolean> res = new HashMap<>();
+        res.put("isOrganizer", isOrganizer);
+        return res;
     }
 
 }

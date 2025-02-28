@@ -9,6 +9,7 @@ import calendarapp.services.UserProjectService;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api")
@@ -38,14 +40,18 @@ public class UserProjectController {
     }
 
     @PostMapping("/projects/{projectId}/users/{userId}/roles")
-    public ResponseEntity<UserProjectResponse> addUserRoles(@PathVariable Long projectId, @PathVariable Long userId, @RequestBody RolesRequest roles) {
-        UserProjectResponse response = userProjectService.addUserRolesToUserInProject(userId, projectId, roles.getRoles());
+    public ResponseEntity<UserProjectResponse> addUserRoles(@PathVariable Long projectId, @PathVariable Long userId,
+            @RequestBody RolesRequest roles) {
+        UserProjectResponse response = userProjectService.addUserRolesToUserInProject(userId, projectId,
+                roles.getRoles());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/projects/{projectId}/users/{userId}/roles")
-    public ResponseEntity<UserProjectResponse> updateUserRoles(@PathVariable Long projectId, @PathVariable Long userId, @RequestBody RolesRequest roles) {
-        UserProjectResponse response = userProjectService.updateUserRolesToUserInProject(userId, projectId, roles.getRoles());
+    public ResponseEntity<UserProjectResponse> updateUserRoles(@PathVariable Long projectId, @PathVariable Long userId,
+            @RequestBody RolesRequest roles) {
+        UserProjectResponse response = userProjectService.updateUserRolesToUserInProject(userId, projectId,
+                roles.getRoles());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -78,5 +84,13 @@ public class UserProjectController {
             @PathVariable String role) {
         userProjectService.deleteUserRole(projectId, userId, role);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/projects/{projectId}/is-organizer")
+    public ResponseEntity<Map<String, Boolean>> isUserOrganizer(
+            @PathVariable Long projectId,
+            @RequestParam String email) {
+        Map<String, Boolean> isOrganizer = userProjectService.isUserOrganizer(email, projectId);
+        return new ResponseEntity<>(isOrganizer, HttpStatus.OK);
     }
 }

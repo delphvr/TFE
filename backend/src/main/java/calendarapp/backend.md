@@ -501,6 +501,17 @@ DELETE "http://localhost:8080/api/projects/{projectId}/users/{userId}"
 - `204 No Content`: Successfully delete the participant with the given id from the project with the given id.
 - `404 Not Found`: No project or user found with the given id.
 
+### Get is the user an organizer on the project
+
+```
+GET /api/projects/{id}/is-organizer?email={email}
+```
+
+**Possible Response Codes:**
+
+- `200 Ok`: Successfully retrieve the information.
+- `404 Not Found`: No project or user found with the given id or email.
+
 ## Rehearsal
 
 ### Create a rehearsal

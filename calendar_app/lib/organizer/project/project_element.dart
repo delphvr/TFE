@@ -1,5 +1,6 @@
 import 'package:calendar_app/organizer/project/project_details.dart';
 import 'package:calendar_app/utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -22,15 +23,18 @@ class ProjectElement extends StatefulWidget {
 }
 
 class _ProjectElementState extends State<ProjectElement> {
+  final user = FirebaseAuth.instance.currentUser!;
   String? name;
   String? description;
   String? beginningDate;
   String? endingDate;
+  bool isOrganizer = false;
 
   @override
   void initState() {
     super.initState();
     getProjectData(context);
+    checkIsOrganizer();
   }
 
   void getProjectData(BuildContext context) async {
@@ -49,8 +53,8 @@ class _ProjectElementState extends State<ProjectElement> {
         });
       } else {
         if (context.mounted) {
-        Utils.errorMess('Une erreur c\'est produite',
-            'Merci de réessayer plus tard.', context);
+          Utils.errorMess('Une erreur c\'est produite',
+              'Merci de réessayer plus tard.', context);
         }
       }
     } catch (e) {
@@ -58,6 +62,33 @@ class _ProjectElementState extends State<ProjectElement> {
         Utils.errorMess('Une erreur c\'est produite',
             'Merci de réessayer plus tard.', context);
       }
+    }
+  }
+
+  Future<void> checkIsOrganizer() async {
+    final bool result = await getIsOrganizer(widget.id);
+    setState(() {
+      isOrganizer = result;
+    });
+  }
+
+  Future<bool> getIsOrganizer(int projectId) async {
+    final email = user.email;
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/projects/$projectId/is-organizer?email=$email';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data =
+            json.decode(utf8.decode(response.bodyBytes));
+        return data['isOrganizer'] ?? false;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
     }
   }
 
@@ -90,13 +121,20 @@ class _ProjectElementState extends State<ProjectElement> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  name ?? '',
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      name ?? '',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    if (isOrganizer && !widget.organizerPage)
+                      const Icon(Icons.assignment),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 if (description != null && description != "")
