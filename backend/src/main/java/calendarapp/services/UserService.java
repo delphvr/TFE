@@ -108,8 +108,9 @@ public class UserService {
     /**
      * Update inforamition related to the user with id ´id´ in the database
      * 
-     * @param id the id of the user to update
-     * @param request UserRequest object containing the data about the user to update 
+     * @param id      the id of the user to update
+     * @param request UserRequest object containing the data about the user to
+     *                update
      * @return the updated user
      */
     @Transactional
@@ -151,7 +152,7 @@ public class UserService {
     /**
      * Get the list of the user professions
      * 
-     * @param email email of a user in a string format
+     * @param email email of the user
      * @return a list of string representing all the user professions
      * @throws IllegalArgumentException if no user is found with the given email
      */
@@ -166,6 +167,21 @@ public class UserService {
             res.add(userProfession.getProfession());
         }
         return res;
+    }
+
+    /**
+     * Delete user completely drom the database
+     * 
+     * @param email email of the user to be delete
+     * @throws IllegalArgumentException if no user is found with the given email
+     */
+    @Transactional
+    public void deleteByEmail(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found with email " + email);
+        }
+        userRepository.deleteByEmail(email);
     }
 
 }

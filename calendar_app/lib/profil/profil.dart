@@ -1,5 +1,6 @@
 import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/scaffold_custom.dart';
+import 'package:calendar_app/main.dart';
 import 'package:calendar_app/organizer/roles/role_and_participant_element.dart';
 import 'package:calendar_app/profil/profil_modification.dart';
 import 'package:calendar_app/utils.dart';
@@ -82,9 +83,38 @@ class _ProfilPageSate extends State<ProfilPage> {
     }
   }
 
-  void logout(Function onLogoutSuccess) async {
-    await FirebaseAuth.instance.signOut();
-    onLogoutSuccess();
+  void deleteAcount() async {
+    try {
+      await FirebaseAuth.instance.currentUser!.delete();
+      final String url = '${dotenv.env['API_BASE_URL']}/users/${user.email!}';
+      await http.delete(Uri.parse(
+          url)); //TODO what if error when delete in db but already delete in firebase
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const MyApp()),
+          (route) => false,
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == "requires-recent-login") {
+        if (mounted) {
+          Utils.errorMess(
+              'Erreur lors de la suppression du compte',
+              'Cette opération est sensible et nécessite une authentification récente. Reconnectez-vous avant de réessayer cette demande.',
+              context);
+        }
+      } else {
+        if (mounted) {
+          Utils.errorMess('Une erreur est survenue',
+              'Merci de réessayer plus tard.', context);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Utils.errorMess('Une erreur est survenue',
+            'Merci de réessayer plus tard.', context);
+      }
+    }
   }
 
   @override
@@ -125,7 +155,7 @@ class _ProfilPageSate extends State<ProfilPage> {
                     ),
                     const SizedBox(height: 10),
                     FutureBuilder<List<dynamic>>(
-                      future: professions, 
+                      future: professions,
                       builder: (context, snapshot) {
                         if (!snapshot.hasData || snapshot.data!.isEmpty) {
                           return const Text(
@@ -202,10 +232,18 @@ class _ProfilPageSate extends State<ProfilPage> {
                       }
                     });
                   }
-                } else {
-                  Utils.errorMess('Erreur',
-                      'Impossible de charger les professions.', context);
                 }
+              },
+            ),
+            const SizedBox(height: 15),
+            ButtonCustom(
+              text: 'Supprimer mon compte',
+              onTap: () {
+                Utils.confirmation(
+                    'Action Irrévesible',
+                    'Êtes-vous sûre de vouloir supprimer votre compte ?',
+                    deleteAcount,
+                    context);
               },
             ),
           ],

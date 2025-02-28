@@ -25,7 +25,7 @@ class _PasswordForgottenPageState extends State<PasswordForgottenPage> {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
       if (mounted) {
         Utils.errorMess(
-            'Email envoyé', 'Un email de récupération à été envoyé.', context);
+            'Email envoyé', 'Un email de récupération à été envoyé, si un compte existe avec cette adresse email.', context);
       }
     }
   }

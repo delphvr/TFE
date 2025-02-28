@@ -122,16 +122,16 @@ PUT "http://localhost:8080/api/users/{id}"
 - `409 Conflict`: Email already exists.
 - `400 Bad Request`: Invalid request body, email field does not contains an email format string, ... .
 
-### Delete User based on its id
+### Delete User based on its email
 
 ```
-DELETE "/api/users/{id}"
+DELETE "/api/users/{email}"
 ```
 
 **Possible Response Codes:**
 
 - `204 No Content`: User delete successfully.
-- `404 Not Found`: No user found with that id.
+- `404 Not Found`: No user found with that email.
 
 ### Get is User an Organizer
 

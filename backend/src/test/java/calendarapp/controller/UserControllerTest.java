@@ -107,7 +107,7 @@ public class UserControllerTest {
     }
 
     /*
-     * Tests delete user based on id
+     * Tests delete user based on email
      */
 
     @Test
@@ -123,7 +123,7 @@ public class UserControllerTest {
             .returnResult()
             .getResponseBody();
 
-        webTestClient.delete().uri("/api/users/" + user.getId())
+        webTestClient.delete().uri("/api/users/" + user.getEmail())
             .exchange()
             .expectStatus().isNoContent();
 
@@ -134,18 +134,7 @@ public class UserControllerTest {
 
     @Test
     public void testDeleteUserNotFound() {
-        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
-                .replace('\'', '"');
-
-        User user = webTestClient.post().uri("/api/users")
-            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-            .bodyValue(userJson)
-            .exchange()
-            .expectBody(User.class)
-            .returnResult()
-            .getResponseBody();
-
-        webTestClient.delete().uri("/api/users/" + (user.getId()+1))
+        webTestClient.delete().uri("/api/users/del.vr@mail.com")
             .exchange()
             .expectStatus().isNotFound();
     }
