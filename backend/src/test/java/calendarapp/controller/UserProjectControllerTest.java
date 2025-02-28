@@ -357,6 +357,47 @@ public class UserProjectControllerTest {
     }
 
     /*
+     * Get the user roles in the project with user email
+     */
+
+    @Test
+    public void testGetRolesUserEmail() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project =  Utils.pushProject(projectJson, webTestClient);
+
+        String userProjectJson = "{ 'userEmail': 'del.vr@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
+                + ", 'roles':  ['Danseur']}"
+                        .replace('\'', '"');
+
+        webTestClient.post().uri("/api/userProjects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userProjectJson)
+            .exchange();
+
+        webTestClient.get().uri("/api/projects/" + project.getId() + "/users/roles?email=" + user.getEmail())
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.length()").isEqualTo(2) 
+            .jsonPath("$[*]").value(hasItems("Organizer", "Danseur")); 
+    }
+
+    @Test
+    public void testGetRoleProjectNotFoundUserEmail() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+        webTestClient.get().uri("/api/projects/0/users/roles?email=" + user.getEmail())
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+
+    /*
      * Tests delete role
      */
 

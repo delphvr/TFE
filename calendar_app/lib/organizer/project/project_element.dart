@@ -101,7 +101,7 @@ class _ProjectElementState extends State<ProjectElement> {
           Navigator.push(
             context, //MaterialPageRoute(builder: (context) => NewProjectPage())
             MaterialPageRoute(
-              builder: (context) => ProjectDetailsOrganizerPage(
+              builder: (context) => ProjectDetailsPage(
                 id: widget.id,
                 organizerPage: widget.organizerPage,
               ),

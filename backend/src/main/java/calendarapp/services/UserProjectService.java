@@ -180,6 +180,15 @@ public class UserProjectService {
         return res;
     }
 
+    public List<String> getUserRolesForProjectByEmail(String email, Long projectId){
+        Optional<User> user = userRepository.findByEmail(email); //TODO aux function is user with email
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found with email " + email);
+        }
+        Long userId = user.get().getId();
+        return getUserRolesForProject(userId, projectId);
+    }
+
     /**
      * Remove the ´role´ from the user with id ´userId´ in the project ´projectId´
      * from the database.

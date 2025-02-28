@@ -400,10 +400,10 @@ POST "http://localhost:8080/api/userProjects/{id}"
 - `20O OK`: Successfully retrieves all the user of the project with the given id.
 - `404 Not Found`: No Project found with the given id.
 
-### Get the user roles in the project
+### Get the user roles in the project with user id
 
 ```
-POST "http://localhost:8080/api/projects/{projectId}/users/{userId}/roles"
+GET "http://localhost:8080/api/projects/{projectId}/users/{userId}/roles"
 ```
 
 
@@ -419,6 +419,26 @@ POST "http://localhost:8080/api/projects/{projectId}/users/{userId}/roles"
 
 - `200 OK`: Successfully retrieves all roles of the user with the given id for the project with the given id.
 - `404 Not Found`: No user or project found with the given id.
+
+### Get the user roles in the project with user email
+
+```
+GET "http://localhost:8080/api/projects/{projectId}/users/roles?email={email}"
+```
+
+
+**If successful return** e.g: 
+```
+[
+    "Organizer",
+    "Danseur"
+]
+```
+
+**Possible Response Codes:**
+
+- `200 OK`: Successfully retrieves all roles of the user with the given email for the project with the given id.
+- `404 Not Found`: No user or project found with the given email or id.
 
 ### Delete a user role in the project
 
