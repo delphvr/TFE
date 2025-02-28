@@ -1,3 +1,4 @@
+import 'package:calendar_app/auth/password.dart';
 import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/textfield_custom.dart';
 import 'package:calendar_app/utils.dart';
@@ -18,13 +19,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final passwordController = TextEditingController();
 
-  void login() async { //TODO check that the user exist in the db?
+  void login() async {
+    //TODO check that the user exist in the db?
     try {
       if (emailController.text.isEmpty || passwordController.text.isEmpty) {
         Utils.errorMess(
             'Erreur de connexion', 'Merci de remplir tous les champs', context);
       } else if (!Utils.isValidEmail(emailController.text)) {
-        Utils.errorMess('Erreur de connexion', 'Email non Valide.', context);
+        Utils.errorMess('Erreur de connexion', 'Email non valide.', context);
       } else {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text,
@@ -82,12 +84,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     keyboardType: TextInputType.text,
                   ),
 
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 15),
 
-                  //mot de passe oublie
-                  //const Text(
-                  //  'Mot de passe oublié ?'
-                  //),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const PasswordForgottenPage()));
+                    },
+                    child: const Text(
+                      'Mot de passe oublié ?',
+                      style: TextStyle(
+                        fontSize: 15.0,
+                      ),
+                    ),
+                  ),
 
                   const SizedBox(height: 25),
 

@@ -118,17 +118,11 @@ class _RegisterState extends State<Register> {
         return parsedJson["id"];
       } else if (response.statusCode == 409) {
         if (mounted) {
-          Navigator.pop(context);
-        }
-        if (mounted) {
           Utils.errorMess('Erreur lors de la création du compte',
               "Adresse email déjà utilisé", context);
         }
         return -1;
       } else {
-        if (mounted) {
-          Navigator.pop(context);
-        }
         if (mounted) {
           Utils.errorMess('Erreur lors de la création du compte',
               "Echecs de l'envoie des données au server", context);
@@ -136,9 +130,6 @@ class _RegisterState extends State<Register> {
         return -1;
       }
     } catch (e) {
-      if (mounted) {
-        Navigator.pop(context);
-      }
       if (mounted) {
         Utils.errorMess('Erreur lors de la création du compte',
             "Echecs de l'envoie des données au server", context);
@@ -151,30 +142,18 @@ class _RegisterState extends State<Register> {
     if (emailController.text.isEmpty ||
         passwordController.text.isEmpty ||
         confirmpasswordController.text.isEmpty) {
-      if (mounted) {
-        Navigator.pop(context);
-      }
       Utils.errorMess('Erreur lors de la création du compte',
           'Merci de remplir tous les champs', context);
       return -1;
     } else if (!Utils.isValidEmail(emailController.text)) {
-      if (mounted) {
-        Navigator.pop(context);
-      }
       Utils.errorMess(
           'Erreur lors de la création du compte', 'Email non valide', context);
       return -1;
     } else if (passwordController.text.length < 6) {
-      if (mounted) {
-        Navigator.pop(context);
-      }
       Utils.errorMess('Erreur lors de la création du compte',
           'Le mot de passe doit faire au moins 6 caractères.', context);
       return -1;
     } else if (passwordController.text != confirmpasswordController.text) {
-      if (mounted) {
-        Navigator.pop(context);
-      }
       Utils.errorMess('Erreur lors de la création du compte',
           'Les mots de passe ne correspondent pas', context);
       return -1;
@@ -183,14 +162,6 @@ class _RegisterState extends State<Register> {
   }
 
   void login() async {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
     if (checkInput() == 1) {
       int userId = await pushUserToBackend(
         emailController.text.trim(),
@@ -201,15 +172,11 @@ class _RegisterState extends State<Register> {
         try {
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
               email: emailController.text, password: passwordController.text);
-          if (mounted) {
-            Navigator.pop(context);
-          }
         } on FirebaseAuthException catch (e) {
           await http.delete(
             Uri.parse("$url/$userId"),
           );
           if (mounted) {
-            Navigator.pop(context);
             Utils.errorMess(
               'Erreur lors de la création du compte', e.code, context);
           }
