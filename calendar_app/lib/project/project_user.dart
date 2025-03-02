@@ -58,7 +58,7 @@ class _ProjectsUserPageState extends State<ProjectsUserPage> {
     }
   }
 
-  void refreshProjects() {
+  Future<void> refreshProjects() async {
     setState(() {
       projects = getProjects(context);
     });
@@ -71,10 +71,13 @@ class _ProjectsUserPageState extends State<ProjectsUserPage> {
         child: Column(
           children: [
             Expanded(
-              child: ProjectList(
-                projects: projects!,
-                refreshProjects: refreshProjects,
-                isOrganizerPage: false,
+              child: RefreshIndicator(
+                onRefresh: refreshProjects, 
+                child: ProjectList(
+                  projects: projects!,
+                  refreshProjects: refreshProjects,
+                  isOrganizerPage: false,
+                ),
               ),
             ),
           ],

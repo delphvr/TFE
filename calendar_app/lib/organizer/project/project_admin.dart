@@ -66,7 +66,7 @@ class _ProjectOrganizerPageState extends State<ProjectOrganizerPage> {
     }
   }
 
-  void refreshProjects() {
+  Future<void> refreshProjects() async {
     setState(() {
       projects = getProjects(context);
     });
@@ -79,12 +79,14 @@ class _ProjectOrganizerPageState extends State<ProjectOrganizerPage> {
           child: Column(
             children: [
               Expanded(
+                  child: RefreshIndicator(
+                onRefresh: refreshProjects,
                 child: ProjectList(
-                projects: projects!,
-                refreshProjects: refreshProjects,
-                isOrganizerPage: true,
-              ),
-            ),
+                  projects: projects!,
+                  refreshProjects: refreshProjects,
+                  isOrganizerPage: true,
+                ),
+              )),
             ],
           ),
         ),
