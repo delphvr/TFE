@@ -162,11 +162,46 @@ public class UserProjectService {
         return res;
     }
 
+    /**
+     * Delete a user from a project
+     * 
+     * @param projectId the id of the project
+     * @param userId    the id of the user
+     * @throws IllegalArgumentException if no user is found with the given id,
+     *                                  or no project found with the given id,
+     *                                  or the user is the only organizer on the
+     *                                  project
+     */
     @Transactional
     public void deleteUserProject(Long projectId, Long userId) {
         userService.isUser(userId);
         isProject(projectId);
+        List<UserProject> userProjects = userProjectRepository.findByUserIdAndProjectIdAndRole(userId, projectId,
+                "Organizer");
+        if (!userProjects.isEmpty()) { // the user is an organizer
+            List<UserProject> organizers = userProjectRepository.findByProjectIdAndRole(projectId, "Organizer");
+            if (organizers.size() == 1) {
+                throw new IllegalArgumentException("Au moins un organisateur dois être présent sur le projet");
+            }
+        }
         userProjectRepository.deleteByProjectIdAndUserId(projectId, userId);
+    }
+
+    /**
+     * Delete a user from a project
+     * 
+     * @param projectId the id of the project
+     * @param email    the email of the user
+     * @throws IllegalArgumentException if no user is found with the given email,
+     *                                  or no project found with the given id,
+     *                                  or the user is the only organizer on the
+     *                                  project
+     */
+    @Transactional
+    public void deleteUserProject(Long projectId, String email) {
+        User user = userService.getUser(email);
+        Long userId = user.getId();
+        deleteUserProject(projectId, userId);
     }
 
     public List<String> getUserRolesForProject(Long userId, Long projectId) {
@@ -180,8 +215,8 @@ public class UserProjectService {
         return res;
     }
 
-    public List<String> getUserRolesForProjectByEmail(String email, Long projectId){
-        Optional<User> user = userRepository.findByEmail(email); //TODO aux function is user with email
+    public List<String> getUserRolesForProjectByEmail(String email, Long projectId) {
+        Optional<User> user = userRepository.findByEmail(email); // TODO aux function is user with email
         if (!user.isPresent()) {
             throw new IllegalArgumentException("User not found with email " + email);
         }
@@ -316,9 +351,10 @@ public class UserProjectService {
     }
 
     /**
-     * Retun a map to know if the user with email ´email´ is an organizer on the project with id ´id´.
+     * Retun a map to know if the user with email ´email´ is an organizer on the
+     * project with id ´id´.
      * 
-     * @param email the user email
+     * @param email     the user email
      * @param projectId the id of the project
      * @return a map {"isOrganizer": true/false}
      * @throws IllegalArgumentException if no project is found with the given Id,
@@ -331,11 +367,12 @@ public class UserProjectService {
         }
         Long userId = user.get().getId();
         isProject(projectId);
-        List<UserProject> userProjects = userProjectRepository.findByUserIdAndProjectIdAndRole(userId, projectId, "Organizer");
+        List<UserProject> userProjects = userProjectRepository.findByUserIdAndProjectIdAndRole(userId, projectId,
+                "Organizer");
         boolean isOrganizer = false;
         if (!userProjects.isEmpty()) {
             isOrganizer = true;
-        }         
+        }
         Map<String, Boolean> res = new HashMap<>();
         res.put("isOrganizer", isOrganizer);
         return res;

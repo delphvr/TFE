@@ -158,6 +158,36 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
     }
   }
 
+  void deleteParticipant() async {
+    final email = user.email;
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/projects/${widget.id}/users?email=$email';
+    try {
+      final response = await http.delete(Uri.parse(url));
+
+      if(response.statusCode == 400){
+        if (mounted) {
+          Utils.errorMess('Une erreur est survenue',
+              'Au moins un organisateur dois rester présent sur le projet.', context);
+        }
+      }else if (response.statusCode != 204) {
+        if (mounted) {
+          Utils.errorMess('Une erreur est survenue',
+              'Merci de réessayer plus tard', context);
+        }
+      } else {
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Utils.errorMess('Une erreur est survenue',
+            'Merci de réessayer plus tard', context);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
@@ -281,6 +311,17 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
                       ),
                     );
                   },
+                ),
+                const SizedBox(height: 20),
+                ButtonCustom(
+                  text: 'Me retirer du projet',
+                  onTap: () {
+                Utils.confirmation(
+                    'Action Irrévesible',
+                    'Êtes-vous sûre de vouloir vous rétirer du projet ?',
+                    deleteParticipant,
+                    context);
+              },
                 ),
                 const SizedBox(height: 20),
                 const Align(

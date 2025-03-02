@@ -510,7 +510,7 @@ PUT "http://localhost:8080/api/projects/{projectId}/users/{userId}/roles"
 - `201 Created`: User roles successfully added to the project.
 - `404 Not Found`: No Project or user found with the given id.
 
-### Remove a participant from a given project
+### Remove a participant from a given project with he's id
 
 ```
 DELETE "http://localhost:8080/api/projects/{projectId}/users/{userId}"
@@ -520,6 +520,19 @@ DELETE "http://localhost:8080/api/projects/{projectId}/users/{userId}"
 
 - `204 No Content`: Successfully delete the participant with the given id from the project with the given id.
 - `404 Not Found`: No project or user found with the given id.
+- `400 Bad request`: Last organizer on the project can't be removed.
+
+### Remove a participant from a given project with he's id
+
+```
+DELETE "http://localhost:8080/api/projects/{projectId}/users?email={email}"
+```
+
+**Possible Response Codes:**
+
+- `204 No Content`: Successfully delete the participant with the given id from the project with the given id.
+- `404 Not Found`: No project or user found with the given email.
+- `400 Bad request`: Last organizer on the project can't be removed.
 
 ### Get is the user an organizer on the project
 

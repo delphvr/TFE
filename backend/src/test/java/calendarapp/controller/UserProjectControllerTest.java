@@ -619,7 +619,7 @@ public class UserProjectControllerTest {
     }
 
     /*
-     * Tests remove participant from project
+     * Tests delete participant from project with his id
      */
 
     @Test
@@ -682,7 +682,45 @@ public class UserProjectControllerTest {
             .expectStatus().isNotFound();
     }
 
-        /**
+    /*
+     * Tests delete participant from project with his email
+     */
+
+    @Test
+    public void testDeleteParticipantWithEmail() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        Utils.pushUser(userJson, webTestClient);
+
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice']}"
+            .replace('\'', '"');
+        User user = Utils.pushUser(user2Json, webTestClient);
+
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project = Utils.pushProject(projectJson, webTestClient);
+
+        String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
+                + ", 'roles':  ['Danseur', 'Organizer']}"
+                        .replace('\'', '"');
+
+        webTestClient.post().uri("/api/userProjects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userProjectJson)
+            .exchange();
+
+        webTestClient.delete().uri("/api/projects/" + project.getId() + "/users?email=" + user.getEmail())
+            .exchange()
+            .expectStatus().isNoContent();
+
+        webTestClient.get().uri("/api/projects/user/eve.ld@mail.com")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .json("[]");
+    }
+
+    /**
      * Tests is organizer on the project 
      */
     @Test

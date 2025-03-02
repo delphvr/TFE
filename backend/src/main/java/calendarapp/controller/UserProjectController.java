@@ -61,6 +61,12 @@ public class UserProjectController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @DeleteMapping("projects/{projectId}/users")
+    public ResponseEntity<HttpStatus> deleteUserProject(@PathVariable Long projectId, @RequestParam String email) {
+        userProjectService.deleteUserProject(projectId, email);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @GetMapping("/userProjects/organizer/{email}")
     public ResponseEntity<List<Project>> getOrganizerProjects(@PathVariable("email") String email) {
         List<Project> organizerProject = userProjectService.getOrganizerProjects(email);
