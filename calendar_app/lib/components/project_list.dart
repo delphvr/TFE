@@ -1,3 +1,5 @@
+import 'package:calendar_app/components/button_custom.dart';
+import 'package:calendar_app/organizer/project/new_project.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/organizer/project/project_element.dart';
 
@@ -45,6 +47,27 @@ class ProjectList extends StatelessWidget {
 
           return ListView(
             children: [
+              if (isOrganizerPage) ...[
+                const SizedBox(height: 25),
+                Center(
+                  child: SizedBox(
+                    width: 250,
+                    child: ButtonCustom(
+                      text: "Nouveau projet",
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const NewProjectPage()),
+                        ).then((_) {
+                          refreshProjects();
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 25),
+              ],
               if (activeProjects.isNotEmpty) ...[
                 ...activeProjects.map((project) => ProjectElement(
                       id: project['id'],
@@ -57,11 +80,11 @@ class ProjectList extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 30, horizontal: 16),
                   child: Center(
                     child: Text(
-                          'Vous n\'avez pas de projet actif pour le moment.',
-                          style: TextStyle(
-                            fontSize: 15.0,
-                          ),
-                        ),
+                      'Vous n\'avez pas de projet actif pour le moment.',
+                      style: TextStyle(
+                        fontSize: 15.0,
+                      ),
+                    ),
                   ),
                 ),
               if (archivedProjects.isNotEmpty) ...[

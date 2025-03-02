@@ -1,10 +1,8 @@
 import 'package:calendar_app/components/project_list.dart';
 import 'package:calendar_app/components/scaffold_custom.dart';
-import 'package:calendar_app/organizer/project/new_project.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:calendar_app/components/button_custom.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
@@ -80,25 +78,6 @@ class _ProjectOrganizerPageState extends State<ProjectOrganizerPage> {
         body: Center(
           child: Column(
             children: [
-              const SizedBox(height: 25),
-              SizedBox(
-                width: 250,
-                child: ButtonCustom(
-                  text: "Nouveau projet",
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const NewProjectPage()),
-                    ).then((_) {
-                      setState(() {
-                        projects = getProjects(context);
-                      });
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(height: 25),
               Expanded(
                 child: ProjectList(
                 projects: projects!,
