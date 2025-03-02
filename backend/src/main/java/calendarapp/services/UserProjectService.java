@@ -55,6 +55,20 @@ public class UserProjectService {
     }
 
     /**
+     * Checks if a role exists in the database.
+     * If it does not exist, throws an IllegalArgumentException.
+     * 
+     * @param role: the role
+     * @throws IllegalArgumentException if the role is not found
+     */
+    public void isRole(String roleStr) {
+        Optional<Role> role = roleRepository.findById(roleStr);
+        if (!role.isPresent()) {
+            throw new IllegalArgumentException("Role " + roleStr + " not found.");
+        }
+    }
+
+    /**
      * Add a user to a project with a list of roles. Saves it in the database. If
      * the user doesn't have a role on the project yet he will get the role 'Non
      * défini'. If the user had the role 'Non défini' and now has new roles then the
@@ -63,7 +77,8 @@ public class UserProjectService {
      * @param request the user email, the project id and the list of roles
      * @return the newly add User Project
      * @throws IllegalArgumentException if no user is found with the given email,
-     *                                  or if no project is found with the given Id
+     *                                  or if no project is found with the given Id,
+     *                                  or if one of the roles doesn't exist
      */
     public UserProjectResponse createUserProject(CreateUserProjectRequest request) {
         List<String> roles = new ArrayList<>();
@@ -73,11 +88,7 @@ public class UserProjectService {
 
         if (request.getRoles() != null && !request.getRoles().isEmpty()) {
             for (String role : request.getRoles()) {
-                Optional<Role> existingRole = roleRepository.findById(role);
-                if (!existingRole.isPresent()) {
-                    Role r = new Role(role);
-                    roleRepository.save(r);
-                }
+                isRole(role);
                 UserProject userProject = new UserProject(userId, request.getProjectId(), role);
                 userProjectRepository.save(userProject);
                 roles.add(role);
@@ -301,19 +312,22 @@ public class UserProjectService {
      * @param roles     the list of roles to add to the user in the project
      * @return the updated User Project
      * @throws IllegalArgumentException if no user is found with the given id,
-     *                                  or no project found with the given id
+     *                                  or no project found with the given id,
+     *                                  or one of the roles does not exist
      */
     @Transactional
     public UserProjectResponse addUserRolesToUserInProject(Long userId, Long projectId, List<String> roles) {
+        System.out.println("DEBUGG Received userId: " + userId);
+        System.out.println("DEBUGG Received projectId: " + projectId);
+        System.out.println("DEBUGG Received roles: " + roles);
+
         userService.isUser(userId);
         isProject(projectId);
         List<String> addedRoles = new ArrayList<>();
         for (String role : roles) {
-            Optional<Role> existingRole = roleRepository.findById(role);
-            if (!existingRole.isPresent()) {
-                Role newRole = new Role(role);
-                roleRepository.save(newRole);
-            }
+            System.out.println("DEBUGG Received role: " + role);
+            isRole(role);
+            System.out.println("DEBUGG Received role " + role);
             Optional<UserProject> existingUserProject = userProjectRepository
                     .findById(new UserProjectId(userId, projectId, role));
             if (!existingUserProject.isPresent()) {
@@ -343,7 +357,8 @@ public class UserProjectService {
      * @throws IllegalArgumentException if no user is found with the given id,
      *                                  or no project found with the given id,
      *                                  or the role is "Organizer" and the user is
-     *                                  the only organizer on the project
+     *                                  the only organizer on the project,
+     *                                  or one of the roles does not exist
      * @return the project id, user id, and the updated list of roles
      */
     @Transactional
@@ -367,11 +382,7 @@ public class UserProjectService {
         List<String> roleToAdd = roles.stream().filter(role -> !existingRoles.contains(role))
                 .collect(Collectors.toList());
         for (String role : roleToAdd) {
-            Optional<Role> existingRole = roleRepository.findById(role);
-            if (!existingRole.isPresent()) {
-                Role newRole = new Role(role);
-                roleRepository.save(newRole);
-            }
+            isRole(role);
             Optional<UserProject> existingUserProject = userProjectRepository
                     .findById(new UserProjectId(userId, projectId, role));
             if (!existingUserProject.isPresent()) {

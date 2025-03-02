@@ -86,18 +86,26 @@ public class UserService {
     }
 
     /**
-     * Add the ´profession´ to the profession table if not already present.
+     * Checks if a profession exists in the database.
+     * If it does not exist, throws an IllegalArgumentException.
      * 
-     * @param profession a string representing the profession
+     * @param profession: the profession
+     * @throws IllegalArgumentException if the profession is not found
      */
-    private void addProfession(String profession) {
+    private void isProfession(String profession) {
         Optional<Profession> existingProfession = professionRepository.findById(profession);
         if (!existingProfession.isPresent()) {
-            Profession prof = new Profession(profession);
-            professionRepository.save(prof);
+            throw new IllegalArgumentException("Profession " + profession + " not found.");
         }
     }
 
+    /**
+     * Create a user and save it in the data base.
+     * 
+     * @param request the data to create the user (first name, last name, email, professions)
+     * @return the newly created user
+     * @throws IllegalArgumentException if one of the proffesions does not exist
+     */
     @Transactional
     public User createUser(UserRequest request) {
         Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
@@ -110,7 +118,7 @@ public class UserService {
 
         if (request.getProfessions() != null && !request.getProfessions().isEmpty()) {
             for (String profession : request.getProfessions()) {
-                addProfession(profession);
+                isProfession(profession);
                 UserProfession userProfession = new UserProfession(user.getId(), profession);
                 userProfession.setUser(user);
                 userProfessionRepository.save(userProfession);
@@ -126,19 +134,16 @@ public class UserService {
      * @param request UserRequest object containing the data about the user to
      *                update
      * @return the updated user
+     * @throws IllegalArgumentException if no user found with the given id,
+     *                                  or if one of the proffesions does not exist
      */
     @Transactional
     public User updateUser(long id, UserRequest request) {
-        Optional<User> userData = userRepository.findById(id);
-        if (!userData.isPresent()) {
-            throw new IllegalArgumentException("User not found with id " + id);
-        }
-
-        User _user = userData.get();
+        User _user = getUser(id);
         _user.setFirstName(request.getFirstName());
         _user.setLastName(request.getLastName());
         _user.setEmail(request.getEmail());
-        List<UserProfession> existingUserProfessions = userProfessionRepository.findByUserId(userData.get().getId());
+        List<UserProfession> existingUserProfessions = userProfessionRepository.findByUserId(_user.getId());
         List<String> existingProfessions = existingUserProfessions.stream().map(UserProfession::getProfession)
                 .collect(Collectors.toList());
         List<String> updatedProfessions = request.getProfessions();
@@ -151,8 +156,8 @@ public class UserService {
         // add new professions
         for (String profession : updatedProfessions) {
             if (!existingProfessions.contains(profession)) {
-                addProfession(profession);
-                UserProfession newUserProfession = new UserProfession(userData.get().getId(), profession);
+                isProfession(profession);
+                UserProfession newUserProfession = new UserProfession(_user.getId(), profession);
                 userProfessionRepository.save(newUserProfession);
             }
         }

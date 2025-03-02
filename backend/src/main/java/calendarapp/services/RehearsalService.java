@@ -227,8 +227,10 @@ public class RehearsalService {
      * Delete rehearsal with the id ´id´ from the database
      * 
      * @param id the id of the rehearsal to delete
+     * @throws IllegalArgumentException if no reherasal is found with the given id
      */
     public void deleteRehearsal(Long id) {
+        isRehearsal(id);
         rehearsalRepository.deleteById(id);
     }
 

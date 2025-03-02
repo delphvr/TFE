@@ -9,47 +9,47 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import calendarapp.model.Profession;
-import calendarapp.repository.ProfessionRepository;
+import calendarapp.model.Role;
+import calendarapp.repository.RoleRepository;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @ActiveProfiles("test") 
-public class ProfessionControllerTest {
+public class RoleControllerTest {
 
     @Autowired
     private WebTestClient webTestClient;
 
     @Autowired
-    private ProfessionRepository professionRepository;
+    private RoleRepository roleRepository;
 
     @BeforeEach
     public void cleanUpDatabase() {
-        //professionRepository.deleteAll();
+        //roleRepository.deleteAll();
     }
 
     /*
-     * Tests get all professions
+     * Tests get all roles
      */
 
     @Test
-    public void testGetProfessions() {
-        professionRepository.save(new Profession("Chorégraphe"));
-        professionRepository.save(new Profession("Danseuse"));
-        professionRepository.save(new Profession("Directeur artistique"));
+    public void testGetRoles() {
+        roleRepository.save(new Role("Chorégraphe"));
+        roleRepository.save(new Role("Danseuse"));
+        roleRepository.save(new Role("Directeur artistique"));
 
-        webTestClient.get().uri("/api/professions")
+        webTestClient.get().uri("/api/roles")
             .exchange()
             .expectStatus().isOk()
             .expectBody()
-            .jsonPath("$[?(@.profession == 'Chorégraphe')]").exists()
-            .jsonPath("$[?(@.profession == 'Danseuse')]").exists()
-            .jsonPath("$[?(@.profession == 'Directeur artistique')]").exists();
+            .jsonPath("$[?(@.role == 'Chorégraphe')]").exists()
+            .jsonPath("$[?(@.role == 'Danseuse')]").exists()
+            .jsonPath("$[?(@.role == 'Directeur artistique')]").exists();
     }
 
     /*@Test
     public void testGetProfessionsZero() {
-        webTestClient.get().uri("/api/professions")
+        webTestClient.get().uri("/api/roles")
             .exchange()
             .expectStatus().isOk()
             .expectBody()

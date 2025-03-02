@@ -110,7 +110,7 @@ public class RehearsalControllerTest {
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
 
-        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Directrice']}"
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Costumier']}"
             .replace('\'', '"');
         User user = Utils.pushUser(user2Json, webTestClient);
 
