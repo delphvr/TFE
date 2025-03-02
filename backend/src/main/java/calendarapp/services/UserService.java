@@ -31,13 +31,27 @@ public class UserService {
      * Checks if a user with the given ´userId´ exists in the database.
      * If it does not exist, throws an IllegalArgumentException.
      * 
-     * @param userId: the id of a user
-     * @throws IllegalArgumentException if no user is found with the given ID
+     * @param userId the id of a user
+     * @throws IllegalArgumentException if no user is found with the given id
      */
     public void isUser(Long userId) {
         Optional<User> user = userRepository.findById(userId);
         if (!user.isPresent()) {
             throw new IllegalArgumentException("User not found with id " + userId);
+        }
+    }
+
+    /**
+     * Checks if a user with the given email exists in the database.
+     * If it does not exist, throws an IllegalArgumentException.
+     * 
+     * @param email the email of a user
+     * @throws IllegalArgumentException if no user is found with the given email
+     */
+    public void isUser(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (!user.isPresent()) {
+            throw new IllegalArgumentException("User not found with email " + email);
         }
     }
 

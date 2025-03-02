@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,22 +54,21 @@ public class UserProjectService {
         }
     }
 
-    public List<UserProject> getAllUserProjects() {
-        List<UserProject> userProjects = new ArrayList<UserProject>();
-        userProjectRepository.findAll().forEach(userProjects::add);
-        if (userProjects.isEmpty()) {
-            throw new NoSuchElementException("No users project relations found in the database.");
-        }
-        return userProjects;
-    }
-
+    /**
+     * Add a user to a project with a list of roles. Saves it in the database. If
+     * the user doesn't have a role on the project yet he will get the role 'Non
+     * défini'. If the user had the role 'Non défini' and now has new roles then the
+     * role 'Non défini' will be removed.
+     * 
+     * @param request the user email, the project id and the list of roles
+     * @return the newly add User Project
+     * @throws IllegalArgumentException if no user is found with the given email,
+     *                                  or if no project is found with the given Id
+     */
     public UserProjectResponse createUserProject(CreateUserProjectRequest request) {
         List<String> roles = new ArrayList<>();
-        Optional<User> user = userRepository.findByEmail(request.getUserEmail());
-        if (!user.isPresent()) {
-            throw new IllegalArgumentException("User not found with email " + request.getUserEmail());
-        }
-        Long userId = user.get().getId();
+        User user = userService.getUser(request.getUserEmail());
+        Long userId = user.getId();
         isProject(request.getProjectId());
 
         if (request.getRoles() != null && !request.getRoles().isEmpty()) {
@@ -94,20 +92,20 @@ public class UserProjectService {
             userProjectRepository.save(userProject);
             roles.add("Non défini");
         }
-
         return new UserProjectResponse(userId, request.getProjectId(), roles);
     }
 
-    public void deleteAllUserProjects() {
-        userProjectRepository.deleteAll();
-    }
-
+    /**
+     * Get the list of project for wich the user is an organizer. The list of
+     * project will be sorted by ending date, then starting date, then by name.
+     * 
+     * @param email the email of the user
+     * @return the list of project where the user is an organizer.
+     * @throws IllegalArgumentException if no user is found with the given email
+     */
     public List<Project> getOrganizerProjects(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
-        if (!user.isPresent()) {
-            throw new IllegalArgumentException("User not found with email " + email);
-        }
-        Long userId = user.get().getId();
+        User user = userService.getUser(email);
+        Long userId = user.getId();
         Set<Project> projects = new HashSet<>();
         List<UserProject> userProjects = userProjectRepository.findByUserIdAndRole(userId, "Organizer");
         if (userProjects.isEmpty()) {
@@ -127,12 +125,16 @@ public class UserProjectService {
         return res;
     }
 
+    /**
+     * Get the list of projects id of the user.
+     * 
+     * @param email the email of the user
+     * @return a list of project id, for which the user is a part of
+     * @throws IllegalArgumentException if no user is found with the given email
+     */
     public List<Long> getUserProjects(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
-        if (!user.isPresent()) {
-            throw new IllegalArgumentException("User not found with email " + email);
-        }
-        Long userId = user.get().getId();
+        User user = userService.getUser(email);
+        Long userId = user.getId();
         List<Long> res = new ArrayList<>();
         List<UserProject> userProjects = userProjectRepository.findByUserId(userId);
         if (userProjects.isEmpty()) {
@@ -144,6 +146,14 @@ public class UserProjectService {
         return res;
     }
 
+    /**
+     * Get the list of user that take part in the project with id ´id´. The list is
+     * sorted by last name then by first name.
+     * 
+     * @param id the id of the project
+     * @return the list of user participating in the projcet.
+     * @throws IllegalArgumentException if no project is found with the given id
+     */
     public List<User> getProjectUsers(Long id) {
         Set<User> users = new HashSet<>();
         isProject(id);
@@ -188,10 +198,10 @@ public class UserProjectService {
     }
 
     /**
-     * Delete a user from a project
+     * Delete the user with the given email from the project with the given id.
      * 
      * @param projectId the id of the project
-     * @param email    the email of the user
+     * @param email     the email of the user
      * @throws IllegalArgumentException if no user is found with the given email,
      *                                  or no project found with the given id,
      *                                  or the user is the only organizer on the
@@ -204,6 +214,16 @@ public class UserProjectService {
         deleteUserProject(projectId, userId);
     }
 
+    /**
+     * Get the roles of the user with id ´userId´ on the project with id
+     * ´projectId´.
+     * 
+     * @param userId    the id of the user
+     * @param projectId the id of the project
+     * @return the list of role of the user on the project
+     * @throws IllegalArgumentException if no user is found with the given id,
+     *                                  or no project found with the given id
+     */
     public List<String> getUserRolesForProject(Long userId, Long projectId) {
         userService.isUser(userId);
         isProject(projectId);
@@ -215,12 +235,19 @@ public class UserProjectService {
         return res;
     }
 
+    /**
+     * Get the roles of the user with email ´email´ on the project with id
+     * ´projectId´.
+     * 
+     * @param email     the email of the user
+     * @param projectId the id of the project
+     * @return the list of role of the user on the project
+     * @throws IllegalArgumentException if no user is found with the given email,
+     *                                  or no project found with the given id
+     */
     public List<String> getUserRolesForProjectByEmail(String email, Long projectId) {
-        Optional<User> user = userRepository.findByEmail(email); // TODO aux function is user with email
-        if (!user.isPresent()) {
-            throw new IllegalArgumentException("User not found with email " + email);
-        }
-        Long userId = user.get().getId();
+        User user = userService.getUser(email);
+        Long userId = user.getId();
         return getUserRolesForProject(userId, projectId);
     }
 
@@ -264,6 +291,18 @@ public class UserProjectService {
         }
     }
 
+    /**
+     * Add roles to the user with id ´userId´ in the project with id ´projectId´. If
+     * the user add no predefined roles before the role ´Non défini´ will be removed
+     * from his roles.
+     * 
+     * @param userId    the id of the user
+     * @param projectId the id of the project
+     * @param roles     the list of roles to add to the user in the project
+     * @return the updated User Project
+     * @throws IllegalArgumentException if no user is found with the given id,
+     *                                  or no project found with the given id
+     */
     @Transactional
     public UserProjectResponse addUserRolesToUserInProject(Long userId, Long projectId, List<String> roles) {
         userService.isUser(userId);
@@ -361,11 +400,8 @@ public class UserProjectService {
      *                                  or no user found with the given email
      */
     public Map<String, Boolean> isUserOrganizer(String email, Long projectId) {
-        Optional<User> user = userRepository.findByEmail(email);
-        if (!user.isPresent()) {
-            throw new IllegalArgumentException("User not found with email " + email);
-        }
-        Long userId = user.get().getId();
+        User user = userService.getUser(email);
+        Long userId = user.getId();
         isProject(projectId);
         List<UserProject> userProjects = userProjectRepository.findByUserIdAndProjectIdAndRole(userId, projectId,
                 "Organizer");

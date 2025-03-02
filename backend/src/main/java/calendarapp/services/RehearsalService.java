@@ -55,8 +55,8 @@ public class RehearsalService {
      * @param projectId the id of the project for wich we want to retreive it's
      *                  rehearsal
      * @return the list of rehearsal associated with the project with project id
-     *         ´projectId´
-     *         sort by date then by name.
+     *         ´projectId´ sort by date then by name.
+     * @throws IllegalArgumentException if no project is found for the given id
      */
     public List<RehearsalResponse> getProjectRehearsals(Long projectId) {
         projectService.isProject(projectId);
@@ -83,8 +83,12 @@ public class RehearsalService {
      * 
      * @param rehearsalDate the date of the rehearsal (can be null)
      * @param projectId     the project id
+     * @throws IllegalArgumentException if no project is found for the given id,
+     *                                  or the rehearsal date is not in the project
+     *                                  dates
      */
     private void checkRehearsalDate(LocalDate rehearsalDate, Long projectId) {
+        projectService.isProject(projectId);
         if (rehearsalDate != null) {
             Optional<Project> project = projectRepository.findById(projectId);
             if (project.get().getEndingDate() != null && rehearsalDate.isAfter(project.get().getEndingDate())) {
@@ -101,14 +105,14 @@ public class RehearsalService {
      * Add the ´rehearsal´ to the database
      * 
      * @param request the rehearsal to save in the database
+     * @return the newly added rehearsal
      * @throws IllegalArgumentException if no project is found for the given project
-     *                                  id
+     *                                  id,
      *                                  or if the date of the rehearsal is in the
-     *                                  past or not dureing the project dates
+     *                                  past or not dureing the project dates,
      *                                  or if the particpant id of one of the
      *                                  participants does correspond to a user in
      *                                  the database
-     * @return the newly added rehearsal
      */
     @Transactional
     public Rehearsal createRehearsal(RehearsalRequest request) {
@@ -156,13 +160,14 @@ public class RehearsalService {
      * 
      * @param id      the id of a rehearsal
      * @param request a rehearsal object
-     * @throws IllegalArgumentException if no rehearsal is found with the given ´id´
+     * @return the updated rehearsal
+     * @throws IllegalArgumentException if no rehearsal is found with the given
+     *                                  ´id´,
      *                                  or if the date of the rehearsal is not
-     *                                  during the project dates
+     *                                  during the project dates,
      *                                  or if the particpant id of one of the
      *                                  participants does correspond to a user in
      *                                  the database
-     * @return the updated rehearsal
      */
     public Rehearsal updateReheasal(Long id, RehearsalRequest request) {
         projectService.isProject(request.getProjectId());
@@ -202,6 +207,13 @@ public class RehearsalService {
         }
     }
 
+    /**
+     * Get the reharsal with id ´id´ from the database.
+     * 
+     * @param id the id of the rehearsal
+     * @return the retreived rehearsal
+     * @throws IllegalArgumentException if no reherasal is found with the given id
+     */
     public Rehearsal getRehearsal(long id) {
         Optional<Rehearsal> rehearsal = rehearsalRepository.findById(id);
         if (rehearsal.isPresent()) {
@@ -228,7 +240,7 @@ public class RehearsalService {
      * @param projectId the id of the project
      * @return the list of rehearsal the user is a part of in the project with id
      *         ´projectid´
-     * @throws IllegalArgumentException if no user found with the given email
+     * @throws IllegalArgumentException if no user found with the given email,
      *                                  or if no project found with the given id
      */
     public List<RehearsalResponse> getUserRehearsalsForProject(String email, Long projectId) {
