@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import calendarapp.model.Profession;
 import calendarapp.repository.ProfessionRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +22,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Profession", description = "APIs for managing the possible professions")
 public class ProfessionController {
 	@Autowired
 	private ProfessionRepository professionRepository;
 
+	@Operation(summary = "Get the list of possible professions")
 	@GetMapping("/professions")
 	public ResponseEntity<List<Profession>> getAllProfessions() {
 		List<Profession> professions = new ArrayList<Profession>();

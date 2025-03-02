@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import calendarapp.model.Role;
 import calendarapp.repository.RoleRepository;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Role", description = "APIs for managing the possible roles")
 public class RoleController {
     @Autowired
     private RoleRepository roleRepository;
