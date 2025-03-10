@@ -15,7 +15,7 @@ import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.IntervalVar;
 import com.google.ortools.sat.LinearExpr;
 
-public class BasicExample {
+public class CalendarCP {
 
     static final int periode_begining = 0;
     static final int periode_end = 1100; // in minutes
