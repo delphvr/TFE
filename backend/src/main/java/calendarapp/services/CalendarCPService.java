@@ -55,37 +55,26 @@ public class CalendarCPService {
         }
     }
 
-    private boolean isCommunParticipant(List<Long> participantsId1, List<Long> participantsId2) {
-        for (Long id1 : participantsId1) {
-            for (Long id2 : participantsId2) {
-                if (id1 == id2) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    // TODO no overlap only one by one or all participant in commun other wise
-    // pairwise some rehearsals could be at the same time but arent'
+    /**
+     * Return a list of list of rehearsal id, representing all the rehearsal a
+     * participant has and therfore can not be schedule at the same time.
+     * 
+     * @param rehearsals         list of rehearsals on the project
+     * @param rehearsalIntervals the list of rehearsals interval correspond to the
+     *                           rehearsals in `rehearsals`
+     * @return the list of list of rehearsal that participant has in commun
+     */
     private List<List<IntervalVar>> rehearsalsCommunParticipant(List<Rehearsal> rehearsals,
             Map<Long, IntervalVar> rehearsalIntervals) {
         List<List<IntervalVar>> res = new ArrayList<>();
-        for (int i = 0; i < rehearsals.size(); i++) {
-            List<IntervalVar> rehearsalsList = new ArrayList<>();
-            for (int j = i + 1; j < rehearsals.size(); j++) {
-                Rehearsal rehearsal1 = rehearsals.get(i);
-                Rehearsal rehearsal2 = rehearsals.get(j);
-                if (isCommunParticipant(rehearsal1.participantsId, rehearsal2.participantsId)) {
-                    rehearsalsList.add(rehearsalIntervals.get(rehearsal2.id));
-                }
+        HashMap<Long, List<IntervalVar>> data = new HashMap<>();
+        for (Rehearsal rehearsal : rehearsals) {
+            for (Long participant : rehearsal.participantsId) {
+                data.putIfAbsent(participant, new ArrayList<>());
+                data.get(participant).add(rehearsalIntervals.get(rehearsal.id));
             }
-            if (!rehearsalsList.isEmpty()) {
-                rehearsalsList.add(rehearsalIntervals.get(rehearsals.get(i).id));
-                res.add(rehearsalsList);
-            }
-
         }
+        res.addAll(data.values());
         return res;
     }
 
@@ -132,6 +121,10 @@ public class CalendarCPService {
         LocalDateTime startDateTime = beginningDate.atStartOfDay();
         LocalDateTime rehearsalDateTime = startDateTime.plusMinutes(minutesFromBeginning);
         return rehearsalDateTime;
+    }
+
+    private void getNightInterval(Project project) {
+
     }
 
     public String run(Long projectId) {
