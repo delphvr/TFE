@@ -1,5 +1,7 @@
 package calendarapp.services;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +66,8 @@ public class CalendarCPService {
         return false;
     }
 
-    //TODO no overlap only one by one or all participant in commun other wise pairwise some rehearsals could be at the same time but arent'
+    // TODO no overlap only one by one or all participant in commun other wise
+    // pairwise some rehearsals could be at the same time but arent'
     private List<List<IntervalVar>> rehearsalsCommunParticipant(List<Rehearsal> rehearsals,
             Map<Long, IntervalVar> rehearsalIntervals) {
         List<List<IntervalVar>> res = new ArrayList<>();
@@ -93,7 +96,8 @@ public class CalendarCPService {
      * 
      * @param project the project
      * @return the end value (number of minutes in the project periode)
-     * @throws IllegalArgumentException if the project begining date is not initialize
+     * @throws IllegalArgumentException if the project begining date is not
+     *                                  initialize
      */
     private long getEndValue(Project project) {
         if (project.getBeginningDate() == null) {
@@ -108,15 +112,39 @@ public class CalendarCPService {
         return durationInMinutes;
     }
 
+    /**
+     * Get the date and time of the rehersal starting `minutesFromBeginning` minutes
+     * after the begining date of the `project`.
+     * 
+     * @param project              the project
+     * @param minutesFromBeginning the number of minutes between the begining of the
+     *                             project (beginning date at 00:00) and the date
+     *                             time we are looking for
+     * @return the LocalDateTime of the reherasal
+     * @throws IllegalArgumentException if the project begining date is not
+     *                                  initialize
+     */
+    private LocalDateTime getRehearsalDate(Project project, long minutesFromBeginning) {
+        LocalDate beginningDate = project.getBeginningDate();
+        if (beginningDate == null) {
+            throw new IllegalArgumentException("The project begining date need to be initialize");
+        }
+        LocalDateTime startDateTime = beginningDate.atStartOfDay();
+        LocalDateTime rehearsalDateTime = startDateTime.plusMinutes(minutesFromBeginning);
+        return rehearsalDateTime;
+    }
+
     public String run(Long projectId) {
         Project project = projectService.getProject(projectId);
 
         Loader.loadNativeLibraries();
-        
+
         List<Rehearsal> allRehearsals = new ArrayList<>();
-        for (RehearsalResponse rehearsal : rehearsalService.getProjectRehearsals(projectId)){
-            System.out.println(rehearsal.getId() + " " + rehearsal.getDuration() + " " + rehearsal.getParticipantsIds());
-            Rehearsal r = new Rehearsal(rehearsal.getId(), rehearsal.getDuration().toMinutes(), rehearsal.getParticipantsIds());
+        for (RehearsalResponse rehearsal : rehearsalService.getProjectRehearsals(projectId)) {
+            System.out
+                    .println(rehearsal.getId() + " " + rehearsal.getDuration() + " " + rehearsal.getParticipantsIds());
+            Rehearsal r = new Rehearsal(rehearsal.getId(), rehearsal.getDuration().toMinutes(),
+                    rehearsal.getParticipantsIds());
             allRehearsals.add(r);
         }
 
@@ -153,6 +181,7 @@ public class CalendarCPService {
 
                 res += "\n Rehearsal " + rehearsal.id;
                 res += "\n Start: " + solver.value(schedule.start) + " end: " + solver.value(schedule.end);
+                res += "\n scheduled at: " + getRehearsalDate(project, solver.value(schedule.start));
             }
         } else {
             res = "No solution found";
