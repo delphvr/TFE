@@ -85,6 +85,7 @@ class Utils {
     String formatted = '';
     if (hours != null) formatted += '${hours}h';
     if (minutes != null) formatted += minutes;
+    if (hours == null && minutes != null) formatted = '${minutes}m';
 
     return formatted;
   }

@@ -55,6 +55,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
     duration = widget.duration;
     participantsIds = widget.participantsIds;
     users = getUsersOnRehearsal(context);
+    location = null;
     getRehearsal();
   }
 

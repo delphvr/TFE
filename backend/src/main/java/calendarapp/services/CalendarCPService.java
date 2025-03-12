@@ -1,7 +1,6 @@
 package calendarapp.services;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -19,9 +18,11 @@ import com.google.ortools.sat.IntervalVar;
 import com.google.ortools.sat.LinearExpr;
 
 import calendarapp.model.Project;
+import calendarapp.response.RehearsalResponse;
 
 @Service
 public class CalendarCPService {
+
     @Autowired
     private ProjectService projectService;
     @Autowired
@@ -31,11 +32,11 @@ public class CalendarCPService {
     final int periode_end = 1100; // in minutes
 
     class Rehearsal {
-        int id;
-        int duration; // in minutes
-        List<Integer> participantsId;
+        Long id;
+        Long duration; // in minutes
+        List<Long> participantsId;
 
-        Rehearsal(int id, int duration, List<Integer> participantsId) {
+        Rehearsal(Long id, Long duration, List<Long> participantsId) {
             this.id = id;
             this.duration = duration;
             this.participantsId = participantsId;
@@ -52,9 +53,9 @@ public class CalendarCPService {
         }
     }
 
-    private boolean isCommunParticipant(List<Integer> participantsId1, List<Integer> participantsId2) {
-        for (int id1 : participantsId1) {
-            for (int id2 : participantsId2) {
+    private boolean isCommunParticipant(List<Long> participantsId1, List<Long> participantsId2) {
+        for (Long id1 : participantsId1) {
+            for (Long id2 : participantsId2) {
                 if (id1 == id2) {
                     return true;
                 }
@@ -63,8 +64,9 @@ public class CalendarCPService {
         return false;
     }
 
+    //TODO no overlap only one by one or all participant in commun other wise pairwise some rehearsals could be at the same time but arent'
     private List<List<IntervalVar>> rehearsalsCommunParticipant(List<Rehearsal> rehearsals,
-            Map<Integer, IntervalVar> rehearsalIntervals) {
+            Map<Long, IntervalVar> rehearsalIntervals) {
         List<List<IntervalVar>> res = new ArrayList<>();
         for (int i = 0; i < rehearsals.size(); i++) {
             List<IntervalVar> rehearsalsList = new ArrayList<>();
@@ -86,42 +88,43 @@ public class CalendarCPService {
 
     /**
      * Get the end value for the model, if we consider the begining of the periode =
-     * 0 and than we add minutes. (So get the duration of the project in minutes)
+     * 0 and than we add minutes. (So get the duration of the project in minutes).
+     * If no ending date return Long.MAX_VALUE.
      * 
-     * @param projectId the id of the project
+     * @param project the project
      * @return the end value (number of minutes in the project periode)
-     * @throws IllegalArgumentException if no project is found with the given id,
-     *                                  or the project begining date is not
-     *                                  initialize
+     * @throws IllegalArgumentException if the project begining date is not initialize
      */
-    private long getEndValue(Long projectId) {
-        Project project = projectService.getProject(projectId);
-
+    private long getEndValue(Project project) {
         if (project.getBeginningDate() == null) {
             throw new IllegalArgumentException("The project begining date need to be initialize");
         }
-
+        if (project.getEndingDate() == null) {
+            return Long.MAX_VALUE;
+        }
         long durationInMinutes = java.time.Duration.between(
                 project.getBeginningDate().atStartOfDay(),
                 project.getEndingDate().atStartOfDay()).toMinutes();
-
         return durationInMinutes;
     }
 
     public String run(Long projectId) {
-        Loader.loadNativeLibraries();
+        Project project = projectService.getProject(projectId);
 
-        final List<Rehearsal> allRehearsals = Arrays.asList(
-                new Rehearsal(1, 30, Arrays.asList(1, 2, 3)),
-                new Rehearsal(2, 120, Arrays.asList(1, 5, 6, 7, 8)),
-                new Rehearsal(3, 160, Arrays.asList(4)),
-                new Rehearsal(4, 160, Arrays.asList(2, 4)));
+        Loader.loadNativeLibraries();
+        
+        List<Rehearsal> allRehearsals = new ArrayList<>();
+        for (RehearsalResponse rehearsal : rehearsalService.getProjectRehearsals(projectId)){
+            System.out.println(rehearsal.getId() + " " + rehearsal.getDuration() + " " + rehearsal.getParticipantsIds());
+            Rehearsal r = new Rehearsal(rehearsal.getId(), rehearsal.getDuration().toMinutes(), rehearsal.getParticipantsIds());
+            allRehearsals.add(r);
+        }
 
         CpModel model = new CpModel();
-        long periode_end = getEndValue(projectId);
+        long periode_end = getEndValue(project);
 
-        Map<Integer, RehearsalSchedule> rehearsalsSchedule = new HashMap<>();
-        Map<Integer, IntervalVar> rehearsalIntervals = new HashMap<>();
+        Map<Long, RehearsalSchedule> rehearsalsSchedule = new HashMap<>();
+        Map<Long, IntervalVar> rehearsalIntervals = new HashMap<>();
         for (Rehearsal rehearsal : allRehearsals) {
             IntVar start = model.newIntVar(periode_begining, periode_end - rehearsal.duration,
                     "start_rehearsal_" + rehearsal.id);
