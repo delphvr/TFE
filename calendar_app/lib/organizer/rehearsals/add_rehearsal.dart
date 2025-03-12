@@ -47,6 +47,7 @@ class _AddRehearsal extends State<AddRehearsal> {
   List<Participant> participants = [];
   List<Participant> selectedParticipants = [];
   List<MultiSelectItem<Participant>> items = [];
+  TextEditingController locationController = TextEditingController();
 
   @override
   void initState() {
@@ -60,12 +61,18 @@ class _AddRehearsal extends State<AddRehearsal> {
     final description = descriptionController.text;
     final date = Utils.formatDateTime(_selectedDate);
     final duration = isoDuration;
+    final location = locationController.text;
     final String url = '${dotenv.env['API_BASE_URL']}/rehearsals';
 
     //TODO check que la date rentre dans les dates du projet, le passer à select date?
     if (rehearsalName.isEmpty) {
       Utils.errorMess('Erreur lors de la création de la répétition',
           'Merci de donner un nom à la répétition', context);
+      return;
+    }
+    if (duration.isEmpty) {
+      Utils.errorMess('Erreur lors de la création de la répétition',
+          'Merci de donner une durée à la répétition', context);
       return;
     }
     if (date.isNotEmpty) {
@@ -85,7 +92,8 @@ class _AddRehearsal extends State<AddRehearsal> {
       "date": date,
       "duration": duration,
       "projectId": widget.projectId,
-      "participantsIds": selectedParticipants.map((item) => item.id).toList()
+      "participantsIds": selectedParticipants.map((item) => item.id).toList(),
+      "location": location
     };
 
     try {
@@ -216,19 +224,21 @@ class _AddRehearsal extends State<AddRehearsal> {
                         },
                       ),
                       child: AbsorbPointer(
-                        child: TextField(
+                        child: TextFieldcustom(
+                          labelText: 'Durée *',
                           controller: durationController,
-                          readOnly: true,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Durée',
-                            fillColor: Color(0xFFF2F2F2),
-                            filled: true,
-                            prefixIcon: Icon(Icons.timer),
-                          ),
+                          obscureText: false,
+                          keyboardType: TextInputType.text,
                         ),
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextFieldcustom(
+                    labelText: 'Lieu',
+                    controller: locationController,
+                    obscureText: false,
+                    keyboardType: TextInputType.text,
                   ),
                   const SizedBox(height: 20),
                   BottomSheetSelector<Participant>(

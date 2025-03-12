@@ -128,7 +128,7 @@ class Utils {
     if (picked != null) {
       // Format the ISO duration string (e.g., "PT1H30M")
       String isoDuration = "PT${picked.hour}H${picked.minute}M";
-      String displayDuration = "${picked.hour}h ${picked.minute}m";
+      String displayDuration = "${picked.hour}h${picked.minute}";
       updateDuration(isoDuration);
       controller.text = displayDuration;
     }

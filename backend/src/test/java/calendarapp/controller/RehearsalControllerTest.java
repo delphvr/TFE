@@ -40,6 +40,8 @@ public class RehearsalControllerTest {
         userRepository.deleteAll();;
     }
 
+    //TODO: tests with rehearsl with location
+
     /*
      * Tests post of a rehearsal
      */

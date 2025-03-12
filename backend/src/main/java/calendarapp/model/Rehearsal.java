@@ -34,14 +34,14 @@ public class Rehearsal {
     @Column(name = "date", nullable = true)
     private LocalDate date;
 
-    @Column(name = "duration", nullable = true)
+    @Column(name = "duration", nullable = false)
     private Duration duration;
 
     @Column(name = "project_id", nullable = true)
     private Long projectId;
 
-    //@Column(name = "type", nullable = true)
-    //private String type;
+    @Column(name = "location", nullable = true)
+    private String location;
 
     @ManyToOne
     @JoinColumn(name = "project_id", insertable = false, updatable = false)
@@ -51,12 +51,13 @@ public class Rehearsal {
     public Rehearsal() {
     }
 
-    public Rehearsal(String name, String description, LocalDate date, Duration duration, Long projectId) {
+    public Rehearsal(String name, String description, LocalDate date, Duration duration, Long projectId, String location) {
         this.name = name;
         this.description = description;
         this.date = date;
         this.duration = duration;
         this.projectId = projectId;
+        this.location = location;
     }
 
     public Long getId() {
@@ -106,5 +107,13 @@ public class Rehearsal {
 
     public void setProjectId(Long projectId) {
         this.projectId = projectId;
+    }
+
+    public String getLocation(){
+        return location;
+    }
+
+    public void setLocation(String location){
+        this.location = location;
     }
 }

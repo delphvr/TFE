@@ -43,6 +43,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
   late String? date;
   late String? duration;
   late List participantsIds;
+  late String? location;
   late Future<List>? users;
 
   @override
@@ -124,6 +125,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
           description = data['description'];
           date = data['date'];
           duration = data['duration'];
+          location = data['location'];
         });
       } else {
         if (mounted) {
@@ -176,6 +178,13 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                         const SizedBox(height: 10),
                         Text(
                           'Durée: ${duration != null ? Utils.formatDuration(duration!) : "-"}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Lieu: ${location != null && location != '' ? location : "-"}',
                           style: const TextStyle(
                             fontSize: 20,
                           ),
@@ -248,6 +257,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                             date: date,
                             duration: duration,
                             participantsIds: participantsIds,
+                            location: location,
                           ),
                         ),
                       ).then((_) {

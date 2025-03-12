@@ -20,6 +20,7 @@ class RehearsalModificationPage extends StatefulWidget {
   final String? date;
   final String? duration;
   final List participantsIds;
+  final String? location;
 
   const RehearsalModificationPage({
     super.key,
@@ -30,6 +31,7 @@ class RehearsalModificationPage extends StatefulWidget {
     required this.date,
     required this.duration,
     required this.participantsIds,
+    required this.location,
   });
 
   @override
@@ -45,6 +47,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
   late TextEditingController descriptionController;
   late TextEditingController dateController;
   late TextEditingController durationController;
+  late TextEditingController locationController;
   String isoDuration = '';
   List<Participant> participants = [];
   List<Participant> selectedParticipants = [];
@@ -61,6 +64,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     if (widget.date != null) {
       selectedDate = DateTime.parse(widget.date!);
     }
+    locationController = TextEditingController(text: widget.location);
     isoDuration = widget.duration != null ? widget.duration! : '';
     durationController = TextEditingController(
         text: widget.duration != null
@@ -78,6 +82,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     descriptionController.dispose();
     dateController.dispose();
     durationController.dispose();
+    locationController.dispose();
     super.dispose();
   }
 
@@ -135,6 +140,11 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     if (rehearsalName.isEmpty) {
       Utils.errorMess(
           errorTitle, 'Veuillez donner un nom à la répétition.', context);
+      return;
+    }
+    if (duration.isEmpty) {
+      Utils.errorMess('Erreur lors de la création de la répétition',
+          'Merci de donner une durée à la répétition', context);
       return;
     }
 
@@ -260,19 +270,21 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
                         },
                       ),
                       child: AbsorbPointer(
-                        child: TextField(
+                        child: TextFieldcustom(
+                          labelText: 'Durée *',
                           controller: durationController,
-                          readOnly: true,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Durée',
-                            fillColor: Color(0xFFF2F2F2),
-                            filled: true,
-                            prefixIcon: Icon(Icons.timer),
-                          ),
+                          obscureText: false,
+                          keyboardType: TextInputType.text,
                         ),
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextFieldcustom(
+                    labelText: 'Lieu',
+                    controller: locationController,
+                    obscureText: false,
+                    keyboardType: TextInputType.text,
                   ),
                   const SizedBox(height: 20),
                   BottomSheetSelector<Participant>(
