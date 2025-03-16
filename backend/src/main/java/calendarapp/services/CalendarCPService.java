@@ -25,6 +25,8 @@ import calendarapp.response.RehearsalResponse;
 @Service
 public class CalendarCPService {
 
+    //curl -X GET "http://localhost:8080/api/projects/39/calendarCP"
+
     @Autowired
     private ProjectService projectService;
     @Autowired
@@ -64,7 +66,7 @@ public class CalendarCPService {
      *                           rehearsals in `rehearsals`
      * @return the list of list of rehearsal that participant has in commun
      */
-    private List<List<IntervalVar>> rehearsalsCommunParticipant(List<Rehearsal> rehearsals,
+    private List<List<IntervalVar>> ParticipantsRehearsals(List<Rehearsal> rehearsals,
             Map<Long, IntervalVar> rehearsalIntervals) {
         List<List<IntervalVar>> res = new ArrayList<>();
         HashMap<Long, List<IntervalVar>> data = new HashMap<>();
@@ -113,7 +115,7 @@ public class CalendarCPService {
      * @throws IllegalArgumentException if the project begining date is not
      *                                  initialize
      */
-    private LocalDateTime getRehearsalDate(Project project, long minutesFromBeginning) {
+    private LocalDateTime getRehearsalDate(Project project, Long minutesFromBeginning) {
         LocalDate beginningDate = project.getBeginningDate();
         if (beginningDate == null) {
             throw new IllegalArgumentException("The project begining date need to be initialize");
@@ -121,10 +123,6 @@ public class CalendarCPService {
         LocalDateTime startDateTime = beginningDate.atStartOfDay();
         LocalDateTime rehearsalDateTime = startDateTime.plusMinutes(minutesFromBeginning);
         return rehearsalDateTime;
-    }
-
-    private void getNightInterval(Project project) {
-
     }
 
     public String run(Long projectId) {
@@ -156,11 +154,27 @@ public class CalendarCPService {
             rehearsalIntervals.put(rehearsal.id, interval);
         }
 
-        // constraints
-        List<List<IntervalVar>> intervalsConstraintsList = rehearsalsCommunParticipant(allRehearsals,
+        //Constraints :
+        //1. if a user has several rehearsals then they cannot overlap
+        List<List<IntervalVar>> intervalsConstraintsList = ParticipantsRehearsals(allRehearsals,
                 rehearsalIntervals);
         for (List<IntervalVar> intervalsList : intervalsConstraintsList) {
             model.addNoOverlap(intervalsList);
+        }
+        //2. they cannot happend at night betwen 11PM and 7AM
+        for (Rehearsal rehearsal : allRehearsals) {
+            //https://stackoverflow.com/questions/59215712/opposite-of-addmoduloequality
+            RehearsalSchedule schedule = rehearsalsSchedule.get(rehearsal.id);
+            //model.addGreaterOrEqual(schedule.start % 1440, 420) (1440 minutes in on day and 420 minutes in 7 hours)
+            IntVar remainder_strat = model.newIntVar(0, 1439, "modulo_start_" + rehearsal.id);
+            // remainder = schedule.start % 1440
+            model.addModuloEquality(remainder_strat, schedule.start, LinearExpr.constant(24*60));
+            model.addGreaterOrEqual(remainder_strat, 7*60);
+            //model.addLessOrEqual(schedule.end % 1440, 1380) (1280 minutes in 23 hours)
+            IntVar remainder_end = model.newIntVar(0, 1439, "modulo_end_" + rehearsal.id);
+            model.addModuloEquality(remainder_end, schedule.end, LinearExpr.constant(24*60));
+            model.addLessOrEqual(remainder_end, 23*60);
+
         }
 
         CpSolver solver = new CpSolver();
