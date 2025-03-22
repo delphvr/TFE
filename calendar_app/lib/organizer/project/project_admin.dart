@@ -24,10 +24,6 @@ class _ProjectOrganizerPageState extends State<ProjectOrganizerPage> {
     projects = getProjects(context);
   }
 
-  void logout() {
-    FirebaseAuth.instance.signOut();
-  }
-
   Future<List> getProjects(BuildContext context) async {
     final email = user.email;
     final String url =

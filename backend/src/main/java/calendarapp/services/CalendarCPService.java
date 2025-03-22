@@ -114,7 +114,7 @@ public class CalendarCPService {
             throw new IllegalArgumentException("The project begining date need to be initialize");
         }
         if (project.getEndingDate() == null) {
-            return defaultProjectEnd; // TODO in congig file max 5ans si on a pas de fin
+            return defaultProjectEnd;
         }
         long durationInMinutes = java.time.Duration.between(
                 project.getBeginningDate().atStartOfDay(),

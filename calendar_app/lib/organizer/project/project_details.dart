@@ -1,5 +1,6 @@
 import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/organizer/participants/participants.dart';
+import 'package:calendar_app/organizer/project/calendar_proposition.dart';
 import 'package:calendar_app/organizer/rehearsals/rehearsals.dart';
 import 'package:calendar_app/organizer/project/project_modification.dart';
 import 'package:calendar_app/organizer/roles/role_and_participant_element.dart';
@@ -282,6 +283,17 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
                                 projectId: widget.id,
                                 projectName: name!,
                               )),
+                    );
+                  },
+                ),
+                const SizedBox(height: 25),
+                ButtonCustom(
+                  text: "Calculer l'horaire",
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CalendarPropositionPage(projectId: widget.id)),
                     );
                   },
                 ),
