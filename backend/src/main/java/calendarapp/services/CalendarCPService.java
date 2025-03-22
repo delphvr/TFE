@@ -27,7 +27,7 @@ import calendarapp.response.RehearsalResponse;
 @Service
 public class CalendarCPService {
 
-    //curl -X GET "http://localhost:8080/api/projects/39/calendarCP"
+    // curl -X GET "http://localhost:8080/api/projects/39/calendarCP"
 
     @Autowired
     private ProjectService projectService;
@@ -40,9 +40,11 @@ public class CalendarCPService {
     private int minHour;
     @Value("${calendar.rehearsal.max-hour}")
     private int maxHour;
+    @Value("${calendar.project.default-end}")
+    private Long defaultProjectEnd;
 
     final int periode_begining = 0;
-    final LinearExpr oneDayInHour =  LinearExpr.constant(24*60);
+    final LinearExpr oneDayInHour = LinearExpr.constant(24 * 60);
 
     class Rehearsal {
         Long id;
@@ -56,13 +58,24 @@ public class CalendarCPService {
         }
     }
 
-    class RehearsalSchedule {
+    class RehearsalVariables {
         IntVar start;
         IntVar end;
+        IntVar duration;
+        IntervalVar interval;
+        IntVar hour_start;
+        IntVar hour_end;
+        IntervalVar hour_interval;
 
-        RehearsalSchedule(IntVar beginning, IntVar end) {
-            this.start = beginning;
+        RehearsalVariables(IntVar start, IntVar end, IntVar duration, IntervalVar interval, IntVar hour_start,
+                IntVar hour_end, IntervalVar hour_interval) {
+            this.start = start;
             this.end = end;
+            this.duration = duration;
+            this.interval = interval;
+            this.hour_start = hour_start;
+            this.hour_end = hour_end;
+            this.hour_interval = hour_interval;
         }
     }
 
@@ -70,19 +83,16 @@ public class CalendarCPService {
      * Return a list of list of rehearsal id, representing all the rehearsal a
      * participant has and therfore can not be schedule at the same time.
      * 
-     * @param rehearsals         list of rehearsals on the project
-     * @param rehearsalIntervals the list of rehearsals interval correspond to the
-     *                           rehearsals in `rehearsals`
+     * @param rehearsals list of rehearsals on the project whit the corresponding variable of the model
      * @return the list of list of rehearsal that participant has in commun
      */
-    private List<List<IntervalVar>> ParticipantsRehearsals(List<Rehearsal> rehearsals,
-            Map<Long, IntervalVar> rehearsalIntervals) {
+    private List<List<IntervalVar>> ParticipantsRehearsals(List<Rehearsal> allRehearsals, Map<Long, RehearsalVariables> rehearsals) {
         List<List<IntervalVar>> res = new ArrayList<>();
         HashMap<Long, List<IntervalVar>> data = new HashMap<>();
-        for (Rehearsal rehearsal : rehearsals) {
+        for (Rehearsal rehearsal : allRehearsals) {
             for (Long participant : rehearsal.participantsId) {
                 data.putIfAbsent(participant, new ArrayList<>());
-                data.get(participant).add(rehearsalIntervals.get(rehearsal.id));
+                data.get(participant).add(rehearsals.get(rehearsal.id).interval);
             }
         }
         res.addAll(data.values());
@@ -104,12 +114,54 @@ public class CalendarCPService {
             throw new IllegalArgumentException("The project begining date need to be initialize");
         }
         if (project.getEndingDate() == null) {
-            return Long.MAX_VALUE;
+            return defaultProjectEnd; // TODO in congig file max 5ans si on a pas de fin
         }
         long durationInMinutes = java.time.Duration.between(
                 project.getBeginningDate().atStartOfDay(),
                 project.getEndingDate().atStartOfDay()).toMinutes();
         return durationInMinutes;
+    }
+
+    /**
+     * Creates and add the variables to the model
+     * 
+     * @param model the model to which add the variables
+     * @param allRehearsals the reahrsals informations
+     * @param project the project
+     * @return the list of all the variables groupe by the rehearsals id they correspond to
+     */
+    private Map<Long, RehearsalVariables> createVariables(CpModel model, List<Rehearsal> allRehearsals, Project project){
+        Map<Long, RehearsalVariables> rehearsals = new HashMap<>();
+        long periode_end = getEndValue(project);
+        for (Rehearsal rehearsal : allRehearsals) {
+            IntVar start = model.newIntVar(periode_begining, periode_end - rehearsal.duration,
+                    "start_rehearsal_" + rehearsal.id);
+            IntVar end = model.newIntVar(periode_begining, periode_end, "end_rehearsal_" + rehearsal.id);
+            IntVar duration = model.newIntVar(rehearsal.duration, rehearsal.duration,
+                    "duration_rehearsal_" + rehearsal.id);
+            IntervalVar interval = model.newIntervalVar(start, duration, end,
+                    "interval_rehearsal_" + rehearsal.id);
+            // Rehearsal cannot happen at night betwen maxHour and minHour
+            // model.addGreaterOrEqual(schedule.start % 1440, minHour*60) (1440 minutes in on day)
+            IntVar hourStart = model.newIntVar(0, 1439, "modulo_start_" + rehearsal.id);
+            // hour_start = schedule.start % 1440
+            model.addModuloEquality(hourStart, start, oneDayInHour);
+            model.addGreaterOrEqual(hourStart, minHour * 60);
+            model.addLessOrEqual(hourStart, maxHour * 60);
+            // model.addLessOrEqual(schedule.end % 1440, maxHour*60)
+            IntVar hourEnd = model.newIntVar(0, 1439, "modulo_end_" + rehearsal.id);
+            model.addModuloEquality(hourEnd, end, oneDayInHour);
+            model.addGreaterOrEqual(hourEnd, minHour * 60);
+            model.addLessOrEqual(hourEnd, maxHour * 60);
+            // debut avant fin sinon sur deux jour et donc la nuit
+            model.addLessOrEqual(hourStart, hourEnd);
+            // contraintes redondante sur la durée maximal de la répétition sur une journée,
+            // sinon réfléchi trop longtemps, permets de propager directement et voir que solution infaisable
+            IntervalVar hourInterval = model.newIntervalVar(hourStart, duration, hourEnd,
+                    "hour_interval_rehearsal_" + rehearsal.id);
+            rehearsals.put(rehearsal.id, new RehearsalVariables(start, end, duration, interval, hourStart, hourEnd, hourInterval));
+        }
+        return rehearsals;
     }
 
     /**
@@ -147,72 +199,39 @@ public class CalendarCPService {
         }
 
         CpModel model = new CpModel();
-        long periode_end = getEndValue(project);
+        Map<Long, RehearsalVariables> rehearsalsVariables = createVariables(model, allRehearsals, project);
 
-        Map<Long, RehearsalSchedule> rehearsalsSchedule = new HashMap<>();
-        Map<Long, IntervalVar> rehearsalIntervals = new HashMap<>();
-        for (Rehearsal rehearsal : allRehearsals) {
-            IntVar start = model.newIntVar(periode_begining, periode_end - rehearsal.duration,
-                    "start_rehearsal_" + rehearsal.id);
-            IntVar end = model.newIntVar(periode_begining, periode_end, "end_rehearsal_" + rehearsal.id);
-            IntervalVar interval = model.newIntervalVar(start, LinearExpr.constant(rehearsal.duration), end,
-                    "interval_rehearsal_" + rehearsal.id);
-            rehearsalsSchedule.put(rehearsal.id, new RehearsalSchedule(start, end));
-            rehearsalIntervals.put(rehearsal.id, interval);
-        }
-
-        //Constraints :
-        //1. if a user has several rehearsals then they cannot overlap
-        List<List<IntervalVar>> intervalsConstraintsList = ParticipantsRehearsals(allRehearsals,
-                rehearsalIntervals);
+        // Constraints :
+        // 1. if a user has several rehearsals then they cannot overlap
+        List<List<IntervalVar>> intervalsConstraintsList = ParticipantsRehearsals(allRehearsals, rehearsalsVariables);
         for (List<IntervalVar> intervalsList : intervalsConstraintsList) {
             model.addNoOverlap(intervalsList);
         }
-        //2. they cannot happen at night betwen maxHour and minHour
-        for (Rehearsal rehearsal : allRehearsals) {
-            //https://stackoverflow.com/questions/59215712/opposite-of-addmoduloequality
-            RehearsalSchedule schedule = rehearsalsSchedule.get(rehearsal.id);
-            //model.addGreaterOrEqual(schedule.start % 1440, 420) (1440 minutes in on day and 420 minutes in 7 hours)
-            IntVar remainder_start = model.newIntVar(0, 1439, "modulo_start_" + rehearsal.id);
-            // remainder = schedule.start % 1440
-            model.addModuloEquality(remainder_start, schedule.start, oneDayInHour);
-            model.addGreaterOrEqual(remainder_start, minHour*60);
-            model.addLessOrEqual(remainder_start, maxHour*60);
-            //model.addLessOrEqual(schedule.end % 1440, 1380) (1280 minutes in 23 hours)
-            IntVar remainder_end = model.newIntVar(0, 1439, "modulo_end_" + rehearsal.id);
-            model.addModuloEquality(remainder_end, schedule.end, oneDayInHour);
-            model.addGreaterOrEqual(remainder_end, minHour*60);
-            model.addLessOrEqual(remainder_end, maxHour*60);
-            //debut avant fin sinon sur deux jour et donc la nuit
-            model.addLessOrEqual(remainder_start, remainder_end);
-        }
 
         CpSolver solver = new CpSolver();
+        solver.getParameters().setLogSearchProgress(true); //logs
+        model.validate(); //logs
         CpSolverStatus status = solver.solve(model);
 
         List<CpResult> res = new ArrayList<>();
 
         if (status == CpSolverStatus.OPTIMAL || status == CpSolverStatus.FEASIBLE) {
             for (Rehearsal rehearsal : allRehearsals) {
-                RehearsalSchedule schedule = rehearsalsSchedule.get(rehearsal.id);
+                RehearsalVariables schedule = rehearsalsVariables.get(rehearsal.id);
 
                 LocalDateTime beginningDateTime = getRehearsalDate(project, solver.value(schedule.start));
 
-                //res += "\n Rehearsal " + rehearsal.id;
-                //res += "\n Start: " + solver.value(schedule.start) + " end: " + solver.value(schedule.end);
-                //res += "\n scheduled at: " + beginningDateTime;
-                //res += "\n end at: " + getRehearsalDate(project, solver.value(schedule.end));
+                System.out.println("prjectId: " + projectId + " rehearsal id: " + rehearsal.id + " begining date: "
+                        + beginningDateTime);
 
-                System.out.println("prjectId: " + projectId + " rehearsal id: " + rehearsal.id + " begining date: " + beginningDateTime);
-                
-                //TODO create or udate if it's a recomputation
+                // TODO create or udate if it's a recomputation
                 CpResult cp = new CpResult(projectId, rehearsal.id, false, beginningDateTime);
-                cpService.createCp(cp);
+                // cpService.createCp(cp);
                 res.add(cp);
             }
         } else {
-            //TODO: how to represent this ?
-            //res = "No solution found";
+            // TODO: how to represent this in the response ?
+            System.out.println("No solution found");
         }
 
         return res;
