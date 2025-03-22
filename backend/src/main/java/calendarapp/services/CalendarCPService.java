@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.IntervalVar;
 import com.google.ortools.sat.LinearExpr;
 
+import calendarapp.model.CpResult;
 import calendarapp.model.Project;
 import calendarapp.response.RehearsalResponse;
 
@@ -31,9 +33,16 @@ public class CalendarCPService {
     private ProjectService projectService;
     @Autowired
     private RehearsalService rehearsalService;
+    @Autowired
+    private CpResultService cpService;
+
+    @Value("${calendar.rehearsal.min-hour}")
+    private int minHour;
+    @Value("${calendar.rehearsal.max-hour}")
+    private int maxHour;
 
     final int periode_begining = 0;
-    final int periode_end = 1100; // in minutes
+    final LinearExpr oneDayInHour =  LinearExpr.constant(24*60);
 
     class Rehearsal {
         Long id;
@@ -125,15 +134,13 @@ public class CalendarCPService {
         return rehearsalDateTime;
     }
 
-    public String run(Long projectId) {
+    public List<CpResult> run(Long projectId) {
         Project project = projectService.getProject(projectId);
 
         Loader.loadNativeLibraries();
 
         List<Rehearsal> allRehearsals = new ArrayList<>();
         for (RehearsalResponse rehearsal : rehearsalService.getProjectRehearsals(projectId)) {
-            System.out
-                    .println(rehearsal.getId() + " " + rehearsal.getDuration() + " " + rehearsal.getParticipantsIds());
             Rehearsal r = new Rehearsal(rehearsal.getId(), rehearsal.getDuration().toMinutes(),
                     rehearsal.getParticipantsIds());
             allRehearsals.add(r);
@@ -161,37 +168,51 @@ public class CalendarCPService {
         for (List<IntervalVar> intervalsList : intervalsConstraintsList) {
             model.addNoOverlap(intervalsList);
         }
-        //2. they cannot happend at night betwen 11PM and 7AM
+        //2. they cannot happen at night betwen maxHour and minHour
         for (Rehearsal rehearsal : allRehearsals) {
             //https://stackoverflow.com/questions/59215712/opposite-of-addmoduloequality
             RehearsalSchedule schedule = rehearsalsSchedule.get(rehearsal.id);
             //model.addGreaterOrEqual(schedule.start % 1440, 420) (1440 minutes in on day and 420 minutes in 7 hours)
-            IntVar remainder_strat = model.newIntVar(0, 1439, "modulo_start_" + rehearsal.id);
+            IntVar remainder_start = model.newIntVar(0, 1439, "modulo_start_" + rehearsal.id);
             // remainder = schedule.start % 1440
-            model.addModuloEquality(remainder_strat, schedule.start, LinearExpr.constant(24*60));
-            model.addGreaterOrEqual(remainder_strat, 7*60);
+            model.addModuloEquality(remainder_start, schedule.start, oneDayInHour);
+            model.addGreaterOrEqual(remainder_start, minHour*60);
+            model.addLessOrEqual(remainder_start, maxHour*60);
             //model.addLessOrEqual(schedule.end % 1440, 1380) (1280 minutes in 23 hours)
             IntVar remainder_end = model.newIntVar(0, 1439, "modulo_end_" + rehearsal.id);
-            model.addModuloEquality(remainder_end, schedule.end, LinearExpr.constant(24*60));
-            model.addLessOrEqual(remainder_end, 23*60);
-
+            model.addModuloEquality(remainder_end, schedule.end, oneDayInHour);
+            model.addGreaterOrEqual(remainder_end, minHour*60);
+            model.addLessOrEqual(remainder_end, maxHour*60);
+            //debut avant fin sinon sur deux jour et donc la nuit
+            model.addLessOrEqual(remainder_start, remainder_end);
         }
 
         CpSolver solver = new CpSolver();
         CpSolverStatus status = solver.solve(model);
 
-        String res = "";
+        List<CpResult> res = new ArrayList<>();
 
         if (status == CpSolverStatus.OPTIMAL || status == CpSolverStatus.FEASIBLE) {
             for (Rehearsal rehearsal : allRehearsals) {
                 RehearsalSchedule schedule = rehearsalsSchedule.get(rehearsal.id);
 
-                res += "\n Rehearsal " + rehearsal.id;
-                res += "\n Start: " + solver.value(schedule.start) + " end: " + solver.value(schedule.end);
-                res += "\n scheduled at: " + getRehearsalDate(project, solver.value(schedule.start));
+                LocalDateTime beginningDateTime = getRehearsalDate(project, solver.value(schedule.start));
+
+                //res += "\n Rehearsal " + rehearsal.id;
+                //res += "\n Start: " + solver.value(schedule.start) + " end: " + solver.value(schedule.end);
+                //res += "\n scheduled at: " + beginningDateTime;
+                //res += "\n end at: " + getRehearsalDate(project, solver.value(schedule.end));
+
+                System.out.println("prjectId: " + projectId + " rehearsal id: " + rehearsal.id + " begining date: " + beginningDateTime);
+                
+                //TODO create or udate if it's a recomputation
+                CpResult cp = new CpResult(projectId, rehearsal.id, false, beginningDateTime);
+                cpService.createCp(cp);
+                res.add(cp);
             }
         } else {
-            res = "No solution found";
+            //TODO: how to represent this ?
+            //res = "No solution found";
         }
 
         return res;

@@ -1,5 +1,7 @@
 package calendarapp.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import calendarapp.model.CpResult;
 import calendarapp.services.CalendarCPService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,8 +24,8 @@ public class CalendarCPController {
 
 	@Operation(summary = "Run the cp and get the resulting calendar")
 	@GetMapping("/projects/{id}/calendarCP")
-	public ResponseEntity<String> runCalendarCP(@PathVariable("id") long id) {
-		String res = calendarCP.run(id);
+	public ResponseEntity<List<CpResult>> runCalendarCP(@PathVariable("id") long id) {
+		List<CpResult> res = calendarCP.run(id);
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}    
 }
