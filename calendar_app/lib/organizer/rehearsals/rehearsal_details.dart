@@ -15,6 +15,7 @@ class RehearsalDetailsPage extends StatefulWidget {
   final String name;
   final String? description;
   final String? date;
+  final String? time;
   final String? duration;
   final List participantsIds;
   final bool organizerPage;
@@ -26,6 +27,7 @@ class RehearsalDetailsPage extends StatefulWidget {
     required this.name,
     required this.description,
     required this.date,
+    required this.time,
     required this.duration,
     required this.participantsIds, //TODO delete ?
     required this.organizerPage,
@@ -41,6 +43,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
   late String name;
   late String? description;
   late String? date;
+  late String? time;
   late String? duration;
   late List participantsIds;
   late String? location;
@@ -52,6 +55,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
     name = widget.name;
     description = widget.description;
     date = widget.date;
+    time = widget.time;
     duration = widget.duration;
     participantsIds = widget.participantsIds;
     users = getUsersOnRehearsal(context);
@@ -121,10 +125,12 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data =
             json.decode(utf8.decode(response.bodyBytes));
+        print(data);
         setState(() {
           name = data['name'];
           description = data['description'];
           date = data['date'];
+          time = data['time'];
           duration = data['duration'];
           location = data['location'];
         });
@@ -171,7 +177,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Date: ${date != null ? Utils.formatDateString(date) : "-"}',
+                          'Date: ${date != null ? Utils.formatDateString(date) : "-"} ${time != null ? Utils.formatTimeString(time) : ""}',
                           style: const TextStyle(
                             fontSize: 20,
                           ),
@@ -256,6 +262,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                             name: name,
                             description: description,
                             date: date,
+                            time: time,
                             duration: duration,
                             participantsIds: participantsIds,
                             location: location,
@@ -281,6 +288,6 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                 ],
               ],
             )),
-        selectedIndex: 1);
+        selectedIndex: widget.organizerPage ? 1 : 0);
   }
 }

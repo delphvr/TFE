@@ -115,6 +115,7 @@ class _UserRehearsalPageState extends State<UserRehearsalPage> {
                                 description: rehearsals[index]['description'],
                                 date: Utils.formatDateString(
                                     rehearsals[index]['date']),
+                                time: rehearsals[index]['time'],
                                 duration: rehearsals[index]['duration'],
                                 projectId: rehearsals[index]['projectId'],
                                 participantsIds: rehearsals[index]

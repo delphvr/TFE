@@ -8,6 +8,7 @@ class RehearsalElement extends StatefulWidget {
   final String name;
   final String? description;
   final String? date;
+  final String? time;
   final String? duration;
   final List participantsIds;
   final bool organizerPage;
@@ -20,6 +21,7 @@ class RehearsalElement extends StatefulWidget {
     required this.name,
     required this.description,
     required this.date,
+    required this.time,
     required this.duration,
     required this.participantsIds,
     required this.organizerPage,
@@ -64,6 +66,7 @@ class _RehearsalElementState extends State<RehearsalElement> {
                 name: widget.name,
                 description: widget.description,
                 date: widget.date,
+                time: widget.time,
                 duration: widget.duration,
                 participantsIds: widget.participantsIds,
                 organizerPage: widget.organizerPage

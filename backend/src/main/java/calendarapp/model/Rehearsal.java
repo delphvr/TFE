@@ -2,6 +2,7 @@ package calendarapp.model;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -34,6 +35,9 @@ public class Rehearsal {
     @Column(name = "date", nullable = true)
     private LocalDate date;
 
+    @Column(name = "time", nullable = true)
+    private LocalTime time;
+
     @Column(name = "duration", nullable = false)
     private Duration duration;
 
@@ -51,10 +55,11 @@ public class Rehearsal {
     public Rehearsal() {
     }
 
-    public Rehearsal(String name, String description, LocalDate date, Duration duration, Long projectId, String location) {
+    public Rehearsal(String name, String description, LocalDate date, LocalTime time, Duration duration, Long projectId, String location) {
         this.name = name;
         this.description = description;
         this.date = date;
+        this.time = time;
         this.duration = duration;
         this.projectId = projectId;
         this.location = location;
@@ -91,6 +96,14 @@ public class Rehearsal {
 
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public LocalTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
     }
 
     public Duration getDuration() {

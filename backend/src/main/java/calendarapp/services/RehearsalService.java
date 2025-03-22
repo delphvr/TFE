@@ -124,7 +124,7 @@ public class RehearsalService {
             }
             checkRehearsalDate(request.getDate(), request.getProjectId());
         }
-        Rehearsal rehearsal = new Rehearsal(request.getName(), request.getDescription(), request.getDate(),
+        Rehearsal rehearsal = new Rehearsal(request.getName(), request.getDescription(), request.getDate(), request.getTime(),
                 request.getDuration(), request.getProjectId(), request.getLocation());
         Rehearsal res = rehearsalRepository.save(rehearsal);
         // TODO dois check que les participant à la répète sont bien des participant au
@@ -178,6 +178,7 @@ public class RehearsalService {
             _rehearsal.setName(request.getName());
             _rehearsal.setDescription(request.getDescription());
             _rehearsal.setDate(request.getDate());
+            _rehearsal.setTime(request.getTime());
             _rehearsal.setDuration(request.getDuration());
             _rehearsal.setLocation(request.getLocation());
 

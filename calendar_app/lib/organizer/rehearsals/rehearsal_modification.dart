@@ -18,6 +18,7 @@ class RehearsalModificationPage extends StatefulWidget {
   final String name;
   final String? description;
   final String? date;
+  final String? time;
   final String? duration;
   final List participantsIds;
   final String? location;
@@ -29,6 +30,7 @@ class RehearsalModificationPage extends StatefulWidget {
     required this.name,
     required this.description,
     required this.date,
+    required this.time,
     required this.duration,
     required this.participantsIds,
     required this.location,
@@ -46,6 +48,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
   late TextEditingController nameController;
   late TextEditingController descriptionController;
   late TextEditingController dateController;
+  late TextEditingController timeController;
   late TextEditingController durationController;
   late TextEditingController locationController;
   String isoDuration = '';
@@ -53,6 +56,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
   List<Participant> selectedParticipants = [];
   List<MultiSelectItem<Participant>> items = [];
   DateTime? selectedDate;
+  TimeOfDay? _selectedTime;
 
   @override
   void initState() {
@@ -70,6 +74,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
         text: widget.duration != null
             ? Utils.formatDuration(widget.duration!)
             : null);
+    timeController = TextEditingController(text: widget.time);
     getUsersOnProject(
         context); //initiate participants list with the participants of the project
     //init selectedParticipants to user already participating in the rehearsal
@@ -135,6 +140,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     final rehearsalName = nameController.text;
     final description = descriptionController.text;
     final date = Utils.formatDateTime(selectedDate);
+    final time = timeController.text;
     final duration = isoDuration;
 
     if (rehearsalName.isEmpty) {
@@ -159,6 +165,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
       "name": rehearsalName,
       "description": description,
       "date": date,
+      "time": time,
       "duration": duration,
       "participantsIds": selectedParticipants.map((item) => item.id).toList(),
       "projectId": widget.projectId
@@ -255,6 +262,35 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 20),
+                SizedBox(
+                  width: 250,
+                  child: GestureDetector(
+                    onTap: () => Utils.selectTime(
+                      context,
+                      timeController, 
+                      _selectedTime,
+                      (TimeOfDay time) {
+                        setState(() {
+                          _selectedTime = time;
+                        });
+                      },
+                    ), // Add onTap for TimePicker
+                    child: AbsorbPointer(
+                      child: TextField(
+                        controller: timeController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Heure',
+                          fillColor: Color(0xFFF2F2F2),
+                          filled: true,
+                          prefixIcon: Icon(Icons.access_time),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                   const SizedBox(height: 20),
                   SizedBox(
                     width: 250,

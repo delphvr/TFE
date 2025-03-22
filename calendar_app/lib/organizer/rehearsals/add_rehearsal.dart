@@ -41,9 +41,11 @@ class _AddRehearsal extends State<AddRehearsal> {
   TextEditingController nameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController dateController = TextEditingController();
+  TextEditingController timeController = TextEditingController();
   TextEditingController durationController = TextEditingController();
   String isoDuration = '';
   DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
   List<Participant> participants = [];
   List<Participant> selectedParticipants = [];
   List<MultiSelectItem<Participant>> items = [];
@@ -53,13 +55,14 @@ class _AddRehearsal extends State<AddRehearsal> {
   void initState() {
     super.initState();
     getUsersOnProject(
-        context); //initiate participants list with the participants of the project
+        context); //initiate participants list with the participants on the project
   }
 
   void addRehearsal(BuildContext context) async {
     final rehearsalName = nameController.text;
     final description = descriptionController.text;
     final date = Utils.formatDateTime(_selectedDate);
+    final time = timeController.text;
     final duration = isoDuration;
     final location = locationController.text;
     final String url = '${dotenv.env['API_BASE_URL']}/rehearsals';
@@ -90,6 +93,7 @@ class _AddRehearsal extends State<AddRehearsal> {
       "name": rehearsalName,
       "description": description,
       "date": date,
+      "time": time,
       "duration": duration,
       "projectId": widget.projectId,
       "participantsIds": selectedParticipants.map((item) => item.id).toList(),
@@ -148,123 +152,153 @@ class _AddRehearsal extends State<AddRehearsal> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-        body: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(25.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Ajout d\'une répétition au projet ${widget.projectName}',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 27,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(25.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Ajout d\'une répétition au projet ${widget.projectName}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 27,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextFieldcustom(
+                  labelText: 'Nom de la répétition *',
+                  controller: nameController,
+                  obscureText: false,
+                  keyboardType: TextInputType.text,
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: 250,
+                  child: TextField(
+                    controller: descriptionController,
+                    maxLines: null,
+                    minLines: 2,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Description',
+                      fillColor: Color(0xFFF2F2F2),
+                      filled: true,
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  TextFieldcustom(
-                    labelText: 'Nom de la répétition *',
-                    controller: nameController,
-                    obscureText: false,
-                    keyboardType: TextInputType.text,
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: 250,
-                    child: TextField(
-                      controller: descriptionController,
-                      maxLines: null,
-                      minLines: 2,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Description',
-                        fillColor: Color(0xFFF2F2F2),
-                        filled: true,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: 250,
-                    child: GestureDetector(
-                      onTap: () => Utils.selectDate(
-                          context, dateController, _selectedDate, (pickedDate) {
-                        setState(() {
-                          _selectedDate = pickedDate;
-                        });
-                      }),
-                      child: AbsorbPointer(
-                        child: TextField(
-                          controller: dateController,
-                          readOnly: true,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Date',
-                            fillColor: Color(0xFFF2F2F2),
-                            filled: true,
-                            prefixIcon: Icon(Icons.calendar_today),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: 250,
-                    child: GestureDetector(
-                      onTap: () => Utils.selectDuration(
-                        context,
-                        durationController,
-                        durationController.text,
-                        (newDuration) {
-                          setState(() {
-                            isoDuration = newDuration;
-                          });
-                        },
-                      ),
-                      child: AbsorbPointer(
-                        child: TextFieldcustom(
-                          labelText: 'Durée *',
-                          controller: durationController,
-                          obscureText: false,
-                          keyboardType: TextInputType.text,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  TextFieldcustom(
-                    labelText: 'Lieu',
-                    controller: locationController,
-                    obscureText: false,
-                    keyboardType: TextInputType.text,
-                  ),
-                  const SizedBox(height: 20),
-                  BottomSheetSelector<Participant>(
-                    items: participants,
-                    selectedItems: selectedParticipants,
-                    onSelectionChanged: (selectedList) {
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: 250,
+                  child: GestureDetector(
+                    onTap: () => Utils.selectDate(
+                        context, dateController, _selectedDate, (pickedDate) {
                       setState(() {
-                        selectedParticipants = selectedList;
+                        _selectedDate = pickedDate;
                       });
-                    },
-                    title: "Sélectionnez les participants",
-                    buttonLabel: "Valider",
-                    itemLabel: (role) => role.name,
-                    textfield: "Participants",
+                    }),
+                    child: AbsorbPointer(
+                      child: TextField(
+                        controller: dateController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Date',
+                          fillColor: Color(0xFFF2F2F2),
+                          filled: true,
+                          prefixIcon: Icon(Icons.calendar_today),
+                        ),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 20),
-                  ButtonCustom(
-                    text: 'Ajouter',
-                    onTap: () => addRehearsal(context),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: 250,
+                  child: GestureDetector(
+                    onTap: () => Utils.selectTime(
+                      context,
+                      timeController, 
+                      _selectedTime,
+                      (TimeOfDay time) {
+                        setState(() {
+                          _selectedTime = time;
+                        });
+                      },
+                    ), // Add onTap for TimePicker
+                    child: AbsorbPointer(
+                      child: TextField(
+                        controller: timeController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Heure',
+                          fillColor: Color(0xFFF2F2F2),
+                          filled: true,
+                          prefixIcon: Icon(Icons.access_time),
+                        ),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 10),
-                ],
-              ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: 250,
+                  child: GestureDetector(
+                    onTap: () => Utils.selectDuration(
+                      context,
+                      durationController,
+                      durationController.text,
+                      (newDuration) {
+                        setState(() {
+                          isoDuration = newDuration;
+                        });
+                      },
+                    ),
+                    child: AbsorbPointer(
+                      child: TextFieldcustom(
+                        labelText: 'Durée *',
+                        controller: durationController,
+                        obscureText: false,
+                        keyboardType: TextInputType.text,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextFieldcustom(
+                  labelText: 'Lieu',
+                  controller: locationController,
+                  obscureText: false,
+                  keyboardType: TextInputType.text,
+                ),
+                const SizedBox(height: 20),
+                BottomSheetSelector<Participant>(
+                  items: participants,
+                  selectedItems: selectedParticipants,
+                  onSelectionChanged: (selectedList) {
+                    setState(() {
+                      selectedParticipants = selectedList;
+                    });
+                  },
+                  title: "Sélectionnez les participants",
+                  buttonLabel: "Valider",
+                  itemLabel: (role) => role.name,
+                  textfield: "Participants",
+                ),
+                const SizedBox(height: 20),
+                ButtonCustom(
+                  text: 'Ajouter',
+                  onTap: () => addRehearsal(context),
+                ),
+                const SizedBox(height: 10),
+              ],
             ),
           ),
         ),
-        selectedIndex: 1);
+      ),
+      selectedIndex: 1,
+    );
   }
 }

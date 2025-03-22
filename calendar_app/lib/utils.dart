@@ -116,7 +116,7 @@ class Utils {
       TextEditingController controller,
       String? selectedDuration,
       Function(String) updateDuration) async {
-    int initialHours = 0;
+    int initialHours = 2;
     int initialMinutes = 0;
 
     if (selectedDuration != null) {
@@ -134,4 +134,35 @@ class Utils {
       controller.text = displayDuration;
     }
   }
+
+  static Future<void> selectTime(
+      BuildContext context,
+      TextEditingController controller,
+      TimeOfDay? selectedTime,
+      Function(TimeOfDay) onTimeSelected) async {
+
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: selectedTime ?? TimeOfDay.now(),
+    );
+
+    if (picked != null) {
+      onTimeSelected(picked);
+      if (context.mounted) {
+        controller.text = picked.format(context);
+      }
+    }
+  }
+
+  static String? formatTimeString(String? time) {
+    if (time != null) {
+      List<String> parts = time.split(':');
+      if (parts.length == 3) {
+        return "${parts[0]}:${parts[1]}";
+      }
+      return time;
+    }
+    return time;
+  }
+
 }

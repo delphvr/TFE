@@ -2,12 +2,14 @@ package calendarapp.request;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public class RehearsalRequest {
     private String name;
     private String description;
     private LocalDate date;
+    private LocalTime time;
     private Duration duration;
     private Long projectId;
     private List<Long> participantsIds;
@@ -15,10 +17,11 @@ public class RehearsalRequest {
 
     public RehearsalRequest() {}
 
-    public RehearsalRequest(String name, String description, LocalDate date, Duration duration, Long projectId, List<Long> participantsIds, String location) {
+    public RehearsalRequest(String name, String description, LocalDate date, LocalTime time, Duration duration, Long projectId, List<Long> participantsIds, String location) {
         this.name = name;
         this.description = description;
         this.date = date;
+        this.time = time;
         this.duration = duration;
         this.projectId = projectId;
         this.participantsIds = participantsIds;
@@ -35,6 +38,10 @@ public class RehearsalRequest {
 
     public LocalDate getDate() {
         return date;
+    }
+
+    public LocalTime getTime() {
+        return time;
     }
 
     public Duration getDuration() {
@@ -79,6 +86,10 @@ public class RehearsalRequest {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
     }
 }
 
