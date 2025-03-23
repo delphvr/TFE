@@ -243,6 +243,7 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
                                                   children: [
+                                                    //TODO actualy get the rehearsal name and duration and make the widget clikable to see the detail of the rehearsal
                                                     Text(
                                                       "Répétition ${rehearsal['rehearsalId']}",
                                                       style: const TextStyle(

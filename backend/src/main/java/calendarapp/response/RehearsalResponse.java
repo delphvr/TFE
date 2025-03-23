@@ -2,6 +2,7 @@ package calendarapp.response;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public class RehearsalResponse {
@@ -10,17 +11,19 @@ public class RehearsalResponse {
     private String name;
     private String description;
     private LocalDate date;
+    private LocalTime time;
     private Duration duration;
     private Long projectId;
     private List<Long> participantsIds;
 
     public RehearsalResponse() {}
 
-    public RehearsalResponse(Long id, String name, String description, LocalDate date, Duration duration, Long projectId, List<Long> participantsIds) {
+    public RehearsalResponse(Long id, String name, String description, LocalDate date, LocalTime time, Duration duration, Long projectId, List<Long> participantsIds) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.date = date;
+        this.time = time;
         this.duration = duration;
         this.projectId = projectId;
         this.participantsIds = participantsIds;
@@ -68,6 +71,14 @@ public class RehearsalResponse {
 
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public LocalTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
     }
 
     public void setDuration(Duration duration) {

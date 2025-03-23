@@ -1,6 +1,8 @@
 package calendarapp.services;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -67,7 +69,7 @@ public class RehearsalService {
             List<Long> participationIds = participations.stream().map(Participation::getUserId)
                     .collect(Collectors.toList());
             RehearsalResponse rehearsalResponse = new RehearsalResponse(rehearsal.getId(), rehearsal.getName(),
-                    rehearsal.getDescription(), rehearsal.getDate(), rehearsal.getDuration(), rehearsal.getProjectId(),
+                    rehearsal.getDescription(), rehearsal.getDate(), rehearsal.getTime(), rehearsal.getDuration(), rehearsal.getProjectId(),
                     participationIds);
             rehearsalsResponse.add(rehearsalResponse);
         }
@@ -210,6 +212,41 @@ public class RehearsalService {
     }
 
     /**
+     * Update a rehearsal date and time.
+     * 
+     * @param id the id of the rehearsal
+     * @param projectId the id of the project the rehearsal is part of
+     * @param dateTime the new date and time of the rehearsal
+     * @return the updated rehearsal
+     * @throws IllegalArgumentException if no rehearsal is found with the given
+     *                                  ´id´,
+     *                                  or if the date of the rehearsal is not
+     *                                  during the project dates,
+     *                                  or if no project found with the project id given
+     */
+    public Rehearsal updateReheasalDateAndTime(Long id, Long projectId, LocalDateTime dateTime) {
+        projectService.isProject(projectId);
+        LocalDate date = null;
+        LocalTime time = null;
+        if(dateTime != null){
+            date = dateTime.toLocalDate();
+            time = dateTime.toLocalTime();
+        }
+        checkRehearsalDate(date, projectId);
+        Optional<Rehearsal> rehearsalData = rehearsalRepository.findById(id);
+        if (rehearsalData.isPresent()) {
+            Rehearsal _rehearsal = rehearsalData.get();
+            _rehearsal.setDate(date);
+            _rehearsal.setTime(time);
+
+            Rehearsal res = rehearsalRepository.save(_rehearsal);
+            return res;
+        } else {
+            throw new IllegalArgumentException("Reherasal not found with id " + id);
+        }
+    }
+
+    /**
      * Get the reharsal with id ´id´ from the database.
      * 
      * @param id the id of the rehearsal
@@ -258,7 +295,7 @@ public class RehearsalService {
                     .collect(Collectors.toList());
             if (participationIds.contains(user.getId())) {
                 RehearsalResponse rehearsalResponse = new RehearsalResponse(rehearsal.getId(), rehearsal.getName(),
-                        rehearsal.getDescription(), rehearsal.getDate(), rehearsal.getDuration(),
+                        rehearsal.getDescription(), rehearsal.getDate(), rehearsal.getTime(), rehearsal.getDuration(),
                         rehearsal.getProjectId(),
                         participationIds);
                 res.add(rehearsalResponse);
