@@ -229,6 +229,6 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
             ),
           ),
         ),
-        selectedIndex: 2);
+        selectedIndex: 3);
   }
 }

@@ -82,4 +82,11 @@ public class RehearsalController {
         return new ResponseEntity<>(rehearsals, HttpStatus.OK);
     }
 
+    @Operation(summary = "Get all the rehearsals of a user")
+    @GetMapping("/users/{email}/rehearsals")
+    public ResponseEntity<List<Rehearsal>> getUserRehearsals(@PathVariable("email") String email) {
+        List<Rehearsal> rehearsals = rehearsalService.getUserRehearsals(email);
+        return new ResponseEntity<>(rehearsals, HttpStatus.OK);
+    }
+
 }

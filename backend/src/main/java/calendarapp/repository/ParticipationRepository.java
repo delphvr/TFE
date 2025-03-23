@@ -10,5 +10,6 @@ import calendarapp.model.ParticipationId;
 
 public interface ParticipationRepository extends JpaRepository<Participation, ParticipationId> {
     List<Participation> findByRehearsalId(Long rehearsalId);
+    List<Participation> findByUserId(Long userId);
 }
 

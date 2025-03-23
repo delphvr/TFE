@@ -249,7 +249,7 @@ class _ProfilPageSate extends State<ProfilPage> {
           ],
         ),
       ),
-      selectedIndex: 2,
+      selectedIndex: 3,
     );
   }
 }

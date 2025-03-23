@@ -1,3 +1,4 @@
+import 'package:calendar_app/calendar/calendar.dart';
 import 'package:calendar_app/main.dart';
 import 'package:calendar_app/organizer/project/project_admin.dart';
 import 'package:calendar_app/profil/profil.dart';
@@ -29,6 +30,7 @@ class _CustomScaffoldState extends State<CustomScaffold> {
     return [
       const ProjectsUserPage(),
       const ProjectOrganizerPage(),
+      const CalendarPage(),
       const ProfilPage(),
     ];
   }
@@ -81,6 +83,7 @@ class _CustomScaffoldState extends State<CustomScaffold> {
             BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Projets'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.assignment), label: 'Organisateurs'),
+                BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Calendrier'),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
           ],
         ),

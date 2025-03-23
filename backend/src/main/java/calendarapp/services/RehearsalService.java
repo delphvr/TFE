@@ -275,7 +275,7 @@ public class RehearsalService {
 
     /**
      * Get all the rehearsal the user is a part of in the project with id
-     * ´projectId´
+     * ´projectId´. Ordered base on the date then the rehearsal name.
      * 
      * @param email     the user email
      * @param projectId the id of the project
@@ -304,6 +304,23 @@ public class RehearsalService {
         res.sort(Comparator
                 .comparing(RehearsalResponse::getDate, Comparator.nullsLast(Comparator.naturalOrder()))
                 .thenComparing(RehearsalResponse::getName, Comparator.naturalOrder()));
+        return res;
+    }
+
+    /**
+     * Get all the rehearsal the user is a part of.
+     * 
+     * @param email the email of the user
+     * @return the list og all the rehearsal the user is a part of
+     */
+    public List<Rehearsal> getUserRehearsals(String email){
+        List<Rehearsal> res = new ArrayList<>();
+        User user = userService.getUser(email);
+        List<Participation> participations = participationRepository.findByUserId(user.getId());
+        for(Participation participation : participations){
+            Rehearsal rehearsal = rehearsalRepository.findById(participation.getRehearsalId()).get();
+            res.add(rehearsal);
+        }
         return res;
     }
 

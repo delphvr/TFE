@@ -125,7 +125,6 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data =
             json.decode(utf8.decode(response.bodyBytes));
-        print(data);
         setState(() {
           name = data['name'];
           description = data['description'];

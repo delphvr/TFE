@@ -1,3 +1,4 @@
+import 'package:calendar_app/calendar/calendar_list.dart';
 import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/utils.dart';
@@ -30,6 +31,29 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
     rehearsals = getPropositions(context);
   }
 
+  dynamic getRehearsal(int id) async {
+    final String url = '${dotenv.env['API_BASE_URL']}/rehearsals/$id';
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        return json.decode(utf8.decode(response.bodyBytes));
+      } else {
+        if (mounted) {
+          Utils.errorMess('Erreur lors de la récupérations de l\'agenda',
+              'Une erreur c\'est produite', context);
+        }
+        return {};
+      }
+    } catch (e) {
+      if (mounted) {
+        Utils.errorMess('Erreur lors de la récupérations de l\'agenda',
+            'Une erreur c\'est produite', context);
+      }
+      return {};
+    }
+  }
+
   Future<Map<String, Map<String, List<dynamic>>>> getPropositions(
       BuildContext context) async {
     final String url =
@@ -39,15 +63,22 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-        final List<dynamic> popositions = data.map((item) {
+        final List<dynamic> propositions =
+            await Future.wait(data.map((item) async {
+          final rehearsalData = await getRehearsal(item['rehearsalId']);
           return {
             'rehearsalId': item['rehearsalId'],
             'accepted': item['accepted'],
             'beginningDate': item['beginningDate'],
+            'name': rehearsalData['name'],
+            'date': rehearsalData['date'],
+            'time': rehearsalData['time'],
+            'duration': rehearsalData['duration'],
           };
-        }).toList();
+        }));
+
         Map<String, Map<String, List<dynamic>>> rehearsalsByMonth = {};
-        for (var rehearsal in popositions) {
+        for (var rehearsal in propositions) {
           String monthYear = getMonthYear(rehearsal['beginningDate']);
           String day = getDay(rehearsal['beginningDate']);
           if (!rehearsalsByMonth.containsKey(monthYear)) {
@@ -61,15 +92,15 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
         return rehearsalsByMonth;
       } else {
         if (context.mounted) {
-          Utils.errorMess('Erreur lors de la récupérations de la proposition',
-              'Une erreur c\'est produite', context);
+          Utils.errorMess('Erreur lors de la récupération de la proposition',
+              'Une erreur s\'est produite', context);
         }
         return {};
       }
     } catch (e) {
       if (context.mounted) {
-        Utils.errorMess('Erreur lors de la récupérations de la proposition',
-            'Une erreur c\'est produite', context);
+        Utils.errorMess('Erreur lors de la récupération de la proposition',
+            'Une erreur s\'est produite', context);
       }
       return {};
     }
@@ -93,17 +124,6 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
     return months[month - 1];
   }
 
-  String getDayName(String dateTime) {
-    DateTime date = DateTime.parse(dateTime);
-    const days = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
-    return days[date.weekday % 7];
-  }
-
-  String formatDate(String dateTime) {
-    DateTime date = DateTime.parse(dateTime);
-    return '${date.day} ${getMonthName(date.month)} ${date.year}';
-  }
-
   String getMonthYear(String dateTime) {
     DateTime date = DateTime.parse(dateTime);
     return '${getMonthName(date.month)} ${date.year}';
@@ -112,11 +132,6 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
   String getDay(String dateTime) {
     DateTime date = DateTime.parse(dateTime);
     return '${date.day}';
-  }
-
-  String formatTime(String dateTime) {
-    DateTime date = DateTime.parse(dateTime);
-    return "${date.hour}:${date.minute}";
   }
 
   void accept(Map rehearsal) async {
@@ -129,8 +144,7 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
         setState(() {
           rehearsal['accepted'] = !rehearsal['accepted'];
         });
-      }
-      else{
+      } else {
         if (mounted) {
           Utils.errorMess('Une erreur est survenue',
               'Merci de réessayer plustard', context);
@@ -150,11 +164,10 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
     try {
       final response = await http.put(Uri.parse(url));
       if (response.statusCode == 200) {
-        if(mounted){
+        if (mounted) {
           Navigator.of(context).pop();
         }
-      }
-      else {
+      } else {
         if (mounted) {
           Utils.errorMess('Une erreur est survenue',
               'Merci de réessayer plustard', context);
@@ -168,7 +181,6 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
     }
   }
 
-  //Done with the help of chatgpt
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
@@ -188,151 +200,11 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
                   ),
                 ),
                 const SizedBox(height: 25),
-                FutureBuilder<Map<String, Map<String, List<dynamic>>>>(
-                  future: rehearsals,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return const Text('Erreur de chargement');
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Text('Aucune proposition');
-                    }
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: snapshot.data!.entries.map((entry) {
-                        String monthYear = entry.key;
-                        Map<String, List<dynamic>> daysMap = entry.value;
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text(
-                                monthYear,
-                                style: const TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            ...daysMap.entries.map((dayEntry) {
-                              String day = dayEntry.key;
-                              List<dynamic> reherasalsList = dayEntry.value;
-
-                              // Sort rehearsals by beginningDate
-                              reherasalsList.sort((a, b) =>
-                                  DateTime.parse(a['beginningDate']).compareTo(
-                                      DateTime.parse(b['beginningDate'])));
-
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 6.0),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Column(
-                                      children: [
-                                        Container(
-                                          width: 50,
-                                          alignment: Alignment.center,
-                                          margin:
-                                              const EdgeInsets.only(top: 12),
-                                          child: Column(
-                                            children: [
-                                              Text(
-                                                getDayName(reherasalsList
-                                                    .first['beginningDate']),
-                                                style: const TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              Text(
-                                                day,
-                                                style: const TextStyle(
-                                                    fontSize: 19,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(width: 12),
-
-                                    // List of rehearsals for the day
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children:
-                                            reherasalsList.map((rehearsal) {
-                                          return Container(
-                                            width: 500,
-                                            margin: const EdgeInsets.only(
-                                                bottom: 8),
-                                            padding: const EdgeInsets.all(12),
-                                            decoration: BoxDecoration(
-                                              color: rehearsal['accepted']
-                                                  ? Colors.green[200]
-                                                  : const Color.fromARGB(
-                                                      255, 254, 179, 198),
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    //TODO actualy get the rehearsal name and duration and make the widget clikable to see the detail of the rehearsal
-                                                    Text(
-                                                      "Répétition ${rehearsal['rehearsalId']}",
-                                                      style: const TextStyle(
-                                                          fontSize: 18),
-                                                    ),
-                                                    Text(
-                                                      "${formatTime(rehearsal['beginningDate'])} - ${formatTime(DateTime.parse(rehearsal['beginningDate']).add(const Duration(hours: 1)).toString())}",
-                                                      style: const TextStyle(
-                                                          fontSize: 14,
-                                                          fontStyle:
-                                                              FontStyle.italic),
-                                                    ),
-                                                  ],
-                                                ),
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    accept(rehearsal);
-                                                  },
-                                                  child: Icon(
-                                                    rehearsal['accepted']
-                                                        ? Icons.close
-                                                        : Icons.check,
-                                                    size: 30,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
-                          ],
-                        );
-                      }).toList(),
-                    );
-                  },
+                CalendarList(
+                  projectId: widget.projectId,
+                  rehearsals: rehearsals,
+                  accept: accept,
+                  isCalendar: false,
                 ),
                 const SizedBox(height: 25),
                 ButtonCustom(

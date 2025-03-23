@@ -73,6 +73,23 @@ class Utils {
   }
 
   //Done with chatgpt
+  static Duration parseDuration(String duration) {
+    final regex = RegExp(r'PT(\d+H)?(\d+M)?');
+    final match = regex.firstMatch(duration);
+    int hours = 0;
+    int minutes = 0;
+    if (match != null) {
+      if (match.group(1) != null) {
+        hours = int.parse(match.group(1)!.replaceAll('H', ''));
+      }
+      if (match.group(2) != null) {
+        minutes = int.parse(match.group(2)!.replaceAll('M', ''));
+      }
+    }
+    return Duration(hours: hours, minutes: minutes);
+  }
+
+  //Done with chatgpt
   static String formatDuration(String duration) {
     final regex = RegExp(r'PT(?:(\d+)H)?(?:(\d+)M)?');
     final match = regex.firstMatch(duration);
@@ -140,7 +157,6 @@ class Utils {
       TextEditingController controller,
       TimeOfDay? selectedTime,
       Function(TimeOfDay) onTimeSelected) async {
-
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: selectedTime ?? TimeOfDay.now(),
@@ -164,5 +180,5 @@ class Utils {
     }
     return time;
   }
-
+  
 }
