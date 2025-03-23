@@ -191,54 +191,72 @@ class _AddRehearsal extends State<AddRehearsal> {
                 const SizedBox(height: 20),
                 SizedBox(
                   width: 250,
-                  child: GestureDetector(
+                  child: TextField(
+                    controller: dateController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: 'Date',
+                      fillColor: const Color(0xFFF2F2F2),
+                      filled: true,
+                      prefixIcon: const Icon(Icons.calendar_today),
+                      suffixIcon: dateController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                setState(() {
+                                  _selectedDate = null;
+                                  dateController.clear();
+                                });
+                              },
+                            )
+                          : null,
+                    ),
                     onTap: () => Utils.selectDate(
-                        context, dateController, _selectedDate, (pickedDate) {
-                      setState(() {
-                        _selectedDate = pickedDate;
-                      });
-                    }),
-                    child: AbsorbPointer(
-                      child: TextField(
-                        controller: dateController,
-                        readOnly: true,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Date',
-                          fillColor: Color(0xFFF2F2F2),
-                          filled: true,
-                          prefixIcon: Icon(Icons.calendar_today),
-                        ),
-                      ),
+                      context,
+                      dateController,
+                      _selectedDate,
+                      (pickedDate) {
+                        setState(() {
+                          _selectedDate = pickedDate;
+                        });
+                      },
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
                   width: 250,
-                  child: GestureDetector(
+                  child: TextField(
+                    controller: timeController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: 'Heure',
+                      fillColor: const Color(0xFFF2F2F2),
+                      filled: true,
+                      prefixIcon: const Icon(Icons.access_time),
+                      suffixIcon: timeController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                setState(() {
+                                  _selectedTime = null;
+                                  timeController.clear();
+                                });
+                              },
+                            )
+                          : null,
+                    ),
                     onTap: () => Utils.selectTime(
                       context,
-                      timeController, 
+                      timeController,
                       _selectedTime,
                       (TimeOfDay time) {
                         setState(() {
                           _selectedTime = time;
                         });
                       },
-                    ), // Add onTap for TimePicker
-                    child: AbsorbPointer(
-                      child: TextField(
-                        controller: timeController,
-                        readOnly: true,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Heure',
-                          fillColor: Color(0xFFF2F2F2),
-                          filled: true,
-                          prefixIcon: Icon(Icons.access_time),
-                        ),
-                      ),
                     ),
                   ),
                 ),

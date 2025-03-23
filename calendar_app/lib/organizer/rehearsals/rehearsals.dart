@@ -68,82 +68,79 @@ class _RehearsalPage extends State<RehearsalPage> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-        body: Align(
-            alignment: Alignment.topCenter,
-            child: Column(
-              children: [
-                Text(
-                  "Répétitions du projet ${widget.projectName}",
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 27,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Text(
+              "Répétitions du projet ${widget.projectName}",
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 27,
+              ),
+            ),
+            const SizedBox(height: 25),
+            ButtonCustom(
+              text: 'Ajouter une répétition',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddRehearsal(
+                      projectId: widget.projectId,
+                      projectName: widget.projectName,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 25),
-                ButtonCustom(
-                  text: 'Ajouter une répétition',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AddRehearsal(
-                          projectId: widget.projectId,
-                          projectName: widget.projectName,
-                        ),
-                      ),
-                    ).then((_) {
-                      setState(() {
-                        rehearsals = getRehearsals(context);
-                      });
-                    });
-                  },
-                ),
-                const SizedBox(height: 25),
-                Flexible(
-                  child: FutureBuilder<List>(
-                    future: rehearsals,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Center(
-                          child: Text("Erreur: ${snapshot.error}"),
-                        );
-                      } else if (snapshot.hasData) {
-                        final rehearsals = snapshot.data!;
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: rehearsals.length,
-                          itemBuilder: (context, index) {
-                            return RehearsalElement(
-                              rehearsalId: rehearsals[index]['id'],
-                              name: rehearsals[index]['name'],
-                              description: rehearsals[index]['description'],
-                              date: Utils.formatDateString(
-                                  rehearsals[index]['date']),
-                              time: rehearsals[index]['time'],
-                              duration: rehearsals[index]['duration'],
-                              projectId: rehearsals[index]['projectId'],
-                              participantsIds: rehearsals[index]
-                                  ['participantsIds'],
-                              organizerPage: true,
-                              onUpdate: refreshRehearsals,
-                            );
-                          },
-                        );
-                      } else {
-                        return const Center(
-                          child: Text('Aucune répétition trouvé'),
-                        );
-                      }
+                ).then((_) {
+                  setState(() {
+                    rehearsals = getRehearsals(context);
+                  });
+                });
+              },
+            ),
+            const SizedBox(height: 25),
+            FutureBuilder<List>(
+              future: rehearsals,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text("Erreur: ${snapshot.error}"),
+                  );
+                } else if (snapshot.hasData) {
+                  final rehearsals = snapshot.data!;
+                  return ListView.builder(
+                    shrinkWrap: true, 
+                    physics: const ClampingScrollPhysics(),
+                    itemCount: rehearsals.length,
+                    itemBuilder: (context, index) {
+                      return RehearsalElement(
+                        rehearsalId: rehearsals[index]['id'],
+                        name: rehearsals[index]['name'],
+                        description: rehearsals[index]['description'],
+                        date: Utils.formatDateString(rehearsals[index]['date']),
+                        time: rehearsals[index]['time'],
+                        duration: rehearsals[index]['duration'],
+                        projectId: rehearsals[index]['projectId'],
+                        participantsIds: rehearsals[index]['participantsIds'],
+                        organizerPage: true,
+                        onUpdate: refreshRehearsals,
+                      );
                     },
-                  ),
-                ),
-              ],
-            )),
-        selectedIndex: 1);
+                  );
+                } else {
+                  return const Center(
+                    child: Text('Aucune répétition trouvée'),
+                  );
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+      selectedIndex: 1,
+    );
   }
 }

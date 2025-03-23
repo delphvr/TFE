@@ -1,3 +1,4 @@
+import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -118,8 +119,53 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
     return "${date.hour}:${date.minute}";
   }
 
-  void accept(int id){
-    //TODO
+  void accept(Map rehearsal) async {
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/rehearsals/${rehearsal['rehearsalId']}/accepted?accepted=${!rehearsal['accepted']}';
+    try {
+      final response = await http.patch(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        setState(() {
+          rehearsal['accepted'] = !rehearsal['accepted'];
+        });
+      }
+      else{
+        if (mounted) {
+          Utils.errorMess('Une erreur est survenue',
+              'Merci de réessayer plustard', context);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Utils.errorMess(
+            'Une erreur est survenue', 'Merci de réessayer plustard', context);
+      }
+    }
+  }
+
+  void acceptAll() async {
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/calendarCP/accept';
+    try {
+      final response = await http.put(Uri.parse(url));
+      if (response.statusCode == 200) {
+        if(mounted){
+          Navigator.of(context).pop();
+        }
+      }
+      else {
+        if (mounted) {
+          Utils.errorMess('Une erreur est survenue',
+              'Merci de réessayer plustard', context);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Utils.errorMess(
+            'Une erreur est survenue', 'Merci de réessayer plustard', context);
+      }
+    }
   }
 
   //Done with the help of chatgpt
@@ -175,7 +221,7 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
                               String day = dayEntry.key;
                               List<dynamic> reherasalsList = dayEntry.value;
 
-                              // Sort events by beginningDate
+                              // Sort rehearsals by beginningDate
                               reherasalsList.sort((a, b) =>
                                   DateTime.parse(a['beginningDate']).compareTo(
                                       DateTime.parse(b['beginningDate'])));
@@ -222,7 +268,8 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        children: reherasalsList.map((rehearsal) {
+                                        children:
+                                            reherasalsList.map((rehearsal) {
                                           return Container(
                                             width: 500,
                                             margin: const EdgeInsets.only(
@@ -237,7 +284,9 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
                                                   BorderRadius.circular(12),
                                             ),
                                             child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Column(
                                                   crossAxisAlignment:
@@ -260,10 +309,12 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
                                                 ),
                                                 GestureDetector(
                                                   onTap: () {
-                                                    accept(rehearsal['rehearsalId']);
+                                                    accept(rehearsal);
                                                   },
                                                   child: Icon(
-                                                    rehearsal['accepted'] ? Icons.close : Icons.check,
+                                                    rehearsal['accepted']
+                                                        ? Icons.close
+                                                        : Icons.check,
                                                     size: 30,
                                                   ),
                                                 ),
@@ -283,6 +334,23 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
                     );
                   },
                 ),
+                const SizedBox(height: 25),
+                ButtonCustom(
+                  text: 'Tout valider',
+                  onTap: () {
+                    acceptAll();
+                  },
+                ),
+                const SizedBox(height: 25),
+                ButtonCustom(
+                  text: 'Recalculer',
+                  onTap: () {
+                    setState(() {
+                      rehearsals = getPropositions(context);
+                    });
+                  },
+                ),
+                const SizedBox(height: 25),
               ],
             ),
           ),

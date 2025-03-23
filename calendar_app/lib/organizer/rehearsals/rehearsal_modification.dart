@@ -240,57 +240,75 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
                   const SizedBox(height: 20),
                   SizedBox(
                     width: 250,
-                    child: GestureDetector(
+                    child: TextField(
+                      controller: dateController,
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: 'Date',
+                        fillColor: const Color(0xFFF2F2F2),
+                        filled: true,
+                        prefixIcon: const Icon(Icons.calendar_today),
+                        suffixIcon: dateController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    selectedDate = null;
+                                    dateController.clear();
+                                  });
+                                },
+                              )
+                            : null,
+                      ),
                       onTap: () => Utils.selectDate(
-                          context, dateController, selectedDate, (pickedDate) {
-                        setState(() {
-                          selectedDate = pickedDate;
-                        });
-                      }),
-                      child: AbsorbPointer(
-                        child: TextField(
-                          controller: dateController,
-                          readOnly: true,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Date',
-                            fillColor: Color(0xFFF2F2F2),
-                            filled: true,
-                            prefixIcon: Icon(Icons.calendar_today),
-                          ),
-                        ),
+                        context,
+                        dateController,
+                        selectedDate,
+                        (pickedDate) {
+                          setState(() {
+                            selectedDate = pickedDate;
+                          });
+                        },
                       ),
                     ),
                   ),
                   const SizedBox(height: 20),
-                SizedBox(
-                  width: 250,
-                  child: GestureDetector(
-                    onTap: () => Utils.selectTime(
-                      context,
-                      timeController, 
-                      _selectedTime,
-                      (TimeOfDay time) {
-                        setState(() {
-                          _selectedTime = time;
-                        });
-                      },
-                    ), // Add onTap for TimePicker
-                    child: AbsorbPointer(
-                      child: TextField(
-                        controller: timeController,
-                        readOnly: true,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Heure',
-                          fillColor: Color(0xFFF2F2F2),
-                          filled: true,
-                          prefixIcon: Icon(Icons.access_time),
-                        ),
+                  SizedBox(
+                    width: 250,
+                    child: TextField(
+                      controller: timeController,
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: 'Heure',
+                        fillColor: const Color(0xFFF2F2F2),
+                        filled: true,
+                        prefixIcon: const Icon(Icons.access_time),
+                        suffixIcon: timeController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedTime = null;
+                                    timeController.clear();
+                                  });
+                                },
+                              )
+                            : null,
+                      ),
+                      onTap: () => Utils.selectTime(
+                        context,
+                        timeController,
+                        _selectedTime,
+                        (TimeOfDay time) {
+                          setState(() {
+                            _selectedTime = time;
+                          });
+                        },
                       ),
                     ),
                   ),
-                ),
                   const SizedBox(height: 20),
                   SizedBox(
                     width: 250,
