@@ -191,7 +191,7 @@ class _CalendarListState extends State<CalendarList> {
                                         Text(
                                           widget.isCalendar
                                               ? "${Utils.formatTimeString(rehearsal['time'])} - ${getEndTime(rehearsal['time'], rehearsal['duration'])}"
-                                              : "${formatTime(rehearsal['beginningDate'])} - ${formatTime(DateTime.parse(rehearsal['beginningDate']).add(const Duration(hours: 1)).toString())}",
+                                              : "${formatTime(rehearsal['beginningDate'])} - ${formatTime(DateTime.parse(rehearsal['beginningDate']).add(Utils.parseDuration(rehearsal['duration'])).toString())}",
                                           style: const TextStyle(
                                             fontSize: 14,
                                             fontStyle: FontStyle.italic,
