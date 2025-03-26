@@ -74,4 +74,12 @@ public class WeeklyAvailability {
         this.endTime = endTime;
     }
 
+    public int getWeekday() {
+        return weekday;
+    }
+
+    public void setWeekday(int weekday) {
+        this.weekday = weekday;
+    }
+
 }
