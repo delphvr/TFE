@@ -44,10 +44,11 @@ public class WeeklyAvailability {
     public WeeklyAvailability() {
     }
 
-    public WeeklyAvailability(Long userId, LocalTime stratTime, LocalTime endTime) {
+    public WeeklyAvailability(Long userId, LocalTime stratTime, LocalTime endTime, int weekday) {
         this.userId = userId;
         this.startTime = stratTime;
         this.endTime = endTime;
+        this.weekday = weekday;
     }
 
     public Long getUserId() {

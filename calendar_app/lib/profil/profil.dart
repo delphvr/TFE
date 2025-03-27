@@ -2,6 +2,7 @@ import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/main.dart';
 import 'package:calendar_app/organizer/roles/role_and_participant_element.dart';
+import 'package:calendar_app/disponibilities/disponibilities.dart';
 import 'package:calendar_app/profil/profil_modification.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -234,6 +235,17 @@ class _ProfilPageSate extends State<ProfilPage> {
                   }
                 }
               },
+            ),
+            const SizedBox(height: 15),
+            ButtonCustom(
+              text: 'Gérer mes disponibilité',
+              onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const DisponibilitiesPage()),
+                        );
+                      },
             ),
             const SizedBox(height: 15),
             ButtonCustom(

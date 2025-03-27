@@ -1,5 +1,6 @@
 package calendarapp.services;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Service;
 import calendarapp.model.User;
 import calendarapp.model.WeeklyAvailability;
 import calendarapp.repository.WeeklyAvailabilityRepository;
+import calendarapp.request.CreateWeeklyAvailabilityRequest;
+import jakarta.transaction.Transactional;
 
 @Service
 public class WeeklyAvailabilityService {
@@ -35,22 +38,27 @@ public class WeeklyAvailabilityService {
     }
 
     /**
-     * Save the availability of a user is the database.
+     * Save the given availabilities of a user is the database.
      * 
-     * @param availability the availability to save in the database
-     * @return the saved availability
+     * @param availabilities the availability to save in the database (user email, start time, end time and the weekdays it corresponds to)
+     * @return the saved availabilities
      * @throws IllegalArgumentException if no user found with the given id,
      *                                  or if the availability overlap with an
      *                                  existing availability in the database for
      *                                  that user
      */
-    public WeeklyAvailability createAvailability(WeeklyAvailability availability) {
-        userService.isUser(availability.getUserId());
-        WeeklyAvailability res = weeklyAvailabilityRepository.save(availability);
-        if (isOverlapping(availability)) {
-            throw new IllegalArgumentException("Availabilities cannot overlap"); // TODO to catch in front end so do not
-                                                                                 // compute twice
-        }
+    @Transactional
+    public List<WeeklyAvailability> createAvailability(CreateWeeklyAvailabilityRequest availabilities) {
+        System.out.println(availabilities.getEmail());
+        User user = userService.getUser(availabilities.getEmail());
+        List<WeeklyAvailability> res = new ArrayList<>();
+        for (Integer weekday : availabilities.getWeekdays()){
+            WeeklyAvailability weeklyAvailability = new WeeklyAvailability(user.getId(), availabilities.getStartTime(), availabilities.getEndTime(), weekday);
+            if (isOverlapping(weeklyAvailability)) {
+                throw new IllegalArgumentException("Availabilities cannot overlap");
+            }
+            weeklyAvailabilityRepository.save(weeklyAvailability);
+        }        
         return res;
     }
 
@@ -63,5 +71,17 @@ public class WeeklyAvailabilityService {
     public List<WeeklyAvailability> getUserAvailabilities(String email){
         User user = userService.getUser(email);
         return weeklyAvailabilityRepository.findByUserId(user.getId());
+    }
+
+    /**
+     * Delete an weekly avaialbility from the database.
+     * 
+     * @param availability the availability to delete
+     * @throws IllegalArgumentException if no user found with the given id
+     */
+    @Transactional
+    public void deleteWeeklyAvailability(WeeklyAvailability availability){
+        userService.isUser(availability.getUserId());
+        weeklyAvailabilityRepository.delete(availability);
     }
 }

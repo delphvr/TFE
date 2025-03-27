@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import calendarapp.model.User;
 import calendarapp.model.Vacation;
 import calendarapp.repository.VacationRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class VacationService {
@@ -40,5 +41,17 @@ public class VacationService {
         userService.isUser(vacation.getUserId());
         Vacation res = vacationRepository.save(vacation);
         return res;
+    }
+
+    /**
+     * Delete a given vacation from the database.
+     * 
+     * @param vacation the vacation to delete
+     * @throws IllegalArgumentException if no user found with the given id
+     */
+    @Transactional
+    public void deleteVacation(Vacation vacation){
+        userService.isUser(vacation.getUserId());
+        vacationRepository.delete(vacation);
     }
 }
