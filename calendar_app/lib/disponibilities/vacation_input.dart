@@ -1,4 +1,3 @@
-import 'package:calendar_app/components/bottom_sheet_selector.dart';
 import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/utils.dart';
@@ -8,59 +7,59 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class NewDisponibilitiesPage extends StatefulWidget {
+class NewVacationsPage extends StatefulWidget {
   final Function onpop;
-  const NewDisponibilitiesPage({
+  const NewVacationsPage({
     super.key,
     required this.onpop,
   });
 
   @override
-  State<NewDisponibilitiesPage> createState() => _NewDisponibilitiesPageSate();
+  State<NewVacationsPage> createState() => _NewVacationsPageSate();
 }
 
-class _NewDisponibilitiesPageSate extends State<NewDisponibilitiesPage> {
+class _NewVacationsPageSate extends State<NewVacationsPage> {
   final user = FirebaseAuth.instance.currentUser!;
-  final String errorTitle = 'Erreur lors de l\'ajout des disponibilités';
+  final String errorTitle = 'Erreur lors de l\'ajout des vacances';
 
-  final startTimeController = TextEditingController();
-  final endTimeController = TextEditingController();
-  List<String> selectedDays = [];
-  TimeOfDay? selectedStartTime;
-  TimeOfDay? selectedEndTime;
+  final startDateController = TextEditingController();
+  final endDateController = TextEditingController();
+  DateTime? selectedStartDate;
+  DateTime? selectedEndDate;
 
   void save(BuildContext context) async {
     final email = user.email;
-    final startTime = startTimeController.text;
-    final endTime = endTimeController.text;
+    final startDate = Utils.formatDateTime(selectedStartDate);
+    final endDate = Utils.formatDateTime(selectedEndDate);
 
-    if (startTime.isEmpty || endTime.isEmpty || selectedDays.isEmpty) {
+    if (startDate.isEmpty || endDate.isEmpty) {
       Utils.errorMess(errorTitle, 'Merci de remplir tout les champs', context);
       return;
     }
 
-    Map<String, int> weekdays = {
-      "Lundi": 0,
-      "Mardi": 1,
-      "Mercredi": 2,
-      "Jeudi": 3,
-      "Vendredi": 4,
-      "Samedi": 5,
-      "Dimanche": 6
-    };
-
-    List<int> weekdaysSelected = [];
-    for (String day in selectedDays) {
-      weekdaysSelected.add(weekdays[day]!);
+    DateTime endDatetime = DateTime.parse(endDate);
+    DateTime today = DateTime.now();
+    DateTime todayWithoutTime = DateTime(today.year, today.month, today.day);
+    if (todayWithoutTime.isAfter(endDatetime)) {
+      Utils.errorMess(errorTitle,
+          'La date de fin ne peut pas avoir lieu dans le passé.', context);
+      return;
     }
 
-    final String url = '${dotenv.env['API_BASE_URL']}/availabilities';
+    if (DateTime.parse(startDate).isAfter(DateTime.parse(endDate))) {
+      Utils.errorMess(
+          errorTitle,
+          'La date de fin ne peut pas avoir lieu avant la date de début.',
+          context);
+      return;
+    }
+
+    final String url = '${dotenv.env['API_BASE_URL']}/vacations';
 
     final Map<String, dynamic> requestBody = {
       "email": email,
-      "startTime": startTime,
-      "endTime": endTime,
-      "weekdays": weekdaysSelected,
+      "startDate": startDate,
+      "endDate": endDate,
     };
     try {
       final response = await http.post(
@@ -74,19 +73,11 @@ class _NewDisponibilitiesPageSate extends State<NewDisponibilitiesPage> {
         if (context.mounted) {
           Navigator.pop(context);
         }
-      } else if (response.statusCode == 400){
+      } else {
         if (context.mounted) {
           Utils.errorMess(
               errorTitle,
-              'Les disponibilités ne peuvent pas se supperposer.',
-              context);
-        }
-      } 
-      else {
-        if (context.mounted) {
-          Utils.errorMess(
-              errorTitle,
-              'Erreur lors de la modification. Merci de réessayez plus tard.',
+              'Erreur lors de l\'ajout. Merci de réessayez plus tard.',
               context);
         }
       }
@@ -117,33 +108,33 @@ class _NewDisponibilitiesPageSate extends State<NewDisponibilitiesPage> {
                 SizedBox(
                   width: 250,
                   child: TextField(
-                    controller: startTimeController,
+                    controller: startDateController,
                     readOnly: true,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
-                      labelText: 'Heure de début*',
+                      labelText: 'Date de début*',
                       fillColor: const Color(0xFFF2F2F2),
                       filled: true,
-                      prefixIcon: const Icon(Icons.access_time),
-                      suffixIcon: startTimeController.text.isNotEmpty
+                      prefixIcon: const Icon(Icons.calendar_today),
+                      suffixIcon: startDateController.text.isNotEmpty
                           ? IconButton(
                               icon: const Icon(Icons.clear),
                               onPressed: () {
                                 setState(() {
-                                  selectedStartTime = null;
-                                  startTimeController.clear();
+                                  selectedStartDate = null;
+                                  startDateController.clear();
                                 });
                               },
                             )
                           : null,
                     ),
-                    onTap: () => Utils.selectTime(
+                    onTap: () => Utils.selectDate(
                       context,
-                      startTimeController,
-                      selectedStartTime,
-                      (TimeOfDay time) {
+                      startDateController,
+                      selectedStartDate,
+                      (pickedDate) {
                         setState(() {
-                          selectedStartTime = time;
+                          selectedStartDate = pickedDate;
                         });
                       },
                     ),
@@ -153,59 +144,37 @@ class _NewDisponibilitiesPageSate extends State<NewDisponibilitiesPage> {
                 SizedBox(
                   width: 250,
                   child: TextField(
-                    controller: endTimeController,
+                    controller: endDateController,
                     readOnly: true,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
-                      labelText: 'Heure de fin*',
+                      labelText: 'Date de fin*',
                       fillColor: const Color(0xFFF2F2F2),
                       filled: true,
-                      prefixIcon: const Icon(Icons.access_time),
-                      suffixIcon: endTimeController.text.isNotEmpty
+                      prefixIcon: const Icon(Icons.calendar_today),
+                      suffixIcon: endDateController.text.isNotEmpty
                           ? IconButton(
                               icon: const Icon(Icons.clear),
                               onPressed: () {
                                 setState(() {
-                                  selectedEndTime = null;
-                                  endTimeController.clear();
+                                  selectedEndDate = null;
+                                  endDateController.clear();
                                 });
                               },
                             )
                           : null,
                     ),
-                    onTap: () => Utils.selectTime(
+                    onTap: () => Utils.selectDate(
                       context,
-                      endTimeController,
-                      selectedEndTime,
-                      (TimeOfDay time) {
+                      endDateController,
+                      selectedEndDate,
+                      (pickedDate) {
                         setState(() {
-                          selectedEndTime = time;
+                          selectedEndDate = pickedDate;
                         });
                       },
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                BottomSheetSelector<String>(
-                  items: const [
-                    "Lundi",
-                    "Mardi",
-                    "Mercredi",
-                    "Jeudi",
-                    "Vendredi",
-                    "Samedi",
-                    "Dimanche"
-                  ],
-                  selectedItems: selectedDays,
-                  onSelectionChanged: (selectedList) {
-                    setState(() {
-                      selectedDays = selectedList;
-                    });
-                  },
-                  title: "Sélectionnez le/les jour(s)*",
-                  buttonLabel: "Valider",
-                  itemLabel: (day) => day,
-                  textfield: "Jours",
                 ),
                 const SizedBox(height: 20),
                 ButtonCustom(

@@ -7,14 +7,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import calendarapp.model.Vacation;
+import calendarapp.request.CreateVacationRequest;
 import calendarapp.services.VacationService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
@@ -33,8 +35,8 @@ public class VacationController {
     }
 
     @Operation(summary = "Add a vacations to the database")
-    @GetMapping("/vacations")
-    public ResponseEntity<Vacation> createVacation(@RequestBody Vacation vacation) {
+    @PostMapping("/vacations")
+    public ResponseEntity<Vacation> createVacation(@RequestBody CreateVacationRequest vacation) {
         Vacation res = vacationService.createVacation(vacation);
         return new ResponseEntity<>(res, HttpStatus.CREATED);
     }

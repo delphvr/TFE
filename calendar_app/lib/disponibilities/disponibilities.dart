@@ -1,6 +1,7 @@
 import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/disponibilities/new_disponibilities.dart';
+import 'package:calendar_app/disponibilities/vacation_input.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -20,11 +21,13 @@ class DisponibilitiesPage extends StatefulWidget {
 class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
   final user = FirebaseAuth.instance.currentUser!;
   late Future<Map<String, List<dynamic>>>? weeklyAvailabilities;
+  late Future<List<dynamic>>? vacations;
 
   @override
   void initState() {
     super.initState();
     weeklyAvailabilities = getUserWeeklyAvailabilities(context);
+    vacations = getUserVacations(context);
   }
 
   Future<Map<String, List<dynamic>>> getUserWeeklyAvailabilities(
@@ -100,7 +103,40 @@ class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
     }
   }
 
-  void delete(disponibility) async {
+  Future<List<dynamic>> getUserVacations(BuildContext context) async {
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/users/vacations?email=${user.email!}';
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        final List<dynamic> vacations = data.map((item) {
+          return {
+            'userId': item['userId'],
+            'startDate': item['startDate'],
+            'endDate': item['endDate'],
+          };
+        }).toList();
+
+        return vacations;
+      } else {
+        if (context.mounted) {
+          Utils.errorMess('Erreur lors de la récupération des vacances',
+              'Une erreur s\'est produite', context);
+        }
+        return [];
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Utils.errorMess('Erreur lors de la récupération des vacances',
+            'Une erreur s\'est produite', context);
+      }
+      return [];
+    }
+  }
+
+  void deleteDisponibility(disponibility) async {
     try {
       final String url = '${dotenv.env['API_BASE_URL']}/availabilities';
       final response = await http.delete(
@@ -114,6 +150,35 @@ class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
       if (response.statusCode == 204) {
         setState(() {
           weeklyAvailabilities = getUserWeeklyAvailabilities(context);
+        });
+      } else {
+        if (mounted) {
+          Utils.errorMess('Une erreur est survenue',
+              'Merci de réessayer plus tard.', context);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Utils.errorMess('Une erreur est survenue',
+            'Merci de réessayer plus tard.', context);
+      }
+    }
+  }
+
+  void deleteVacations(vacation) async {
+    try {
+      final String url = '${dotenv.env['API_BASE_URL']}/vacations';
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(vacation),
+      );
+
+      if (response.statusCode == 204) {
+        setState(() {
+          vacations = getUserVacations(context);
         });
       } else {
         if (mounted) {
@@ -214,10 +279,10 @@ class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
                                           ),
                                           GestureDetector(
                                             onTap: () {
-                                              delete(disponibility);
+                                              deleteDisponibility(disponibility);
                                             },
                                             child: const Icon(Icons.close,
-                                                size: 30),
+                                                size: 25),
                                           )
                                         ],
                                       ),
@@ -244,6 +309,70 @@ class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
                                 setState(() {
                                   weeklyAvailabilities =
                                       getUserWeeklyAvailabilities(context);
+                                });
+                              })),
+                    );
+                  },
+                ),
+                const SizedBox(height: 25),
+                const Text(
+                  'Mes vacances',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 26,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                FutureBuilder<List<dynamic>>(
+                  future: vacations,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Text('Aucune vacance encodée');
+                    }
+
+                    return Column(
+                      children: snapshot.data!.map((vacation) {
+                        return Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF2F2F2),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Du ${Utils.formatDateString(vacation['startDate'])} au ${Utils.formatDateString(vacation['endDate'])}",
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  deleteVacations(vacation);
+                                },
+                                child: const Icon(Icons.close, size: 25),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+                const SizedBox(height: 25),
+                ButtonCustom(
+                  text: "Ajouter des vacances",
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => NewVacationsPage(onpop: () {
+                                setState(() {
+                                  vacations = getUserVacations(context);
                                 });
                               })),
                     );
