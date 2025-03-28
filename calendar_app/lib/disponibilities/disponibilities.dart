@@ -62,7 +62,24 @@ class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
           }
           availabilitiesByDay[weekday]?.add(disponibility);
         }
-        return availabilitiesByDay;
+        List<String> weekdaysOrder = [
+          "Lundi",
+          "Mardi",
+          "Mercredi",
+          "Jeudi",
+          "Vendredi",
+          "Samedi",
+          "Dimanche"
+        ];
+
+        Map<String, List<dynamic>> sortedAvailabilitiesByDay = {
+          for (String day in weekdaysOrder)
+            if (availabilitiesByDay.containsKey(day))
+              day: (availabilitiesByDay[day]!
+                ..sort((a, b) => a['startTime'].compareTo(b['startTime'])))
+        };
+
+        return sortedAvailabilitiesByDay;
       } else {
         if (context.mounted) {
           Utils.errorMess(
@@ -147,8 +164,6 @@ class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
                       children: snapshot.data!.entries.map((entry) {
                         String weekDay = entry.key;
                         List<dynamic> disponibilities = entry.value;
-                        disponibilities.sort(
-                            (a, b) => a['startTime'].compareTo(b['startTime']));
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,14 +239,17 @@ class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const NewDisponibilitiesPage()),
-                    ).then((_) {
-                      setState(() {
-                        weeklyAvailabilities = getUserWeeklyAvailabilities(context);
-                      });
-                    });
+                          builder: (context) =>
+                              NewDisponibilitiesPage(onpop: () {
+                                setState(() {
+                                  weeklyAvailabilities =
+                                      getUserWeeklyAvailabilities(context);
+                                });
+                              })),
+                    );
                   },
-                )
+                ),
+                const SizedBox(height: 25),
               ],
             ),
           ),

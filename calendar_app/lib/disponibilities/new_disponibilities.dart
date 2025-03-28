@@ -9,8 +9,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class NewDisponibilitiesPage extends StatefulWidget {
+  final Function onpop;
   const NewDisponibilitiesPage({
     super.key,
+    required this.onpop,
   });
 
   @override
@@ -69,6 +71,7 @@ class _NewDisponibilitiesPageSate extends State<NewDisponibilitiesPage> {
       );
 
       if (response.statusCode == 201) {
+        widget.onpop();
         if (context.mounted) {
           Navigator.pop(context);
         }
