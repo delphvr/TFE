@@ -206,8 +206,8 @@ class _CalendarListState extends State<CalendarList> {
                                             },
                                             child: Icon(
                                               rehearsal['accepted']
-                                                  ? Icons.close
-                                                  : Icons.check,
+                                                  ? Icons.check
+                                                  : Icons.close,
                                               size: 30,
                                             ),
                                           )

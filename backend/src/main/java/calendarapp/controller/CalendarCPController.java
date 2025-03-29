@@ -30,8 +30,9 @@ public class CalendarCPController {
 
 	@Operation(summary = "Run the cp and get the resulting calendar")
 	@GetMapping("/projects/{id}/calendarCP")
-	public ResponseEntity<List<CpResult>> runCalendarCP(@PathVariable("id") long id) {
-		List<CpResult> res = calendarCP.run(id);
+	public ResponseEntity<List<CpResult>> runCalendarCP(@PathVariable("id") long id,
+			@RequestParam(value = "recompute", defaultValue = "false") boolean recompute) {
+		List<CpResult> res = calendarCP.run(id, recompute);
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 

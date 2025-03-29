@@ -252,10 +252,15 @@ public class CalendarCPService {
         return rehearsalDateTime;
     }
 
-    public List<CpResult> run(Long projectId) {
+    public List<CpResult> run(Long projectId, boolean recompute) {
         Project project = projectService.getProject(projectId);
 
-        Map<Long, LocalDateTime> rehearsalNotPossible = cpResultService.checkPreviousResult(projectId);
+        Map<Long, LocalDateTime> rehearsalNotPossible = new HashMap<>();
+        if (recompute) {
+            System.out.println("here");
+            rehearsalNotPossible = cpResultService.checkPreviousResult(projectId);
+            System.out.println("here" + rehearsalNotPossible);
+        }
 
         Loader.loadNativeLibraries();
 
@@ -281,18 +286,24 @@ public class CalendarCPService {
             model.addNoOverlap(intervalsList);
         }
         // 2. cannot happend at a dateTime previously rejected
-        rehearsalNotPossible.forEach((id, dateTime) -> {
-            if (allRehearsalsToConstraint.containsKey(id)) {
-                RehearsalVariables rehearsalVariables = rehearsalsVariables.get(id);
-                Rehearsal rehearsal = allRehearsals.get(id);
-                Long start = getDateTimeValue(project, dateTime);
-                Long end = start + rehearsal.duration;
-                IntVar intervalStart = model.newIntVar(start, start, "not_start_rehearsal_" + rehearsal.id);
-                IntVar intervalEnd = model.newIntVar(end, end, "not_end_rehearsal_" + rehearsal.id);
-                model.newIntervalVar(intervalStart, rehearsalVariables.duration, intervalEnd,
-                        "not_interval_rehearsal_" + rehearsal.id);
-            }
-        });
+        if (recompute) {
+            rehearsalNotPossible.forEach((id, dateTime) -> {
+                if (allRehearsalsToConstraint.containsKey(id)) {
+                    RehearsalVariables rehearsalVariables = rehearsalsVariables.get(id);
+                    Rehearsal rehearsal = allRehearsals.get(id);
+                    Long start = getDateTimeValue(project, dateTime);
+                    Long end = start + rehearsal.duration;
+                    IntVar intervalStart = model.newIntVar(start, start, "not_start_rehearsal_" + rehearsal.id);
+                    IntVar intervalEnd = model.newIntVar(end, end, "not_end_rehearsal_" + rehearsal.id);
+                    IntervalVar intervalVar =  model.newIntervalVar(intervalStart, rehearsalVariables.duration, intervalEnd,
+                            "not_interval_rehearsal_" + rehearsal.id);
+                    List<IntervalVar> intervalsList = new ArrayList<>();
+                    intervalsList.add(intervalVar);
+                    intervalsList.add(rehearsalVariables.interval);
+                    model.addNoOverlap(intervalsList);
+                }
+            });
+        }
 
         CpSolver solver = new CpSolver();
         solver.getParameters().setLogSearchProgress(true); // logs
@@ -318,7 +329,7 @@ public class CalendarCPService {
                 CpResult cp = new CpResult(projectId, rehearsal.id, accepted, beginningDateTime);
                 cpResultService.createCp(cp);
                 res.add(cp);
-                
+
             }
         } else {
             // TODO: how to represent this in the response ?

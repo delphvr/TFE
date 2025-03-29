@@ -28,7 +28,7 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
   @override
   void initState() {
     super.initState();
-    rehearsals = getPropositions(context);
+    rehearsals = getPropositions(context, false);
   }
 
   dynamic getRehearsal(int id) async {
@@ -55,9 +55,12 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
   }
 
   Future<Map<String, Map<String, List<dynamic>>>> getPropositions(
-      BuildContext context) async {
-    final String url =
+      BuildContext context, bool recompute) async {
+    String url =
         '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/calendarCP';
+    if(recompute){
+      url += '?recompute=true';
+    }
     try {
       final response = await http.get(Uri.parse(url));
 
@@ -218,7 +221,7 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
                   text: 'Recalculer',
                   onTap: () {
                     setState(() {
-                      rehearsals = getPropositions(context);
+                      rehearsals = getPropositions(context, true);
                     });
                   },
                 ),
