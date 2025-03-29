@@ -74,6 +74,17 @@ public class WeeklyAvailabilityService {
     }
 
     /**
+     * Get the list of weekly availabilities of the user with id `userId`
+     * @param userId the id of the user
+     * @return the list of weekly availabilities of the user
+     * @throws IllegalArgumentException if no user found with the given user id
+     */
+    public List<WeeklyAvailability> getUserAvailabilities(Long userId){
+        userService.isUser(userId);
+        return weeklyAvailabilityRepository.findByUserId(userId);
+    }
+
+    /**
      * Delete an weekly avaialbility from the database.
      * 
      * @param availability the availability to delete

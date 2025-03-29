@@ -1,5 +1,6 @@
 package calendarapp.services;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -23,6 +24,8 @@ import com.google.ortools.sat.LinearExpr;
 
 import calendarapp.model.CpResult;
 import calendarapp.model.Project;
+import calendarapp.model.Vacation;
+import calendarapp.model.WeeklyAvailability;
 import calendarapp.response.RehearsalResponse;
 
 @Service
@@ -34,6 +37,10 @@ public class CalendarCPService {
     private ProjectService projectService;
     @Autowired
     private RehearsalService rehearsalService;
+    @Autowired
+    private WeeklyAvailabilityService weeklyAvailabilityService;
+    @Autowired
+    private VacationService vacationService;
     @Autowired
     private CpResultService cpResultService;
 
@@ -85,24 +92,46 @@ public class CalendarCPService {
     }
 
     /**
-     * Return a list of list of rehearsal id, representing all the rehearsal a
+     * Return a Map with all the participants as keys and as value the list of
+     * rhearsalsVaribale he participe in.
+     * 
+     * @param rehearsals list of rehearsals on the project whit the corresponding
+     *                   variable of the model
+     * @return the Map with all the participants as keys and as value the list of
+     *         rhearsalsVaribale he participe in
+     */
+    private Map<Long, List<RehearsalVariables>> ParticipantsRehearsals(Map<Long, Rehearsal> allRehearsals,
+            Map<Long, RehearsalVariables> rehearsals) {
+        Map<Long, List<RehearsalVariables>> res = new HashMap<>();
+        for (Rehearsal rehearsal : allRehearsals.values()) {
+            for (Long participant : rehearsal.participantsId) {
+                res.putIfAbsent(participant, new ArrayList<>());
+                res.get(participant).add(rehearsals.get(rehearsal.id));
+            }
+        }
+        // res.addAll(data.values());
+        return res;
+    }
+
+    /**
+     * Return a list of list of Intervals of a rehearsal, representing all the
+     * rehearsals a
      * participant has and therfore can not be schedule at the same time.
      * 
      * @param rehearsals list of rehearsals on the project whit the corresponding
      *                   variable of the model
-     * @return the list of list of rehearsal that participant has in commun
+     * @return the list of list of intervals var representing rehearsal that
+     *         participant has in commun
      */
-    private List<List<IntervalVar>> ParticipantsRehearsals(Map<Long, Rehearsal> allRehearsals,
+    private Map<Long, List<IntervalVar>> ParticipantsRehearsalsIntervals(Map<Long, Rehearsal> allRehearsals,
             Map<Long, RehearsalVariables> rehearsals) {
-        List<List<IntervalVar>> res = new ArrayList<>();
-        HashMap<Long, List<IntervalVar>> data = new HashMap<>();
+        Map<Long, List<IntervalVar>> res = new HashMap<>();
         for (Rehearsal rehearsal : allRehearsals.values()) {
             for (Long participant : rehearsal.participantsId) {
-                data.putIfAbsent(participant, new ArrayList<>());
-                data.get(participant).add(rehearsals.get(rehearsal.id).interval);
+                res.putIfAbsent(participant, new ArrayList<>());
+                res.get(participant).add(rehearsals.get(rehearsal.id).interval);
             }
         }
-        res.addAll(data.values());
         return res;
     }
 
@@ -125,7 +154,7 @@ public class CalendarCPService {
         }
         long durationInMinutes = java.time.Duration.between(
                 project.getBeginningDate().atStartOfDay(),
-                project.getEndingDate().atStartOfDay()).toMinutes();
+                project.getEndingDate().atTime(LocalTime.MAX)).toMinutes();
         return durationInMinutes;
     }
 
@@ -142,7 +171,7 @@ public class CalendarCPService {
      */
     private Long getDateTimeValue(Project project, LocalDateTime value) {
         if (project.getBeginningDate() == null) {
-            throw new IllegalArgumentException("The project begining date need to be initialize");
+            throw new IllegalArgumentException("The project begining date need to be initialize"); // TODO takes today ?
         }
         long durationInMinutes = java.time.Duration.between(
                 project.getBeginningDate().atStartOfDay(),
@@ -230,6 +259,41 @@ public class CalendarCPService {
         return rehearsals;
     }
 
+    private List<IntervalVar> getUserIntervalVars(CpModel model, Project project, Long participantId) {
+        List<IntervalVar> res = new ArrayList<>();
+        List<Vacation> vacations = vacationService.getUserVacations(participantId);
+        for (Vacation vacation : vacations) {
+            LocalDate endDate = project.getEndingDate();
+            if (endDate == null) {
+                endDate = project.getBeginningDate().plusDays(defaultProjectEnd / (60 * 24));
+            }
+            // take only vacation that appears during the project dates
+            if (vacation.getStartDate().isBefore(endDate)
+                    && vacation.getEndDate().isAfter(project.getBeginningDate())) { // TODO vacation.getEndDate() + 1 ?
+
+                LocalDateTime startVacation = vacation.getStartDate().atStartOfDay();
+                LocalDateTime startProject = project.getBeginningDate().atStartOfDay();
+                LocalDateTime startDateTime = (startVacation.compareTo(startProject) > 0) ? startVacation
+                        : startProject;
+                LocalDateTime endVacation = vacation.getEndDate().atTime(LocalTime.MAX);
+                LocalDateTime endProject = endDate.atTime(LocalTime.MAX);
+                LocalDateTime endDateTime = endVacation.isBefore(endProject) ? endVacation : endProject;
+                Long start = getDateTimeValue(project, startDateTime);
+                Long end = getDateTimeValue(project, endDateTime);
+                Long duration = Duration.between(startDateTime, endDateTime).toMinutes();
+                IntVar intervalStart = model.newIntVar(start, start, "not_start_rehearsal_vacataion_" + participantId);
+                IntVar intervalEnd = model.newIntVar(end, end, "not_end_rehearsal_vacation_" + participantId);
+                IntVar intervalDuration = model.newIntVar(duration, duration,
+                        "duration_not_end_rehearsal_vacation_" + participantId);
+                IntervalVar intervalVar = model.newIntervalVar(intervalStart, intervalDuration,
+                        intervalEnd, "not_interval_rehearsal_vacation_" + participantId);
+                res.add(intervalVar);
+            }
+
+        }
+        return res;
+    }
+
     /**
      * Get the date and time of the rehersal starting `minutesFromBeginning` minutes
      * after the begining date of the `project`.
@@ -257,9 +321,7 @@ public class CalendarCPService {
 
         Map<Long, LocalDateTime> rehearsalNotPossible = new HashMap<>();
         if (recompute) {
-            System.out.println("here");
             rehearsalNotPossible = cpResultService.checkPreviousResult(projectId);
-            System.out.println("here" + rehearsalNotPossible);
         }
 
         Loader.loadNativeLibraries();
@@ -279,10 +341,18 @@ public class CalendarCPService {
         Map<Long, RehearsalVariables> rehearsalsVariables = createVariables(model, allRehearsals,
                 allRehearsalsToConstraint, project);
 
+        Map<Long, List<RehearsalVariables>> ParticipantsRehearsals = ParticipantsRehearsals(allRehearsalsToConstraint,
+                rehearsalsVariables);
+
         // Constraints :
-        // 1. if a user has several rehearsals then they cannot overlap
-        List<List<IntervalVar>> intervalsConstraintsList = ParticipantsRehearsals(allRehearsals, rehearsalsVariables);
-        for (List<IntervalVar> intervalsList : intervalsConstraintsList) {
+        // 1. if a user has several rehearsals then they cannot overlap + not between
+        // users vacations
+        Map<Long, List<IntervalVar>> intervalsConstraintsList = ParticipantsRehearsalsIntervals(allRehearsals,
+                rehearsalsVariables);
+        for (Map.Entry<Long, List<IntervalVar>> entry : intervalsConstraintsList.entrySet()) {
+            Long participantId = entry.getKey();
+            List<IntervalVar> intervalsList = entry.getValue();
+            intervalsList.addAll(getUserIntervalVars(model, project, participantId));
             model.addNoOverlap(intervalsList);
         }
         // 2. cannot happend at a dateTime previously rejected
@@ -295,7 +365,8 @@ public class CalendarCPService {
                     Long end = start + rehearsal.duration;
                     IntVar intervalStart = model.newIntVar(start, start, "not_start_rehearsal_" + rehearsal.id);
                     IntVar intervalEnd = model.newIntVar(end, end, "not_end_rehearsal_" + rehearsal.id);
-                    IntervalVar intervalVar =  model.newIntervalVar(intervalStart, rehearsalVariables.duration, intervalEnd,
+                    IntervalVar intervalVar = model.newIntervalVar(intervalStart, rehearsalVariables.duration,
+                            intervalEnd,
                             "not_interval_rehearsal_" + rehearsal.id);
                     List<IntervalVar> intervalsList = new ArrayList<>();
                     intervalsList.add(intervalVar);
@@ -303,6 +374,14 @@ public class CalendarCPService {
                     model.addNoOverlap(intervalsList);
                 }
             });
+        }
+        // 3. has to be when the user is available
+        for (Map.Entry<Long, List<RehearsalVariables>> entry : ParticipantsRehearsals.entrySet()) {
+            Long participantId = entry.getKey();
+            List<RehearsalVariables> rehearsalsVaribale = entry.getValue();
+            List<WeeklyAvailability> userWeeklyAvailabilities = weeklyAvailabilityService
+                    .getUserAvailabilities(participantId);
+
         }
 
         CpSolver solver = new CpSolver();

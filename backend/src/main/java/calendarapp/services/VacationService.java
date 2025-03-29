@@ -36,6 +36,22 @@ public class VacationService {
                 .thenComparing(Vacation::getStartDate, Comparator.nullsLast(Comparator.naturalOrder())));
         return vacations;
     }
+
+    /**
+     * Get the vacations of the user with id `userId`. Sorted be endDate then by strat date.
+     * 
+     * @param userId the id of the user
+     * @return the list of vacations of the user
+     * @throws IllegalArgumentException if no user found with the given id
+     */
+    public List<Vacation> getUserVacations(Long userId){
+        userService.isUser(userId);;
+        List<Vacation> vacations = vacationRepository.findByUserId(userId);
+        vacations.sort(Comparator
+                .comparing(Vacation::getEndDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(Vacation::getStartDate, Comparator.nullsLast(Comparator.naturalOrder())));
+        return vacations;
+    }
     
     /**
      * Save a new vacation to the database.

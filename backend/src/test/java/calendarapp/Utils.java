@@ -5,6 +5,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import calendarapp.model.Project;
 import calendarapp.model.Rehearsal;
 import calendarapp.model.User;
+import calendarapp.model.Vacation;
 
 public class Utils {
 
@@ -39,6 +40,17 @@ public class Utils {
             .returnResult()
             .getResponseBody();
         return rehearsal;
+    }
+
+    static public Vacation pushVacation(String jsonData, WebTestClient webTestClient){
+        Vacation vacation = webTestClient.post().uri("/api/vacations")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(jsonData)
+            .exchange()
+            .expectBody(Vacation.class)
+            .returnResult()
+            .getResponseBody();
+        return vacation;
     }
     
 }

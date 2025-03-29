@@ -41,3 +41,4 @@ build/
 
 application.properties
 application-test.properties
+application-calendar_cp_test.properties
