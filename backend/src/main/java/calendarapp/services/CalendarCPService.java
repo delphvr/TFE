@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 
 import com.google.ortools.Loader;
+import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
@@ -89,6 +90,17 @@ public class CalendarCPService {
             this.hourEnd = hour_end;
             this.hourInterval = hour_interval;
         }
+    }
+
+    class NonAvailability{
+        LocalTime startTime;
+        LocalTime endTime;
+
+        NonAvailability(LocalTime startTime, LocalTime endTime){
+            this.startTime = startTime;
+            this.endTime = endTime;
+        }
+
     }
 
     /**
@@ -289,9 +301,45 @@ public class CalendarCPService {
                         intervalEnd, "not_interval_rehearsal_vacation_" + participantId);
                 res.add(intervalVar);
             }
-
         }
         return res;
+    }
+
+    private List<NonAvailability> breakNonAvailabilities(List<NonAvailability> nonAvailabilities, WeeklyAvailability weeklyAvailability) {
+        LocalTime availabilityStart = weeklyAvailability.getStartTime();
+        LocalTime availabilityEnd = weeklyAvailability.getEndTime();
+        List<NonAvailability> updatedNonAvailabilities = new ArrayList<>();
+        for (NonAvailability nonAvailability : nonAvailabilities) {
+            LocalTime nonAvailabilityStart = nonAvailability.startTime;
+            LocalTime nonAvailabilityEnd = nonAvailability.endTime;
+            if (availabilityEnd.isAfter(nonAvailabilityStart) && availabilityStart.isBefore(nonAvailabilityEnd)) {
+                if (availabilityStart.isAfter(nonAvailabilityStart)) {
+                    updatedNonAvailabilities.add(new NonAvailability(nonAvailabilityStart, availabilityStart));
+                }
+                if (availabilityEnd.isBefore(nonAvailabilityEnd)) {
+                    updatedNonAvailabilities.add(new NonAvailability(availabilityEnd, nonAvailabilityEnd));
+                }
+            } else {
+                updatedNonAvailabilities.add(nonAvailability);
+            }
+        }
+        return updatedNonAvailabilities;
+    }
+
+    private Map<Integer, List<NonAvailability>> getNonAvailability(long userId) {
+        Map<Integer, List<NonAvailability>> nonAvailability = new HashMap<>();
+        List<WeeklyAvailability> weeklyAvailabilities = weeklyAvailabilityService.getUserAvailabilities(userId);
+        for (int day = 0; day < 7; day++) {
+            List<NonAvailability> dailyNoneAvailability = new ArrayList<>();
+            dailyNoneAvailability.add(new NonAvailability(LocalTime.of(minHour, 0), LocalTime.of(maxHour, 0)));
+            nonAvailability.put(day, dailyNoneAvailability);
+        }
+        for(WeeklyAvailability weeklyAvailability : weeklyAvailabilities){
+            List<NonAvailability> dailyNoneAvailability = nonAvailability.get(weeklyAvailability.getWeekday());
+            dailyNoneAvailability = breakNonAvailabilities(dailyNoneAvailability, weeklyAvailability);
+            nonAvailability.put(weeklyAvailability.getWeekday(), dailyNoneAvailability);
+        }
+        return nonAvailability;
     }
 
     /**
@@ -353,7 +401,9 @@ public class CalendarCPService {
             Long participantId = entry.getKey();
             List<IntervalVar> intervalsList = entry.getValue();
             intervalsList.addAll(getUserIntervalVars(model, project, participantId));
-            model.addNoOverlap(intervalsList);
+            //BoolVar condition = model.newBoolVar("user_x_participates_to_y");
+            model.addNoOverlap(intervalsList);//.onlyEnforceIf(condition);
+            
         }
         // 2. cannot happend at a dateTime previously rejected
         if (recompute) {
@@ -377,11 +427,7 @@ public class CalendarCPService {
         }
         // 3. has to be when the user is available
         for (Map.Entry<Long, List<RehearsalVariables>> entry : ParticipantsRehearsals.entrySet()) {
-            Long participantId = entry.getKey();
-            List<RehearsalVariables> rehearsalsVaribale = entry.getValue();
-            List<WeeklyAvailability> userWeeklyAvailabilities = weeklyAvailabilityService
-                    .getUserAvailabilities(participantId);
-
+            getNonAvailability(entry.getKey());
         }
 
         CpSolver solver = new CpSolver();
