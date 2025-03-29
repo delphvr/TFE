@@ -6,6 +6,7 @@ import calendarapp.model.Project;
 import calendarapp.model.Rehearsal;
 import calendarapp.model.User;
 import calendarapp.model.Vacation;
+import calendarapp.model.WeeklyAvailability;
 
 public class Utils {
 
@@ -51,6 +52,17 @@ public class Utils {
             .returnResult()
             .getResponseBody();
         return vacation;
+    }
+
+    static public WeeklyAvailability pushAvailability(String jsonData, WebTestClient webTestClient){
+        WeeklyAvailability availability = webTestClient.post().uri("/api/availabilities")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(jsonData)
+            .exchange()
+            .expectBody(WeeklyAvailability.class)
+            .returnResult()
+            .getResponseBody();
+        return availability;
     }
     
 }

@@ -67,6 +67,7 @@ public class VacationService {
         if (vacation.getEndDate().isBefore(now)) {
             throw new IllegalArgumentException("The ending date cannot be in the past");
         }
+        //TODO: cannot have overlap of vacation of a user
         Vacation res = new Vacation(user.getId(), vacation.getStartDate(), vacation.getEndDate());
         vacationRepository.save(res);
         return res;
