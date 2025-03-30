@@ -92,11 +92,11 @@ public class CalendarCPService {
         }
     }
 
-    class NonAvailability{
+    class NonAvailability {
         LocalTime startTime;
         LocalTime endTime;
 
-        NonAvailability(LocalTime startTime, LocalTime endTime){
+        NonAvailability(LocalTime startTime, LocalTime endTime) {
             this.startTime = startTime;
             this.endTime = endTime;
         }
@@ -305,7 +305,8 @@ public class CalendarCPService {
         return res;
     }
 
-    private List<NonAvailability> breakNonAvailabilities(List<NonAvailability> nonAvailabilities, WeeklyAvailability weeklyAvailability) {
+    private List<NonAvailability> breakNonAvailabilities(List<NonAvailability> nonAvailabilities,
+            WeeklyAvailability weeklyAvailability) {
         LocalTime availabilityStart = weeklyAvailability.getStartTime();
         LocalTime availabilityEnd = weeklyAvailability.getEndTime();
         List<NonAvailability> updatedNonAvailabilities = new ArrayList<>();
@@ -326,7 +327,7 @@ public class CalendarCPService {
         return updatedNonAvailabilities;
     }
 
-    private Map<Integer, List<NonAvailability>> getNonAvailability(long userId) {
+    private Map<Integer, List<NonAvailability>> getUserNonAvailability(long userId) {
         Map<Integer, List<NonAvailability>> nonAvailability = new HashMap<>();
         List<WeeklyAvailability> weeklyAvailabilities = weeklyAvailabilityService.getUserAvailabilities(userId);
         for (int day = 0; day < 7; day++) {
@@ -334,7 +335,7 @@ public class CalendarCPService {
             dailyNoneAvailability.add(new NonAvailability(LocalTime.of(minHour, 0), LocalTime.of(maxHour, 0)));
             nonAvailability.put(day, dailyNoneAvailability);
         }
-        for(WeeklyAvailability weeklyAvailability : weeklyAvailabilities){
+        for (WeeklyAvailability weeklyAvailability : weeklyAvailabilities) {
             List<NonAvailability> dailyNoneAvailability = nonAvailability.get(weeklyAvailability.getWeekday());
             dailyNoneAvailability = breakNonAvailabilities(dailyNoneAvailability, weeklyAvailability);
             nonAvailability.put(weeklyAvailability.getWeekday(), dailyNoneAvailability);
@@ -362,6 +363,39 @@ public class CalendarCPService {
         LocalDateTime startDateTime = beginningDate.atStartOfDay();
         LocalDateTime rehearsalDateTime = startDateTime.plusMinutes(minutesFromBeginning);
         return rehearsalDateTime;
+    }
+
+    private void AddDisponibilityContraints(CpModel model, Project project,
+            Map<Integer, List<NonAvailability>> userNonDisponibilities,
+            List<IntervalVar> userRehearsalIntervals) {
+        LocalDate currentDate = project.getBeginningDate();
+        int currentWeekDay = (currentDate.getDayOfWeek().getValue() - 1) % 7;
+        LocalDate endDate = project.getEndingDate();
+        if (endDate == null) {
+            endDate = project.getBeginningDate().plusDays(defaultProjectEnd / (60 * 24));
+        }
+        while (currentDate.isBefore(endDate.plusDays(1))) {
+            for (NonAvailability nonAvailability : userNonDisponibilities.get(currentWeekDay)) {
+                LocalDateTime startDateTime = currentDate.atTime(nonAvailability.startTime);
+                LocalDateTime endDateTime = currentDate.atTime(nonAvailability.endTime);
+                Long start = getDateTimeValue(project, startDateTime);
+                Long end = getDateTimeValue(project, endDateTime);
+                Long duration = Duration.between(startDateTime, endDateTime).toMinutes();
+                IntVar intervalStart = model.newIntVar(start, start, "not_available_start_user_x_rehearsal_y");
+                IntVar intervalEnd = model.newIntVar(end, end, "not_available_end_user_x_rehearsal_y");
+                IntVar intervalDuration = model.newIntVar(duration, duration,
+                        "not_available_duration_user_x_rehearsal_y");
+                IntervalVar intervalVar = model.newIntervalVar(intervalStart, intervalDuration,
+                        intervalEnd, "not_available_interval_user_x_rehearsal_y");
+                for (IntervalVar rehearsalsIntervalVar : userRehearsalIntervals) {
+                    model.addNoOverlap(List.of(rehearsalsIntervalVar, intervalVar));
+                }
+
+            }
+            currentDate = currentDate.plusDays(1);
+            currentWeekDay = (currentDate.getDayOfWeek().getValue() - 1)% 7;
+        }
+
     }
 
     public List<CpResult> run(Long projectId, boolean recompute) {
@@ -401,9 +435,9 @@ public class CalendarCPService {
             Long participantId = entry.getKey();
             List<IntervalVar> intervalsList = entry.getValue();
             intervalsList.addAll(getUserIntervalVars(model, project, participantId));
-            //BoolVar condition = model.newBoolVar("user_x_participates_to_y");
-            model.addNoOverlap(intervalsList);//.onlyEnforceIf(condition);
-            
+            // BoolVar condition = model.newBoolVar("user_x_participates_to_y");
+            model.addNoOverlap(intervalsList);// .onlyEnforceIf(condition);
+
         }
         // 2. cannot happend at a dateTime previously rejected
         if (recompute) {
@@ -427,7 +461,8 @@ public class CalendarCPService {
         }
         // 3. has to be when the user is available
         for (Map.Entry<Long, List<RehearsalVariables>> entry : ParticipantsRehearsals.entrySet()) {
-            getNonAvailability(entry.getKey());
+            AddDisponibilityContraints(model, project, getUserNonAvailability(entry.getKey()),
+                    intervalsConstraintsList.get(entry.getKey()));
         }
 
         CpSolver solver = new CpSolver();

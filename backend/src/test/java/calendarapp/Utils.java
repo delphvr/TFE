@@ -1,5 +1,7 @@
 package calendarapp;
 
+import java.util.List;
+
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import calendarapp.model.Project;
@@ -54,12 +56,12 @@ public class Utils {
         return vacation;
     }
 
-    static public WeeklyAvailability pushAvailability(String jsonData, WebTestClient webTestClient){
-        WeeklyAvailability availability = webTestClient.post().uri("/api/availabilities")
+    static public List<WeeklyAvailability> pushAvailability(String jsonData, WebTestClient webTestClient){
+        List<WeeklyAvailability> availability = webTestClient.post().uri("/api/availabilities")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
             .bodyValue(jsonData)
             .exchange()
-            .expectBody(WeeklyAvailability.class)
+            .expectBodyList(WeeklyAvailability.class)
             .returnResult()
             .getResponseBody();
         return availability;
