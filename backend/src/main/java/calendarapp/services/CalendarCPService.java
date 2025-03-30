@@ -129,28 +129,6 @@ public class CalendarCPService {
     }
 
     /**
-     * Return a list of list of Intervals of a rehearsal, representing all the
-     * rehearsals a
-     * participant has and therfore can not be schedule at the same time.
-     * 
-     * @param rehearsals list of rehearsals on the project whit the corresponding
-     *                   variable of the model
-     * @return the list of list of intervals var representing rehearsal that
-     *         participant has in commun
-     */
-    private Map<Long, List<IntervalVar>> ParticipantsRehearsalsIntervals(Map<Long, Rehearsal> allRehearsals,
-            Map<Long, RehearsalVariables> rehearsals) {
-        Map<Long, List<IntervalVar>> res = new HashMap<>();
-        for (Rehearsal rehearsal : allRehearsals.values()) {
-            for (Long participant : rehearsal.participantsId) {
-                res.putIfAbsent(participant, new ArrayList<>());
-                res.get(participant).add(rehearsals.get(rehearsal.id).interval);
-            }
-        }
-        return res;
-    }
-
-    /**
      * Get the end value for the model, if we consider the begining of the periode =
      * 0 and than we add minutes. (So get the duration of the project in minutes).
      * If no ending date return Long.MAX_VALUE.
@@ -279,8 +257,8 @@ public class CalendarCPService {
         return rehearsals;
     }
 
-    private List<IntervalVar> getUserIntervalVars(CpModel model, Project project, Long participantId) {
-        List<IntervalVar> res = new ArrayList<>();
+    private void AddVacationConstraints(CpModel model, Project project, Long participantId,
+            Map<Long, RehearsalVariables> userRehearsalsVariables) {
         List<Vacation> vacations = vacationService.getUserVacations(participantId);
         for (Vacation vacation : vacations) {
             LocalDate endDate = project.getEndingDate();
@@ -289,7 +267,7 @@ public class CalendarCPService {
             }
             // take only vacation that appears during the project dates
             if (vacation.getStartDate().isBefore(endDate)
-                    && vacation.getEndDate().isAfter(project.getBeginningDate())) { // TODO vacation.getEndDate() + 1 ?
+                    && vacation.getEndDate().isAfter(project.getBeginningDate())) {
 
                 LocalDateTime startVacation = vacation.getStartDate().atStartOfDay();
                 LocalDateTime startProject = project.getBeginningDate().atStartOfDay();
@@ -307,10 +285,18 @@ public class CalendarCPService {
                         "duration_not_end_rehearsal_vacation_" + participantId);
                 IntervalVar intervalVar = model.newIntervalVar(intervalStart, intervalDuration,
                         intervalEnd, "not_interval_rehearsal_vacation_" + participantId);
-                res.add(intervalVar);
+                for (Map.Entry<Long, RehearsalVariables> entry : userRehearsalsVariables.entrySet()) {
+                    RehearsalVariables rehearsalVariables = entry.getValue();
+                    IntervalVar optionalRehearsalInterval = model.newOptionalIntervalVar(
+                            rehearsalVariables.start,
+                            rehearsalVariables.duration,
+                            rehearsalVariables.end,
+                            rehearsalVariables.usersPresence.get(participantId),
+                            "optional_rehearsal_interval_user_" + participantId + "_rehearsal_" + entry.getKey());
+                    model.addNoOverlap(List.of(intervalVar, optionalRehearsalInterval));
+                }
             }
         }
-        return res;
     }
 
     private List<NonAvailability> breakNonAvailabilities(List<NonAvailability> nonAvailabilities,
@@ -444,8 +430,7 @@ public class CalendarCPService {
                 rehearsalsVariables);
 
         // Constraints :
-        // 1. if a user has several rehearsals then they cannot overlap + not between
-        // users vacations
+        // 1. if a user has several rehearsals then they cannot overlap
         for (Map.Entry<Long, Map<Long, RehearsalVariables>> entry : ParticipantsRehearsals.entrySet()) {
             Long participantId = entry.getKey();
             Map<Long, RehearsalVariables> userRehearsalsVariables = entry.getValue();
@@ -455,8 +440,6 @@ public class CalendarCPService {
                     Long rehearsalId1 = rehearsalVariablesEntry1.getKey();
                     Long rehearsalId2 = rehearsalVariablesEntry2.getKey();
                     if (rehearsalId1 < rehearsalId2) {
-                        // IntervalVar rehearsIntervalVar1 = rehearsalVariablesEntry1.getValue().interval;
-                        // IntervalVar rehearsIntervalVar2 = rehearsalVariablesEntry2.getValue().interval;
                         BoolVar rehearsalParticipation1 = rehearsalVariablesEntry1.getValue().usersPresence
                                 .get(participantId);
                         BoolVar rehearsalParticipation2 = rehearsalVariablesEntry2.getValue().usersPresence
@@ -470,27 +453,16 @@ public class CalendarCPService {
                                 .onlyEnforceIf(bothParticipating);
                         model.addBoolOr(List.of(rehearsalParticipation1.not(), rehearsalParticipation2.not()))
                                 .onlyEnforceIf(bothParticipating.not());
-                        // model.addNoOverlap(List.of(rehearsIntervalVar1, rehearsIntervalVar2))
-                        // .onlyEnforceIf(bothParticipating);
+                        model.addImplication(rehearsalParticipation1.not(), bothParticipating.not());
+                        model.addImplication(rehearsalParticipation2.not(), bothParticipating.not());
                         IntervalVar rehearsIntervalVar1 = model.newOptionalIntervalVar(
                                 rehearsalVariablesEntry1.getValue().start, rehearsalVariablesEntry1.getValue().duration,
                                 rehearsalVariablesEntry1.getValue().end, bothParticipating, "rehearsal1");
                         IntervalVar rehearsIntervalVar2 = model.newOptionalIntervalVar(
                                 rehearsalVariablesEntry2.getValue().start, rehearsalVariablesEntry2.getValue().duration,
                                 rehearsalVariablesEntry2.getValue().end, bothParticipating, "rehearsal2");
-
-                        // Add the no-overlap constraint (will only apply when both intervals are
-                        // present)
                         model.addNoOverlap(List.of(rehearsIntervalVar1, rehearsIntervalVar2));
                     }
-                    // TODO vacations
-                    /*
-                     * List<IntervalVar> intervalsList = entry.getValue();
-                     * intervalsList.addAll(getUserIntervalVars(model, project, participantId));
-                     * // BoolVar condition = model.newBoolVar("user_x_participates_to_y");
-                     * model.addNoOverlap(intervalsList);// .onlyEnforceIf(condition);
-                     */
-
                 }
             }
         }
@@ -519,27 +491,16 @@ public class CalendarCPService {
             Long userId = entry.getKey();
             AddDisponibilityContraints(model, project, getUserNonAvailability(userId),
                     entry.getValue(), userId);
+            AddVacationConstraints(model, project, userId, entry.getValue());
+            //TODO: not when I have other rehearsals from other projects
         }
 
-        // We want to maximize the number of participations
-        /*
-         * for (Map.Entry<Long, RehearsalVariables> entry :
-         * rehearsalsVariables.entrySet()) {
-         * Long rehearsalId = entry.getKey();
-         * RehearsalVariables rehearsalVariables = entry.getValue();
-         * List<BoolVar> listIsPresent = new
-         * ArrayList<>(rehearsalVariables.usersPresence.values());
-         * }
-         */
-
+        // We want to maximize the number of participations (here over the whole project)
         List<BoolVar> allPresenceVars = new ArrayList<>();
-
-        // Iterate over rehearsals and collect presence variables
         for (Map.Entry<Long, RehearsalVariables> entry : rehearsalsVariables.entrySet()) {
             RehearsalVariables rehearsalVariables = entry.getValue();
             allPresenceVars.addAll(rehearsalVariables.usersPresence.values());
         }
-
         // Objective: Maximize the sum of all presence variables
         IntVar totalPresence = model.newIntVar(0, allPresenceVars.size(),
                 "totalPresence");
