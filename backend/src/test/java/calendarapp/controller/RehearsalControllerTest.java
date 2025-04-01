@@ -330,4 +330,113 @@ public class RehearsalControllerTest {
             .jsonPath("$[0].projectId").isEqualTo(project.getId());
     }
 
+    /**
+     * Test rehearsals precedences
+     */
+    @Test
+    public void testPushWrongRehearsalPrecedence1() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+                .replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        String beginningDate = LocalDate.now().toString();
+        String futureEndingDate = LocalDate.now().plusDays(30).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '"
+                + beginningDate + "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}")
+                .replace('\'', '"');
+        Project project = Utils.pushProject(projectJson, webTestClient);
+
+        String rehearsalJson1 = ("{'name': 'Small rehearsal', 'description' :'Placements', 'date': null, 'duration': 'PT2H', 'projectId': ' " + project.getId() + "', 'participantsIds': [" + user.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal1 = Utils.pushRehearsal(rehearsalJson1, webTestClient);
+
+        String rehearsalJson2 = ("{'name': 'General rehearsal', 'description' :'Last rehearsal with everyone', 'date': null, 'duration': 'PT3H', 'projectId': '" + project.getId() + "', 'participantsIds': [" + user.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal2 = Utils.pushRehearsal(rehearsalJson2, webTestClient);
+
+        String rehearsalPrecedencesJson1 = ("[" + rehearsal1.getId() + "]").replace('\'', '"');
+        String rehearsalPrecedencesJson2 = ("[" + rehearsal2.getId() + "]").replace('\'', '"');
+
+        webTestClient.post().uri("/api/rehearsals/" + rehearsal2.getId() + "/precedences")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(rehearsalPrecedencesJson1)
+            .exchange()
+            .expectStatus().isCreated();
+
+        webTestClient.post().uri("/api/rehearsals/" + rehearsal1.getId() + "/precedences")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(rehearsalPrecedencesJson2)
+            .exchange()
+            .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testPushWrongRehearsalPrecedence2() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+                .replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        String beginningDate = LocalDate.now().toString();
+        String futureEndingDate = LocalDate.now().plusDays(30).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '"
+                + beginningDate + "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}")
+                .replace('\'', '"');
+        Project project = Utils.pushProject(projectJson, webTestClient);
+
+        String rehearsalJson1 = ("{'name': 'Small rehearsal', 'description' :'Placements', 'date': null, 'duration': 'PT2H', 'projectId': ' " + project.getId() + "', 'participantsIds': [" + user.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal1 = Utils.pushRehearsal(rehearsalJson1, webTestClient);
+
+        String rehearsalJson2 = ("{'name': 'General rehearsal', 'description' :'Last rehearsal with everyone', 'date': null, 'duration': 'PT3H', 'projectId': ' "  + project.getId() + "', 'participantsIds': [" + user.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal2 = Utils.pushRehearsal(rehearsalJson2, webTestClient);
+
+        String rehearsalJson3 = ("{'name': 'rehearsal a', 'description' :'Lets all talk about ...', 'date': null, 'duration': 'PT3H', 'projectId': ' "  + project.getId() + "', 'participantsIds': [" + user.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal3 = Utils.pushRehearsal(rehearsalJson3, webTestClient);
+
+        String rehearsalPrecedencesJson1 = ("[" + rehearsal1.getId() + "]").replace('\'', '"');
+        String rehearsalPrecedencesJson2 = ("[" + rehearsal2.getId() + "]").replace('\'', '"');
+        String rehearsalPrecedencesJson3 = ("[" + rehearsal3.getId() + "]").replace('\'', '"');
+
+        //a->b b->c c->a
+        webTestClient.post().uri("/api/rehearsals/" + rehearsal2.getId() + "/precedences")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(rehearsalPrecedencesJson1)
+            .exchange()
+            .expectStatus().isCreated();
+
+        webTestClient.post().uri("/api/rehearsals/" + rehearsal3.getId() + "/precedences")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(rehearsalPrecedencesJson2)
+            .exchange()
+            .expectStatus().isCreated();
+
+        webTestClient.post().uri("/api/rehearsals/" + rehearsal1.getId() + "/precedences")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(rehearsalPrecedencesJson3)
+            .exchange()
+            .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testPushWrongRehearsalPrecedence3() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+                .replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        String beginningDate = LocalDate.now().toString();
+        String futureEndingDate = LocalDate.now().plusDays(30).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '"
+                + beginningDate + "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}")
+                .replace('\'', '"');
+        Project project = Utils.pushProject(projectJson, webTestClient);
+
+        String rehearsalJson1 = ("{'name': 'Small rehearsal', 'description' :'Placements', 'date': null, 'duration': 'PT2H', 'projectId': ' " + project.getId() + "', 'participantsIds': [" + user.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal1 = Utils.pushRehearsal(rehearsalJson1, webTestClient);
+
+        String rehearsalPrecedencesJson1 = ("[" + rehearsal1.getId() + "]").replace('\'', '"');
+
+        webTestClient.post().uri("/api/rehearsals/" + rehearsal1.getId() + "/precedences")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(rehearsalPrecedencesJson1)
+            .exchange()
+            .expectStatus().isBadRequest();
+    }
+
 }

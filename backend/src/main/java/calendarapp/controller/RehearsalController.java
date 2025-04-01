@@ -109,7 +109,7 @@ public class RehearsalController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
-    @Operation(summary = "Get a rehearsal precedence relations")
+    @Operation(summary = "Delete a rehearsal precedence relations")
     @DeleteMapping("/rehearsals/precedences")
     public ResponseEntity<HttpStatus> deleteRehearsalPrecedence(@RequestBody RehearsalPrecedence rehearsalPrecedence) {
         rehearsalPrecedenceService.deleteRehearsalPrecedence(rehearsalPrecedence);
