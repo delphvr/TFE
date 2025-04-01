@@ -35,6 +35,9 @@ public class UserService {
      * @throws IllegalArgumentException if no user is found with the given id
      */
     public void isUser(Long userId) {
+        if(userId == null){
+            throw new IllegalArgumentException("User not found with id " + userId);
+        }
         Optional<User> user = userRepository.findById(userId);
         if (!user.isPresent()) {
             throw new IllegalArgumentException("User not found with id " + userId);
@@ -49,6 +52,9 @@ public class UserService {
      * @throws IllegalArgumentException if no user is found with the given email
      */
     public void isUser(String email) {
+        if(email == null){
+            throw new IllegalArgumentException("User not found with email " + email);
+        }
         Optional<User> user = userRepository.findByEmail(email);
         if (!user.isPresent()) {
             throw new IllegalArgumentException("User not found with email " + email);
@@ -63,6 +69,9 @@ public class UserService {
      * @throws IllegalArgumentException if no user is found with the given id
      */
     public User getUser(Long id) {
+        if(id == null){
+            throw new IllegalArgumentException("User not found with id " + id);
+        }
         Optional<User> user = userRepository.findById(id);
         if (!user.isPresent()) {
             throw new IllegalArgumentException("User not found with id " + id);
@@ -78,6 +87,9 @@ public class UserService {
      * @throws IllegalArgumentException if no user is found with the given email
      */
     public User getUser(String email) {
+        if(email == null){
+            throw new IllegalArgumentException("User not found with email " + email);
+        }
         Optional<User> user = userRepository.findByEmail(email);
         if (!user.isPresent()) {
             throw new IllegalArgumentException("User not found with email " + email);

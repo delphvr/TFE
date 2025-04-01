@@ -42,8 +42,10 @@ public class RehearsalPrecedenceService {
      */
     public List<RehearsalPrecedence> createRehearsalPrecedences(Long rehearsalId, List<Long> precedingRehearsalsId) {
         rehearsalService.isRehearsal(rehearsalId);
+        System.out.println("precedingRehearsalsId " + precedingRehearsalsId);
         List<RehearsalPrecedence> res = new ArrayList<>();
         for (Long precedingRehearsalId : precedingRehearsalsId) {
+            rehearsalService.isRehearsal(precedingRehearsalId);
             if (precedingRehearsalId == rehearsalId) {
                 throw new IllegalArgumentException("Cannot add a precedence relation with itself");
             }
@@ -103,27 +105,28 @@ public class RehearsalPrecedenceService {
         List<Rehearsal> previous = new ArrayList<>();
         List<Rehearsal> following = new ArrayList<>();
         List<Rehearsal> notConstraint = new ArrayList<>();
+        List<Rehearsal> constraintByOthers = new ArrayList<>();
         for (RehearsalResponse rehearsal : rehearsalService.getProjectRehearsals(projectId)) {
+            Rehearsal newRehearsal = new Rehearsal(rehearsal.getName(), rehearsal.getDescription(), rehearsal.getDate(),
+            rehearsal.getTime(), rehearsal.getDuration(), rehearsal.getProjectId(), rehearsal.getLocation());
+            newRehearsal.setId(rehearsal.getId());
             if (rehearsalPrecedenceRepository.existsById(new RehearsalPrecedenceId(rehearsalId, rehearsal.getId()))) {
-                previous.add(new Rehearsal(rehearsal.getName(), rehearsal.getDescription(), rehearsal.getDate(),
-                        rehearsal.getTime(), rehearsal.getDuration(), rehearsal.getProjectId(),
-                        rehearsal.getLocation()));
+                previous.add(newRehearsal);
             } else if (rehearsalPrecedenceRepository
                     .existsById(new RehearsalPrecedenceId(rehearsal.getId(), rehearsalId))) {
-                following.add(new Rehearsal(rehearsal.getName(), rehearsal.getDescription(), rehearsal.getDate(),
-                        rehearsal.getTime(), rehearsal.getDuration(), rehearsal.getProjectId(),
-                        rehearsal.getLocation()));
+                following.add(newRehearsal);
+            } else if(!isPossible(rehearsalId, rehearsal.getId())){
+                constraintByOthers.add(newRehearsal);
             } else {
-                notConstraint.add(new Rehearsal(rehearsal.getName(), rehearsal.getDescription(), rehearsal.getDate(),
-                        rehearsal.getTime(), rehearsal.getDuration(), rehearsal.getProjectId(),
-                        rehearsal.getLocation()));
+                notConstraint.add(newRehearsal);
             }
         }
-        return new RehearsalPrecedenceResponse(previous, following, notConstraint);
+        return new RehearsalPrecedenceResponse(previous, following, notConstraint, constraintByOthers);
     }
 
     @Transactional
-    public void deleteRehearsalPrecedence(RehearsalPrecedence rehearsalPrecedence) {
+    public void deleteRehearsalPrecedence(Long current, Long previous) {
+        RehearsalPrecedence rehearsalPrecedence = new RehearsalPrecedence(current, previous);
         rehearsalPrecedenceRepository.delete(rehearsalPrecedence);
     }
 

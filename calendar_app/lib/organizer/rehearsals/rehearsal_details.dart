@@ -1,6 +1,7 @@
 import 'package:calendar_app/components/scaffold_custom.dart';
 import 'package:calendar_app/organizer/rehearsals/rehearsal_modification.dart';
 import 'package:calendar_app/organizer/rehearsals/rehearsal_participant_element.dart';
+import 'package:calendar_app/organizer/rehearsals/rehearsal_precedence_relatoins.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -265,6 +266,25 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                             duration: duration,
                             participantsIds: participantsIds,
                             location: location,
+                          ),
+                        ),
+                      ).then((_) {
+                        getRehearsal();
+                        refreshUsers();
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  ButtonCustom(
+                    text: 'Afficher les précédences',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RehearsalPrecedencesPage(
+                            rehearsalId: widget.rehearsalId,
+                            projectId: widget.projectId,
+                            rehearsalName: name,
                           ),
                         ),
                       ).then((_) {

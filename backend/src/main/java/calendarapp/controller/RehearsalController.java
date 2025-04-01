@@ -1,7 +1,6 @@
 package calendarapp.controller;
 
 import calendarapp.model.Rehearsal;
-import calendarapp.model.RehearsalPrecedence;
 import calendarapp.model.User;
 import calendarapp.request.RehearsalRequest;
 import calendarapp.response.RehearsalPrecedenceResponse;
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api")
@@ -111,8 +111,10 @@ public class RehearsalController {
 
     @Operation(summary = "Delete a rehearsal precedence relations")
     @DeleteMapping("/rehearsals/precedences")
-    public ResponseEntity<HttpStatus> deleteRehearsalPrecedence(@RequestBody RehearsalPrecedence rehearsalPrecedence) {
-        rehearsalPrecedenceService.deleteRehearsalPrecedence(rehearsalPrecedence);
+    public ResponseEntity<HttpStatus> deleteRehearsalPrecedence(
+            @RequestParam Long current,
+            @RequestParam Long previous) {
+        rehearsalPrecedenceService.deleteRehearsalPrecedence(current, previous);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

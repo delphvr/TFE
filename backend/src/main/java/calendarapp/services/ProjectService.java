@@ -35,6 +35,9 @@ public class ProjectService {
      * @throws IllegalArgumentException if no project is found with the given id
      */
     public void isProject(Long projectId) {
+        if(projectId == null){
+            throw new IllegalArgumentException("Project not found with id " + projectId);
+        }
         Optional<Project> project = projectRepository.findById(projectId);
         if (!project.isPresent()) {
             throw new IllegalArgumentException("Project not found with id " + projectId);
@@ -49,6 +52,9 @@ public class ProjectService {
      * @throws IllegalArgumentException if no project is found with the given Id
      */
     public Project getProject(Long id) {
+        if(id == null){
+            throw new IllegalArgumentException("Project not found with id " + id);
+        }
         Optional<Project> projectData = projectRepository.findById(id);
         if (!projectData.isPresent()) {
             throw new IllegalArgumentException("Project not found with id " + id);

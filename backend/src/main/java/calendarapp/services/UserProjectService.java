@@ -48,6 +48,9 @@ public class UserProjectService {
      * @throws IllegalArgumentException if no project is found with the given Id
      */
     public void isProject(Long projectId) {
+        if(projectId == null){
+            throw new IllegalArgumentException("Project not found with id " + projectId);
+        }
         Optional<Project> project = projectRepository.findById(projectId);
         if (!project.isPresent()) {
             throw new IllegalArgumentException("Project not found with id " + projectId);
@@ -62,6 +65,9 @@ public class UserProjectService {
      * @throws IllegalArgumentException if the role is not found
      */
     public void isRole(String roleStr) {
+        if(roleStr == null){
+            throw new IllegalArgumentException("Role " + roleStr + " not found.");
+        }
         Optional<Role> role = roleRepository.findById(roleStr);
         if (!role.isPresent()) {
             throw new IllegalArgumentException("Role " + roleStr + " not found.");

@@ -45,6 +45,9 @@ public class RehearsalService {
      * @throws IllegalArgumentException if no rehearsal is found with the given ´id´
      */
     public void isRehearsal(Long id) {
+        if(id == null){
+            throw new IllegalArgumentException("Rehearsal not found with id " + id);
+        }
         Optional<Rehearsal> rehearsal = rehearsalRepository.findById(id);
         if (!rehearsal.isPresent()) {
             throw new IllegalArgumentException("Rehearsal not found with id " + id);
