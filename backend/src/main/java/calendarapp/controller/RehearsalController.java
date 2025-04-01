@@ -1,9 +1,12 @@
 package calendarapp.controller;
 
 import calendarapp.model.Rehearsal;
+import calendarapp.model.RehearsalPrecedence;
 import calendarapp.model.User;
 import calendarapp.request.RehearsalRequest;
+import calendarapp.response.RehearsalPrecedenceResponse;
 import calendarapp.response.RehearsalResponse;
+import calendarapp.services.RehearsalPrecedenceService;
 import calendarapp.services.RehearsalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +33,8 @@ public class RehearsalController {
 
     @Autowired
     private RehearsalService rehearsalService;
+    @Autowired
+    private RehearsalPrecedenceService rehearsalPrecedenceService;
 
     @Operation(summary = "Get the rehearsals of a project")
     @GetMapping("/projects/{id}/rehearsals")
@@ -87,6 +92,28 @@ public class RehearsalController {
     public ResponseEntity<List<Rehearsal>> getUserRehearsals(@PathVariable("email") String email) {
         List<Rehearsal> rehearsals = rehearsalService.getUserRehearsals(email);
         return new ResponseEntity<>(rehearsals, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Update a rehearsal, rehearsals precedence relations")
+    @PostMapping("/rehearsals/{id}/precedences")
+    public ResponseEntity<HttpStatus> addRehearsalPrecedence(@PathVariable("id") long rehearsalId,
+            @RequestBody List<Long> precedingRehearsalsId) {
+        rehearsalPrecedenceService.createRehearsalPrecedences(rehearsalId, precedingRehearsalsId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "Get a rehearsal precedence relations")
+    @GetMapping("/rehearsals/{id}/precedences")
+    public ResponseEntity<RehearsalPrecedenceResponse> getRehearsalPrecedences(@PathVariable("id") long rehearsalId) {
+        RehearsalPrecedenceResponse res = rehearsalPrecedenceService.getRehersalsPrecedences(rehearsalId);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get a rehearsal precedence relations")
+    @DeleteMapping("/rehearsals/precedences")
+    public ResponseEntity<HttpStatus> deleteRehearsalPrecedence(@RequestBody RehearsalPrecedence rehearsalPrecedence) {
+        rehearsalPrecedenceService.deleteRehearsalPrecedence(rehearsalPrecedence);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

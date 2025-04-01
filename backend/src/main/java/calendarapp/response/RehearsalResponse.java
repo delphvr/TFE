@@ -14,11 +14,12 @@ public class RehearsalResponse {
     private LocalTime time;
     private Duration duration;
     private Long projectId;
+    private String location;
     private List<Long> participantsIds;
 
     public RehearsalResponse() {}
 
-    public RehearsalResponse(Long id, String name, String description, LocalDate date, LocalTime time, Duration duration, Long projectId, List<Long> participantsIds) {
+    public RehearsalResponse(Long id, String name, String description, LocalDate date, LocalTime time, Duration duration, Long projectId, String location, List<Long> participantsIds) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -27,6 +28,7 @@ public class RehearsalResponse {
         this.duration = duration;
         this.projectId = projectId;
         this.participantsIds = participantsIds;
+        this.location = location;
     }
 
     public Long getId(){
@@ -51,6 +53,10 @@ public class RehearsalResponse {
 
     public Long getProjectId() {
         return projectId;
+    }
+
+    public String getLocation() {
+        return location;
     }
 
     public List<Long> getParticipantsIds() {
@@ -87,6 +93,10 @@ public class RehearsalResponse {
 
     public void setProjectId(Long projectId) {
         this.projectId = projectId;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public void setParticipantsIds(List<Long> participantsIds) {

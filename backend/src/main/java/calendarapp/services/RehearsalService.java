@@ -69,8 +69,7 @@ public class RehearsalService {
             List<Long> participationIds = participations.stream().map(Participation::getUserId)
                     .collect(Collectors.toList());
             RehearsalResponse rehearsalResponse = new RehearsalResponse(rehearsal.getId(), rehearsal.getName(),
-                    rehearsal.getDescription(), rehearsal.getDate(), rehearsal.getTime(), rehearsal.getDuration(), rehearsal.getProjectId(),
-                    participationIds);
+                    rehearsal.getDescription(), rehearsal.getDate(), rehearsal.getTime(), rehearsal.getDuration(), rehearsal.getProjectId(), rehearsal.getLocation(), participationIds);
             rehearsalsResponse.add(rehearsalResponse);
         }
         rehearsalsResponse.sort(Comparator
@@ -296,8 +295,7 @@ public class RehearsalService {
             if (participationIds.contains(user.getId())) {
                 RehearsalResponse rehearsalResponse = new RehearsalResponse(rehearsal.getId(), rehearsal.getName(),
                         rehearsal.getDescription(), rehearsal.getDate(), rehearsal.getTime(), rehearsal.getDuration(),
-                        rehearsal.getProjectId(),
-                        participationIds);
+                        rehearsal.getProjectId(), rehearsal.getLocation(), participationIds);
                 res.add(rehearsalResponse);
             }
         }
