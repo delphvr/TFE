@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import calendarapp.model.CpResult;
 import calendarapp.model.Project;
 import calendarapp.model.Rehearsal;
 import calendarapp.model.User;
@@ -65,6 +66,15 @@ public class Utils {
             .returnResult()
             .getResponseBody();
         return availability;
+    }
+
+    static public List<CpResult> getCpResults(int projectId, WebTestClient webTestClient){
+        List<CpResult> results = webTestClient.get().uri("/api/projects/" + projectId + "/calendarCP")
+           .exchange()
+           .expectBodyList(CpResult.class)
+           .returnResult()
+           .getResponseBody();
+        return results;
     }
     
 }
