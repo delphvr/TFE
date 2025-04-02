@@ -1,5 +1,13 @@
 package calendarapp.cp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -7,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
+
+import calendarapp.model.CpResult;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
@@ -40,8 +50,28 @@ public class CalendarCPTest {
          * 
          */       
 
-        webTestClient.get().uri("/api/projects/23/calendarCP")
-            .exchange();
+        List<CpResult> results = webTestClient.get().uri("/api/projects/23/calendarCP")
+            .exchange()
+            .expectBodyList(CpResult.class)
+            .returnResult()
+            .getResponseBody();
+
+        assertEquals(3, results.size(), "There should be 3 rehearsals");
+        for(CpResult res: results){
+            assertTrue(res.getRehearsalId() == 771 || res.getRehearsalId() == 772 || res.getRehearsalId() == 773, "Wrong rehearsal id");
+            assertEquals(23, res.getProjectId(), "Rehearsal " + res.getRehearsalId() + " has the wrong project id");
+            assertFalse(res.isAccepted(), "The result should not be marked as accepted for rehearsal " + res.getProjectId());
+            if(res.getRehearsalId() == 771){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 1, 10, 0, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 772){
+                LocalDate expectedBeginningDate = LocalDate.of(2025, 4, 2);
+                assertEquals(expectedBeginningDate, res.getBeginningDate().toLocalDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong date");
+            } else if(res.getRehearsalId() == 773){
+                LocalDate expectedBeginningDate = LocalDate.of(2025, 4, 3);
+                assertEquals(expectedBeginningDate, res.getBeginningDate().toLocalDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong date");
+            }
+        }
     }
 
     @Test
@@ -69,8 +99,25 @@ public class CalendarCPTest {
          * 
          */       
 
-        webTestClient.get().uri("/api/projects/24/calendarCP")
-            .exchange();
+        List<CpResult> results = webTestClient.get().uri("/api/projects/24/calendarCP")
+           .exchange()
+           .expectBodyList(CpResult.class)
+           .returnResult()
+           .getResponseBody();
+
+        assertEquals(3, results.size(), "There should be 3 rehearsals");
+        for(CpResult res: results){
+            assertTrue(res.getRehearsalId() == 774 || res.getRehearsalId() == 775 || res.getRehearsalId() == 776, "Wrong rehearsal id");
+            assertEquals(24, res.getProjectId(), "Rehearsal " + res.getRehearsalId() + " has the wrong project id");
+            assertFalse(res.isAccepted(), "The result should not be marked as accepted for rehearsal " + res.getProjectId());
+            if(res.getRehearsalId() == 774){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 1, 10, 0, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 775){
+                LocalDate expectedBeginningDate = LocalDate.of(2025, 4, 2);
+                assertEquals(expectedBeginningDate, res.getBeginningDate().toLocalDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong date");
+            }
+        }
     }
 
     @Test
@@ -98,8 +145,20 @@ public class CalendarCPTest {
          * 
          */       
 
-        webTestClient.get().uri("/api/projects/25/calendarCP")
-            .exchange();
+        List<CpResult> results = webTestClient.get().uri("/api/projects/25/calendarCP")
+            .exchange()
+            .expectBodyList(CpResult.class)
+            .returnResult()
+            .getResponseBody();
+
+        assertEquals(1, results.size(), "There should be only 1 rehearsals");
+        for(CpResult res: results){
+            assertEquals(res.getRehearsalId(), 777, "Wrong rehearsal id");
+            assertEquals(25, res.getProjectId(), "Rehearsal " + res.getRehearsalId() + " has the wrong project id");
+            assertFalse(res.isAccepted(), "The result should not be marked as accepted for rehearsal " + res.getProjectId());
+            LocalDate expectedBeginningDate = LocalDate.of(2025, 4, 13);
+            assertEquals(expectedBeginningDate, res.getBeginningDate().toLocalDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong date");
+        }
     }
 
 }
