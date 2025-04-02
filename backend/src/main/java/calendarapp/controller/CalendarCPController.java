@@ -1,6 +1,7 @@
 package calendarapp.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import calendarapp.model.CpResult;
 import calendarapp.services.CalendarCPService;
+import calendarapp.services.CpPresenceResultService;
 import calendarapp.services.CpResultService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,6 +29,8 @@ public class CalendarCPController {
 	private CalendarCPService calendarCP;
 	@Autowired
 	private CpResultService cpResultService;
+	@Autowired
+	private CpPresenceResultService cpPresenceResultService;
 
 	@Operation(summary = "Run the cp and get the resulting calendar")
 	@GetMapping("/projects/{id}/calendarCP")
@@ -49,6 +53,13 @@ public class CalendarCPController {
 	public ResponseEntity<List<CpResult>> acceptAllCpResults(@PathVariable("projectId") Long projectId) {
 		cpResultService.acceptAll(projectId);
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@Operation(summary = "Get the user presence for the rehearsals planning computed by the cp")
+	@GetMapping("/projects/{id}/CPpresences")
+	public ResponseEntity<Map<Long, Map<Long, Boolean>>> getPresencesResult(@PathVariable("id") long id) {
+		Map<Long, Map<Long, Boolean>> res = cpPresenceResultService.getCpPresences(id);
+		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
 }

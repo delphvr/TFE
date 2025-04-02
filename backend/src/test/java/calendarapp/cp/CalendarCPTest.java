@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,13 +46,14 @@ public class CalendarCPTest {
          *  id 773, Rehearsal with only second participant, duration 3h, project_id: 23, participants: User2
          * 
          * Res:
-         *  project_id: 23, rehearsal_id 771, beginning_date 2025-04-01 10:00:00
-         *  project_id: 23, rehearsal_id 772, beginning_date 2025-04-02
-         *  project_id: 23, rehearsal_id 773, beginning_date 2025-04-03
+         *  project_id: 23, rehearsal_id 771, beginning_date 2025-04-01 10:00:00, User1 and User2 present
+         *  project_id: 23, rehearsal_id 772, beginning_date 2025-04-02, User1 present
+         *  project_id: 23, rehearsal_id 773, beginning_date 2025-04-03, User2 present
          * 
          */       
 
         List<CpResult> results = Utils.getCpResults(23, webTestClient);
+        Map<Long, Map<Long, Boolean>> presences = Utils.getCpPresencesResults(23, webTestClient);
 
         assertEquals(3, results.size(), "There should be 3 rehearsals");
         for(CpResult res: results){
@@ -69,6 +71,10 @@ public class CalendarCPTest {
                 assertEquals(expectedBeginningDate, res.getBeginningDate().toLocalDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong date");
             }
         }
+        assertTrue(presences.get(771L).get(263L), "User1 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(771L).get(264L), "User2 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(772L).get(263L), "User1 should be able to be present at the second rehearsal");
+        assertTrue(presences.get(773L).get(264L), "User2 should be able to be present at the third rehearsal");
     }
 
     @Test
@@ -90,13 +96,14 @@ public class CalendarCPTest {
          *  id 776, Rehearsal with only second participant, duration 4h, project_id: 24, participants: User2
          * 
          * Res:
-         *  project_id: 24, rehearsal_id 774, beginning_date 2025-04-01 10:00:00
-         *  project_id: 24, rehearsal_id 775, beginning_date 2025-04-02 14:00:00
-         *  project_id: 24, rehearsal_id 776, beginning_date 
+         *  project_id: 24, rehearsal_id 774, beginning_date 2025-04-01 10:00:00, User1 and User2 present
+         *  project_id: 24, rehearsal_id 775, beginning_date 2025-04-02 14:00:00, User1 present
+         *  project_id: 24, rehearsal_id 776, beginning_date, User2 not present
          * 
          */       
 
         List<CpResult> results = Utils.getCpResults(24, webTestClient);
+        Map<Long, Map<Long, Boolean>> presences = Utils.getCpPresencesResults(24, webTestClient);
 
         assertEquals(3, results.size(), "There should be 3 rehearsals");
         for(CpResult res: results){
@@ -111,6 +118,11 @@ public class CalendarCPTest {
                 assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong date");
             }
         }
+
+        assertTrue(presences.get(774L).get(263L), "User1 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(774L).get(264L), "User2 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(775L).get(263L), "User1 should be able to be present at the second rehearsal");
+        assertFalse(presences.get(776L).get(264L), "User2 should not be able to be present at the third rehearsal");
 
     }
 
@@ -135,11 +147,12 @@ public class CalendarCPTest {
          *  id 777, Rehearsal with both participants, duration 2h, project_id: 25, participants: User1
          * 
          * Res:
-         *  project_id: 25, rehearsal_id 777, beginning_date 2025-04-13
+         *  project_id: 25, rehearsal_id 777, beginning_date 2025-04-13, User1 present
          * 
          */       
 
         List<CpResult> results = Utils.getCpResults(25, webTestClient);
+        Map<Long, Map<Long, Boolean>> presences = Utils.getCpPresencesResults(25, webTestClient);
 
         assertEquals(1, results.size(), "There should be only 1 rehearsals");
         for(CpResult res: results){
@@ -149,6 +162,8 @@ public class CalendarCPTest {
             LocalDate expectedBeginningDate = LocalDate.of(2025, 4, 13);
             assertEquals(expectedBeginningDate, res.getBeginningDate().toLocalDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong date");
         }
+
+        assertTrue(presences.get(777L).get(265L), "User1 should be able to be present at the rehearsal");
     }
 
     @Test
@@ -172,12 +187,13 @@ public class CalendarCPTest {
          *  Rehearsal 778 before rehearsal 779
          * 
          * Res:
-         *  project_id: 26, rehearsal_id 778, beginning_date 2025-04-07 10:00:00
-         *  project_id: 26, rehearsal_id 779, beginning_date 2025-04-07 11:30:00
+         *  project_id: 26, rehearsal_id 778, beginning_date 2025-04-07 10:00:00, User1 present
+         *  project_id: 26, rehearsal_id 779, beginning_date 2025-04-07 11:30:00, User2 present
          * 
          */       
 
         List<CpResult> results = Utils.getCpResults(26, webTestClient);
+        Map<Long, Map<Long, Boolean>> presences = Utils.getCpPresencesResults(26, webTestClient);
 
         assertEquals(2, results.size(), "There should be 2 rehearsals");
         for(CpResult res: results){
@@ -192,6 +208,9 @@ public class CalendarCPTest {
                 assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
             }
         }
+
+        assertTrue(presences.get(778L).get(263L), "User1 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(779L).get(264L), "User2 should be able to be present at the second rehearsal");
     }
 
     @Test
@@ -215,12 +234,13 @@ public class CalendarCPTest {
          *  Rehearsal 2 before rehearsal 1
          * 
          * Res:
-         *  project_id: 27, rehearsal_id 1, beginning_date 2025-04-07 11:30:00
-         *  project_id: 27, rehearsal_id 2, beginning_date 2025-04-07 10:00:00
+         *  project_id: 27, rehearsal_id 1, beginning_date 2025-04-07 11:30:00, User1 present
+         *  project_id: 27, rehearsal_id 2, beginning_date 2025-04-07 10:00:00, User2 present
          * 
          */       
 
         List<CpResult> results = Utils.getCpResults(27, webTestClient);
+        Map<Long, Map<Long, Boolean>> presences = Utils.getCpPresencesResults(27, webTestClient);
 
         assertEquals(2, results.size(), "There should be 2 rehearsals");
         for(CpResult res: results){
@@ -235,6 +255,9 @@ public class CalendarCPTest {
                 assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
             }
         }
+
+        assertTrue(presences.get(1L).get(263L), "User1 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(2L).get(264L), "User2 should be able to be present at the second rehearsal");
     }
 
     @Test
@@ -255,12 +278,13 @@ public class CalendarCPTest {
          *  id 4, date: 2025-04-03, time: 22:30:00, duration 3h, project_id: 28, participants: User1 and User2
          * 
          * Res:
-         *  project_id: 28, rehearsal_id 3, beginning_date 2025-04-02 10:00:00
-         *  project_id: 28, rehearsal_id 4, beginning_date 2025-04-03 22:30:00
+         *  project_id: 28, rehearsal_id 3, beginning_date 2025-04-02 10:00:00, User1 and User2 not present
+         *  project_id: 28, rehearsal_id 4, beginning_date 2025-04-03 22:30:00, USer1 and User2 not present
          * 
          */       
 
         List<CpResult> results = Utils.getCpResults(28, webTestClient);
+        Map<Long, Map<Long, Boolean>> presences = Utils.getCpPresencesResults(28, webTestClient);
 
         assertEquals(2, results.size(), "There should be 2 rehearsals");
         for(CpResult res: results){
@@ -275,6 +299,10 @@ public class CalendarCPTest {
                 assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
             }
         }
+        assertFalse(presences.get(3L).get(263L), "User1 should not be able to be present at the first rehearsal");
+        assertFalse(presences.get(3L).get(264L), "User2 should not be able to be present at the first rehearsal");
+        assertFalse(presences.get(4L).get(263L), "User1 should not be able to be present at the second rehearsal");
+        assertFalse(presences.get(4L).get(264L), "User2 should not be able to be present at the second rehearsal");
     }
 
     @Test
@@ -295,12 +323,13 @@ public class CalendarCPTest {
          *  id 6, date: 2025-04-07, duration 3h, project_id: 29, participants: User1 and User2
          * 
          * Res:
-         *  project_id: 29, rehearsal_id 5, beginning_date 2025-04-07
-         *  project_id: 29, rehearsal_id 6, beginning_date 2025-04-07
+         *  project_id: 29, rehearsal_id 5, beginning_date 2025-04-07, User1 and User2 not present
+         *  project_id: 29, rehearsal_id 6, beginning_date 2025-04-07, User1 and User2 not present
          * 
          */       
 
         List<CpResult> results = Utils.getCpResults(29, webTestClient);
+        Map<Long, Map<Long, Boolean>> presences = Utils.getCpPresencesResults(29, webTestClient);
 
         assertEquals(2, results.size(), "There should be 2 rehearsals");
         for(CpResult res: results){
@@ -315,6 +344,11 @@ public class CalendarCPTest {
                 assertEquals(expectedBeginningDate, res.getBeginningDate().toLocalDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong date");
             }
         }
+
+        assertFalse(presences.get(5L).get(263L), "User1 should not be able to be present at the first rehearsal");
+        assertFalse(presences.get(5L).get(264L), "User2 should not be able to be present at the first rehearsal");
+        assertFalse(presences.get(6L).get(263L), "User1 should not be able to be present at the second rehearsal");
+        assertFalse(presences.get(6L).get(264L), "User2 should not be able to be present at the second rehearsal");
     }
 
     @Test
@@ -335,12 +369,13 @@ public class CalendarCPTest {
          *  id 8, date: 12:00:00, duration 1h, project_id: 30, participants: User1 and User2
          * 
          * Res:
-         *  project_id: 30, rehearsal_id 7, beginning_date 2025-04-08 10:00:00
-         *  project_id: 30, rehearsal_id 8, beginning_date 2025-04-08 12:00:00
+         *  project_id: 30, rehearsal_id 7, beginning_date 2025-04-08 10:00:00, User1 and User2 shoud be present
+         *  project_id: 30, rehearsal_id 8, beginning_date 2025-04-08 12:00:00, User1 and User2 shoud be present
          * 
          */       
 
         List<CpResult> results = Utils.getCpResults(30, webTestClient);
+        Map<Long, Map<Long, Boolean>> presences = Utils.getCpPresencesResults(30, webTestClient);
 
         assertEquals(2, results.size(), "There should be 2 rehearsals");
         for(CpResult res: results){
@@ -355,6 +390,10 @@ public class CalendarCPTest {
                 assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
             }
         }
+        assertTrue(presences.get(7L).get(263L), "User1 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(7L).get(264L), "User2 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(8L).get(263L), "User1 should be able to be present at the second rehearsal");
+        assertTrue(presences.get(8L).get(264L), "User2 should be able to be present at the second rehearsal");
     }
 
 }

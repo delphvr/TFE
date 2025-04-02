@@ -24,6 +24,7 @@ import com.google.ortools.sat.IntervalVar;
 import com.google.ortools.sat.LinearExpr;
 
 import calendarapp.model.CpResult;
+import calendarapp.model.CpPresenceResult;
 import calendarapp.model.Project;
 import calendarapp.model.Rehearsal;
 import calendarapp.model.Vacation;
@@ -45,6 +46,8 @@ public class CalendarCPService {
     private VacationService vacationService;
     @Autowired
     private CpResultService cpResultService;
+    @Autowired
+    private CpPresenceResultService cpPresenceResultService;
     @Autowired
     private RehearsalPrecedenceService rehearsalPrecedenceService;
 
@@ -525,8 +528,11 @@ public class CalendarCPService {
             RehearsalVariables currentRehearsalVariables = entry.getValue();
             List<Rehearsal> rehearsalPrecedence = rehearsalPrecedenceService.getRehersalsPrecedences(rehearsalId).getPrevious();
             for(Rehearsal rehearsal : rehearsalPrecedence){
-                RehearsalVariables previousRehearsalVariables = rehearsalsVariables.get(rehearsal.getId());
-                model.addLessOrEqual(previousRehearsalVariables.hourEnd, currentRehearsalVariables.hourStart);
+                //if they both already have a date set then overide the rehearsal precedence
+                if(!(allRehearsals.get(rehearsalId).date !=null && allRehearsals.get(rehearsal.getId()).date != null)){
+                    RehearsalVariables previousRehearsalVariables = rehearsalsVariables.get(rehearsal.getId());
+                    model.addLessOrEqual(previousRehearsalVariables.hourEnd, currentRehearsalVariables.hourStart);
+                }
             }
         }
 
@@ -558,23 +564,20 @@ public class CalendarCPService {
                 System.out.println("prjectId: " + projectId + " rehearsal id: " + rehearsal.id + " begining date: "
                         + beginningDateTime);
 
-                for (Map.Entry<Long, BoolVar> entry : schedule.usersPresence.entrySet()) {
-                    Long user = entry.getKey();
-                    BoolVar userPresence = entry.getValue();
-                    boolean presenceValue = solver.value(userPresence) == 1; // If the value is 1, it's true, otherwise
-                                                                             // false
-                    System.out.println("DEBUGG :  User: " + user + " Presence: " + presenceValue + " " + rehearsal.id);
-                }
-
                 boolean accepted = false;
                 if (!allRehearsalsToConstraint.containsKey(rehearsal.id)) {
                     accepted = true;
                 }
-                System.out.println("p1 : " + projectId);
                 CpResult cp = new CpResult(projectId, rehearsal.id, accepted, beginningDateTime);
                 cpResultService.createCp(cp);
                 res.add(cp);
-
+                for (Map.Entry<Long, BoolVar> entry : schedule.usersPresence.entrySet()) {
+                    Long userId = entry.getKey();
+                    BoolVar userPresence = entry.getValue();
+                    boolean presenceValue = solver.value(userPresence) == 1;
+                    CpPresenceResult cpPresence = new CpPresenceResult(rehearsal.id, userId, presenceValue);
+                    cpPresenceResultService.createCpPresence(cpPresence);
+                }
             }
         } else {
             // TODO: how to represent this in the response ?

@@ -1,6 +1,7 @@
 package calendarapp;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -75,6 +76,15 @@ public class Utils {
            .returnResult()
            .getResponseBody();
         return results;
+    }
+
+    static public Map<Long, Map<Long, Boolean>> getCpPresencesResults(int projectId, WebTestClient webTestClient){
+        Map<Long, Map<Long, Boolean>> presences = webTestClient.get().uri("/api/projects/" + projectId + "/CPpresences")
+           .exchange()
+           .expectBody(new org.springframework.core.ParameterizedTypeReference<Map<Long, Map<Long, Boolean>>>() {})
+           .returnResult()
+           .getResponseBody();
+        return presences;
     }
     
 }
