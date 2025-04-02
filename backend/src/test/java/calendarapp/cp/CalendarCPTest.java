@@ -161,4 +161,98 @@ public class CalendarCPTest {
         }
     }
 
+    @Test
+    public void testPrecedenceConstraints1() {         
+        /**
+         * User 1 (id 263) disponibilities:
+         *  weekday: 1(mardi), start_time: 10h, end_time: 13h
+         *  weekday: 2(mercredi), start_time: 14h, end_time: 18h
+         * User 2 (id 264) disponibilities:
+         *  weekday: 1(mardi), start_time: 10h, end_time: 13h
+         *  weekday: 3(jeudi), start_time: 8h, end_time: 20h   
+         * 
+         * Project:
+         *  id 26, beginning_date: 2025-04-06, ending_date: 2025-04-08
+         * 
+         * Rehearsals :
+         *  id 778, Rehearsal with only first participant, duration 1h30, project_id: 26, participants: User1
+         *  id 779, Rehearsal with only second participant, duration 1h30, project_id: 26, participants: User2
+         * 
+         * Precedence Relation: 
+         *  Rehearsal 778 before rehearsal 779
+         * 
+         * Res:
+         *  project_id: 26, rehearsal_id 778, beginning_date 2025-04-07 10:00:00
+         *  project_id: 26, rehearsal_id 779, beginning_date 2025-04-07 11:30:00
+         * 
+         */       
+
+        List<CpResult> results = webTestClient.get().uri("/api/projects/26/calendarCP")
+           .exchange()
+           .expectBodyList(CpResult.class)
+           .returnResult()
+           .getResponseBody();
+
+        assertEquals(2, results.size(), "There should be 2 rehearsals");
+        for(CpResult res: results){
+            assertTrue(res.getRehearsalId() == 778 || res.getRehearsalId() == 779, "Wrong rehearsal id");
+            assertEquals(26, res.getProjectId(), "Rehearsal " + res.getRehearsalId() + " has the wrong project id");
+            assertFalse(res.isAccepted(), "The result should not be marked as accepted for rehearsal " + res.getProjectId());
+            if(res.getRehearsalId() == 778){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 8, 10, 0, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 779){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 8, 11, 30, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            }
+        }
+    }
+
+    @Test
+    public void testPrecedenceConstraints2() {         
+        /**
+         * User 1 (id 263) disponibilities:
+         *  weekday: 1(mardi), start_time: 10h, end_time: 13h
+         *  weekday: 2(mercredi), start_time: 14h, end_time: 18h
+         * User 2 (id 264) disponibilities:
+         *  weekday: 1(mardi), start_time: 10h, end_time: 13h
+         *  weekday: 3(jeudi), start_time: 8h, end_time: 20h   
+         * 
+         * Project:
+         *  id 27, beginning_date: 2025-04-06, ending_date: 2025-04-08
+         * 
+         * Rehearsals :
+         *  id 1, Rehearsal with only first participant, duration 1h30, project_id: 27, participants: User1
+         *  id 2, Rehearsal with only second participant, duration 1h30, project_id: 27, participants: User2
+         * 
+         * Precedence Relation: 
+         *  Rehearsal 2 before rehearsal 1
+         * 
+         * Res:
+         *  project_id: 27, rehearsal_id 1, beginning_date 2025-04-07 11:30:00
+         *  project_id: 27, rehearsal_id 2, beginning_date 2025-04-07 10:00:00
+         * 
+         */       
+
+        List<CpResult> results = webTestClient.get().uri("/api/projects/27/calendarCP")
+           .exchange()
+           .expectBodyList(CpResult.class)
+           .returnResult()
+           .getResponseBody();
+
+        assertEquals(2, results.size(), "There should be 2 rehearsals");
+        for(CpResult res: results){
+            assertTrue(res.getRehearsalId() == 1 || res.getRehearsalId() == 2, "Wrong rehearsal id");
+            assertEquals(27, res.getProjectId(), "Rehearsal " + res.getRehearsalId() + " has the wrong project id");
+            assertFalse(res.isAccepted(), "The result should not be marked as accepted for rehearsal " + res.getProjectId());
+            if(res.getRehearsalId() == 1){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 8, 11, 30, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 2){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 8, 10, 0, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            }
+        }
+    }
+
 }

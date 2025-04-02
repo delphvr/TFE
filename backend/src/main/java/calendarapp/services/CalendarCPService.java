@@ -25,6 +25,7 @@ import com.google.ortools.sat.LinearExpr;
 
 import calendarapp.model.CpResult;
 import calendarapp.model.Project;
+import calendarapp.model.Rehearsal;
 import calendarapp.model.Vacation;
 import calendarapp.model.WeeklyAvailability;
 import calendarapp.response.RehearsalResponse;
@@ -44,6 +45,8 @@ public class CalendarCPService {
     private VacationService vacationService;
     @Autowired
     private CpResultService cpResultService;
+    @Autowired
+    private RehearsalPrecedenceService rehearsalPrecedenceService;
 
     @Value("${calendar.rehearsal.min-hour}")
     private int minHour;
@@ -55,14 +58,14 @@ public class CalendarCPService {
     final int periode_begining = 0;
     final LinearExpr oneDayInHour = LinearExpr.constant(24 * 60);
 
-    class Rehearsal {
+    class RehearsalData {
         Long id;
         Long duration; // in minutes
         LocalDate date;
         LocalTime time;
         List<Long> participantsId;
 
-        Rehearsal(Long id, Long duration, LocalDate date, LocalTime time, List<Long> participantsId) {
+        RehearsalData(Long id, Long duration, LocalDate date, LocalTime time, List<Long> participantsId) {
             this.id = id;
             this.duration = duration;
             this.date = date;
@@ -115,10 +118,10 @@ public class CalendarCPService {
      * @return the Map with all the participants as keys and as value the list of
      *         rhearsalsVaribale he participe in
      */
-    private Map<Long, Map<Long, RehearsalVariables>> ParticipantsRehearsals(Map<Long, Rehearsal> allRehearsals,
+    private Map<Long, Map<Long, RehearsalVariables>> ParticipantsRehearsals(Map<Long, RehearsalData> allRehearsals,
             Map<Long, RehearsalVariables> rehearsals) {
         Map<Long, Map<Long, RehearsalVariables>> res = new HashMap<>();
-        for (Rehearsal rehearsal : allRehearsals.values()) {
+        for (RehearsalData rehearsal : allRehearsals.values()) {
             for (Long participant : rehearsal.participantsId) {
                 res.putIfAbsent(participant, new HashMap<>());
                 res.get(participant).put(rehearsal.id, rehearsals.get(rehearsal.id));
@@ -215,22 +218,23 @@ public class CalendarCPService {
      * @return the list of all the variables groupe by the rehearsals id they
      *         correspond to
      */
-    private Map<Long, RehearsalVariables> createVariables(CpModel model, Map<Long, Rehearsal> allRehearsals,
-            Map<Long, Rehearsal> allRehearsalsToConstraint, Project project) {
+    private Map<Long, RehearsalVariables> createVariables(CpModel model, Map<Long, RehearsalData> allRehearsals,
+            Map<Long, RehearsalData> allRehearsalsToConstraint, Project project) {
         Map<Long, RehearsalVariables> rehearsals = new HashMap<>();
         long periode_end = getEndValue(project);
-        for (Rehearsal rehearsal : allRehearsals.values()) {
+        for (RehearsalData rehearsal : allRehearsals.values()) {
             Map<Long, BoolVar> usersPresence = new HashMap<>();
             for (Long participantId : rehearsal.participantsId) {
                 usersPresence.put(participantId,
                         model.newBoolVar("user_" + participantId + "_participates_to_" + rehearsal.id));
             }
+            //rehearsal already has a date and time set
             if (rehearsal.date != null && rehearsal.time != null) {
                 LocalDateTime dateTime = rehearsal.date.atTime(rehearsal.time);
                 Long startTime = getDateTimeValue(project, dateTime);
                 Long endTime = startTime + rehearsal.duration;
                 IntVar start = model.newIntVar(startTime, startTime, "start_rehearsal_" + rehearsal.id);
-                IntVar end = model.newIntVar(endTime, endTime, "not_end_rehearsal_" + rehearsal.id);
+                IntVar end = model.newIntVar(endTime, endTime, "end_rehearsal_" + rehearsal.id);
                 IntVar duration = model.newIntVar(rehearsal.duration, rehearsal.duration,
                         "duration_rehearsal_" + rehearsal.id);
                 IntervalVar interval = model.newIntervalVar(start, duration, end,
@@ -238,7 +242,21 @@ public class CalendarCPService {
                 rehearsals.put(rehearsal.id,
                         new RehearsalVariables(start, end, duration, interval, null, null, null, usersPresence));
             }
-            // TODO if just at a specific date or just at a specific time
+            //rehearsal has a specific date but not time
+            else if (rehearsal.date != null && rehearsal.time == null) {
+                LocalDateTime stratDateTime = rehearsal.date.atStartOfDay();
+                Long startTime = getDateTimeValue(project, stratDateTime);
+                LocalDateTime endDateTime = rehearsal.date.atTime(LocalTime.MAX);
+                Long endTime = getDateTimeValue(project, endDateTime) - rehearsal.duration;
+                IntVar start = model.newIntVar(startTime, startTime, "start_rehearsal_" + rehearsal.id);
+                IntVar end = model.newIntVar(endTime, endTime, "end_rehearsal_" + rehearsal.id);
+                IntVar duration = model.newIntVar(rehearsal.duration, rehearsal.duration,
+                        "duration_rehearsal_" + rehearsal.id);
+                IntervalVar interval = model.newIntervalVar(start, duration, end,
+                        "interval_rehearsal_" + rehearsal.id);
+                rehearsals.put(rehearsal.id,
+                        new RehearsalVariables(start, end, duration, interval, null, null, null, usersPresence));
+            }
             else {
                 IntVar start = model.newIntVar(periode_begining, periode_end - rehearsal.duration,
                         "start_rehearsal_" + rehearsal.id);
@@ -249,8 +267,17 @@ public class CalendarCPService {
                         "interval_rehearsal_" + rehearsal.id);
                 rehearsals.put(rehearsal.id,
                         new RehearsalVariables(start, end, duration, interval, null, null, null, usersPresence));
+                //rehearsal has a specific time but not date
+                if(rehearsal.date == null && rehearsal.time != null){
+                    // model.addGreaterOrEqual(schedule.start % 1440, rehearsal.time*60) (1440 minutes in
+                    // on day)
+                    IntVar hourStart = model.newIntVar(0, 1439, "modulo_define_start_" + rehearsal.id);
+                    // hour_start = schedule.start % 1440
+                    model.addModuloEquality(hourStart, start, oneDayInHour);
+                    model.addEquality(hourStart, rehearsal.time.toSecondOfDay() / 60);
+                }
             }
-            if (allRehearsalsToConstraint.containsKey(rehearsal.id)) {
+            if (allRehearsalsToConstraint.containsKey(rehearsal.id) && rehearsal.time == null) {
                 notAtNight(model, rehearsal.id, rehearsals);
             }
         }
@@ -410,10 +437,10 @@ public class CalendarCPService {
 
         Loader.loadNativeLibraries();
 
-        Map<Long, Rehearsal> allRehearsals = new HashMap<>();
-        Map<Long, Rehearsal> allRehearsalsToConstraint = new HashMap<>();
+        Map<Long, RehearsalData> allRehearsals = new HashMap<>();
+        Map<Long, RehearsalData> allRehearsalsToConstraint = new HashMap<>();
         for (RehearsalResponse rehearsal : rehearsalService.getProjectRehearsals(projectId)) {
-            Rehearsal r = new Rehearsal(rehearsal.getId(), rehearsal.getDuration().toMinutes(), rehearsal.getDate(),
+            RehearsalData r = new RehearsalData(rehearsal.getId(), rehearsal.getDuration().toMinutes(), rehearsal.getDate(),
                     rehearsal.getTime(), rehearsal.getParticipantsIds());
             allRehearsals.put(rehearsal.getId(), r);
             if (rehearsal.getDate() == null && rehearsal.getTime() == null) {
@@ -426,7 +453,7 @@ public class CalendarCPService {
                 allRehearsalsToConstraint, project);
 
         Map<Long, Map<Long, RehearsalVariables>> ParticipantsRehearsals = ParticipantsRehearsals(
-                allRehearsalsToConstraint,
+                allRehearsals,
                 rehearsalsVariables);
 
         // Constraints :
@@ -471,7 +498,7 @@ public class CalendarCPService {
             rehearsalNotPossible.forEach((id, dateTime) -> {
                 if (allRehearsalsToConstraint.containsKey(id)) {
                     RehearsalVariables rehearsalVariables = rehearsalsVariables.get(id);
-                    Rehearsal rehearsal = allRehearsals.get(id);
+                    RehearsalData rehearsal = allRehearsals.get(id);
                     Long start = getDateTimeValue(project, dateTime);
                     Long end = start + rehearsal.duration;
                     IntVar intervalStart = model.newIntVar(start, start, "not_start_rehearsal_" + rehearsal.id);
@@ -494,6 +521,16 @@ public class CalendarCPService {
             AddVacationConstraints(model, project, userId, entry.getValue());
             //TODO: not when I have other rehearsals from other projects
         }
+        // 4. precedences relations
+        for(Map.Entry<Long, RehearsalVariables> entry : rehearsalsVariables.entrySet()){
+            Long rehearsalId = entry.getKey();
+            RehearsalVariables currentRehearsalVariables = entry.getValue();
+            List<Rehearsal> rehearsalPrecedence = rehearsalPrecedenceService.getRehersalsPrecedences(rehearsalId).getPrevious();
+            for(Rehearsal rehearsal : rehearsalPrecedence){
+                RehearsalVariables previousRehearsalVariables = rehearsalsVariables.get(rehearsal.getId());
+                model.addLessOrEqual(previousRehearsalVariables.hourEnd, currentRehearsalVariables.hourStart);
+            }
+        }
 
         // We want to maximize the number of participations (here over the whole project)
         List<BoolVar> allPresenceVars = new ArrayList<>();
@@ -515,7 +552,7 @@ public class CalendarCPService {
         List<CpResult> res = new ArrayList<>();
 
         if (status == CpSolverStatus.OPTIMAL || status == CpSolverStatus.FEASIBLE) {
-            for (Rehearsal rehearsal : allRehearsals.values()) {
+            for (RehearsalData rehearsal : allRehearsals.values()) {
                 RehearsalVariables schedule = rehearsalsVariables.get(rehearsal.id);
 
                 LocalDateTime beginningDateTime = getRehearsalDate(project, solver.value(schedule.start));
