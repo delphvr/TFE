@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import calendarapp.model.CpResult;
 import calendarapp.model.CpResultId;
+import calendarapp.model.RehearsalPresence;
+import calendarapp.model.User;
 import calendarapp.repository.CpResultRepository;
 import jakarta.transaction.Transactional;
 
@@ -21,6 +23,8 @@ public class CpResultService {
     private ProjectService projectService;
     @Autowired
     private RehearsalService rehearsalService;
+    @Autowired
+    private CpPresenceResultService cpPresenceResultService;
     @Autowired
     private CpResultRepository cpResultRepository;
 
@@ -96,8 +100,9 @@ public class CpResultService {
     }
 
     /**
-     * Accepted all cp result for the project with id `projectId`. 
-     * Updates the rehearsals date and delet the cp result from the database.
+     * Accepted all cp result for the project with id `projectId`.
+     * Updates the rehearsals date and delete the cp result from the database.
+     * Put/update the presence of the users at the rehearsal.
      * 
      * @param projectId the id of the project
      * @throws IllegalArgumentException if no project found with id `projectId`
@@ -107,6 +112,12 @@ public class CpResultService {
         projectService.isProject(projectId);
         List<CpResult> cpResults = cpResultRepository.findByProjectId(projectId);
         for (CpResult cpResult : cpResults) {
+            List<User> users = rehearsalService.getRehearsalParticipants(cpResult.getRehearsalId());
+            for (User user : users) {
+                RehearsalPresence rehearsalPresence = new RehearsalPresence(cpResult.getRehearsalId(), user.getId(),
+                        cpPresenceResultService.getIsPresent(cpResult.getRehearsalId(), user.getId()));
+                rehearsalService.createOrUpdateRehearsalPresence(rehearsalPresence);
+            }
             rehearsalService.updateReheasalDateAndTime(cpResult.getRehearsalId(), projectId,
                     cpResult.getBeginningDate());
             cpResultRepository.delete(cpResult);

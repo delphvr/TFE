@@ -5,19 +5,26 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import calendarapp.model.CpPresenceResultId;
 import calendarapp.model.Participation;
 import calendarapp.model.Project;
 import calendarapp.model.Rehearsal;
+import calendarapp.model.RehearsalPresence;
 import calendarapp.model.User;
+import calendarapp.model.Vacation;
+import calendarapp.model.WeeklyAvailability;
 import calendarapp.repository.ParticipationRepository;
 import calendarapp.repository.ProjectRepository;
+import calendarapp.repository.RehearsalPresenceRepository;
 import calendarapp.repository.RehearsalRepository;
 import calendarapp.request.RehearsalRequest;
 import calendarapp.response.RehearsalResponse;
@@ -36,6 +43,12 @@ public class RehearsalService {
     private ParticipationRepository participationRepository;
     @Autowired
     private UserService userService;
+    @Autowired 
+    private RehearsalPresenceRepository rehearsalPresenceRepository;
+    @Autowired 
+    private WeeklyAvailabilityService weeklyAvailabilityService;
+    @Autowired 
+    private VacationService vacationService;
 
     /**
      * Checks if a rehearsal with the given ´id´ exists in the database.
@@ -106,6 +119,41 @@ public class RehearsalService {
     }
 
     /**
+     * Get is the user able to attende this rehearsal according to his schedule.
+     * 
+     * @param rehearsal the rehearsal data
+     * @param userId the id of the user
+     * @return is the user free for the rehearsal
+     */
+    public boolean isPresent(Rehearsal rehearsal, Long userId){
+        List<Rehearsal> rehearsalsSameDate = rehearsalRepository.findByUserIdAndDate(userId, rehearsal.getDate());
+        for(Rehearsal otherRehearsal : rehearsalsSameDate){
+            if(otherRehearsal.getId() == rehearsal.getId()){
+                continue;
+            }
+            if (!rehearsal.getTime().isBefore(otherRehearsal.getTime()) && !rehearsal.getTime().isAfter(otherRehearsal.getTime().plus(rehearsal.getDuration()))){
+                return false;
+            }
+        }
+        List<WeeklyAvailability> weeklyAvailabilities = weeklyAvailabilityService.getUserAvailabilities(userId);
+        List<Vacation> vacations = vacationService.getUserVacations(userId);
+        for(Vacation vacation : vacations){
+            if (!rehearsal.getDate().isBefore(vacation.getStartDate()) && !rehearsal.getDate().isAfter(vacation.getEndDate())) {
+                return false;
+            }
+        }
+        for(WeeklyAvailability weeklyAvailability : weeklyAvailabilities){
+            int rehearsalWeekday = (rehearsal.getDate().getDayOfWeek().getValue() - 1) % 7;
+            if(weeklyAvailability.getWeekday() == rehearsalWeekday){
+                if (!rehearsal.getTime().isBefore(weeklyAvailability.getStartTime()) && !rehearsal.getTime().isAfter(weeklyAvailability.getEndTime())){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Add the ´rehearsal´ to the database
      * 
      * @param request the rehearsal to save in the database
@@ -131,12 +179,13 @@ public class RehearsalService {
         Rehearsal rehearsal = new Rehearsal(request.getName(), request.getDescription(), request.getDate(), request.getTime(),
                 request.getDuration(), request.getProjectId(), request.getLocation());
         Rehearsal res = rehearsalRepository.save(rehearsal);
-        // TODO dois check que les participant à la répète sont bien des participant au
-        // project
         for (Long participantId : request.getParticipantsIds()) {
             userService.isUser(participantId);
             Participation participation = new Participation(participantId, rehearsal.getId());
             participationRepository.save(participation);
+            if(res.getDate() != null && res.getTime() !=null){
+                rehearsalPresenceRepository.save(new RehearsalPresence(res.getId(), participantId, isPresent(res, participantId)));
+            }
         }
         return res;
     }
@@ -193,18 +242,24 @@ public class RehearsalService {
             List<Long> existingParticipantIds = existingParticipations.stream().map(Participation::getUserId)
                     .collect(Collectors.toList());
             List<Long> updatedParticipantIds = request.getParticipantsIds();
-            // Delet participants not present anymore
+            // Delet participants not present anymore and save their disponibility if needed
             for (Participation participation : existingParticipations) {
+                if(res.getDate() != null && res.getTime() !=null){
+                    rehearsalPresenceRepository.save(new RehearsalPresence(res.getId(), participation.getUserId(), isPresent(res, participation.getUserId())));
+                }
                 if (!updatedParticipantIds.contains(participation.getUserId())) {
                     participationRepository.delete(participation);
                 }
             }
-            // add new participant
+            // add new participant and save their disponibility if needed
             for (Long participantId : updatedParticipantIds) {
                 if (!existingParticipantIds.contains(participantId)) {
                     userService.isUser(participantId);
                     Participation newParticipation = new Participation(participantId, id);
                     participationRepository.save(newParticipation);
+                    if(res.getDate() != null && res.getTime() !=null){
+                        rehearsalPresenceRepository.save(new RehearsalPresence(res.getId(), newParticipation.getUserId(), isPresent(res, newParticipation.getUserId())));
+                    }
                 }
             }
             return res;
@@ -240,7 +295,6 @@ public class RehearsalService {
             Rehearsal _rehearsal = rehearsalData.get();
             _rehearsal.setDate(date);
             _rehearsal.setTime(time);
-
             Rehearsal res = rehearsalRepository.save(_rehearsal);
             return res;
         } else {
@@ -321,6 +375,49 @@ public class RehearsalService {
         for(Participation participation : participations){
             Rehearsal rehearsal = rehearsalRepository.findById(participation.getRehearsalId()).get();
             res.add(rehearsal);
+        }
+        return res;
+    }
+
+    /**
+     * Save or update the given rehearsal presence in the database.
+     * 
+     * @param rehearsalPresence the rehearsal presence to be save or update in the database
+     * @return the saved rehearsal presence
+     * @throws IllegalArgumentException if no user is found with the given
+     *                                  user id,
+     *                                  or if no rehearsal is found with the given
+     *                                  rehearsal id
+     */
+    public RehearsalPresence createOrUpdateRehearsalPresence(RehearsalPresence rehearsalPresence) {
+        userService.isUser(rehearsalPresence.getUserId());
+        isRehearsal(rehearsalPresence.getRehearsalId());
+        RehearsalPresence res = rehearsalPresenceRepository.save(rehearsalPresence);
+        return res;
+    }
+
+    /**
+     * Get for each rehearsals of the project who can attempte the rehearsal and who
+     * can't.
+     * 
+     * @param projectId the id of the project
+     * @return a Map with as key the rehearsals id, and as values another map with
+     *         as key the user id and as value a boolean representing if the user is
+     *         present at the rehearsal or not
+     * @throws IllegalArgumentException if no project is found with the given id
+     */
+    public Map<Long, Map<Long, Boolean>> getPresences(Long projectId) {
+        projectService.isProject(projectId);
+        List<RehearsalResponse> rehearsals = getProjectRehearsals(projectId);
+        Map<Long, Map<Long, Boolean>> res = new HashMap<>();
+        for (RehearsalResponse rehearsal : rehearsals) {
+            Map<Long, Boolean> rehearsalsParticipation = new HashMap<>();
+            for (Long userId : rehearsal.getParticipantsIds()) {
+                Optional<RehearsalPresence> presence = rehearsalPresenceRepository
+                        .findById(new CpPresenceResultId(rehearsal.getId(), userId));
+                rehearsalsParticipation.put(userId, presence.get().isPresent());
+            }
+            res.put(rehearsal.getId(), rehearsalsParticipation);
         }
         return res;
     }

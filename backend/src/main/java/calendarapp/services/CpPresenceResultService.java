@@ -43,7 +43,7 @@ public class CpPresenceResultService {
 
     /**
      * Get for each rehearsals of the project who can attempte the rehearsal and who
-     * can't for the cp rpoposition.
+     * can't for the cp proposition.
      * 
      * @param projectId the id of the project
      * @return a Map with as key the rehearsals id, and as values another map with
@@ -65,6 +65,23 @@ public class CpPresenceResultService {
             res.put(rehearsal.getId(), rehearsalsParticipation);
         }
         return res;
+    }
+
+    /**
+     * Get is a user present at a given rehearsal in the sugestion from the cp.
+     * 
+     * @param rehearsalId the id of the rehearsal
+     * @param userId the id of the user
+     * @return is the user suppose to be present at the rehearsal
+     * @throws IllegalArgumentException if no rehearsal is found with the given id,
+     *                                  or if no user is found with the given id
+     */
+    public boolean getIsPresent(Long rehearsalId, Long userId){
+        rehearsalService.isRehearsal(userId);
+        userService.isUser(userId);
+        Optional<CpPresenceResult> presence = cpPresenceResultRepository
+                        .findById(new CpPresenceResultId(rehearsalId, userId));
+        return presence.get().isPresent();
     }
 
 }

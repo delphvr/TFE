@@ -55,7 +55,7 @@ public class CalendarCPController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@Operation(summary = "Get the user presence for the rehearsals planning computed by the cp")
+	@Operation(summary = "Get the users presences for the rehearsals planning computed by the cp")
 	@GetMapping("/projects/{id}/CPpresences")
 	public ResponseEntity<Map<Long, Map<Long, Boolean>>> getPresencesResult(@PathVariable("id") long id) {
 		Map<Long, Map<Long, Boolean>> res = cpPresenceResultService.getCpPresences(id);

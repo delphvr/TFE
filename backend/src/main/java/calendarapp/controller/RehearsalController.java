@@ -1,6 +1,7 @@
 package calendarapp.controller;
 
 import calendarapp.model.Rehearsal;
+import calendarapp.model.RehearsalPresence;
 import calendarapp.model.User;
 import calendarapp.request.RehearsalRequest;
 import calendarapp.response.RehearsalPrecedenceResponse;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -116,6 +118,21 @@ public class RehearsalController {
             @RequestParam Long previous) {
         rehearsalPrecedenceService.deleteRehearsalPrecedence(current, previous);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Operation(summary = "Get the users presence for the rehearsals of the project")
+	@GetMapping("/projects/{id}/presences")
+	public ResponseEntity<Map<Long, Map<Long, Boolean>>> getRehearsalsPresences(@PathVariable("id") long id) {
+		Map<Long, Map<Long, Boolean>> res = rehearsalService.getPresences(id);
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+    @Operation(summary = "Update the user presence for the rehearsal")
+    @PutMapping("/rehearsals/{rehearsalId}/users/{userId}/presences")
+    public ResponseEntity<RehearsalPresence> updateUserPresence(@PathVariable("rehearsalId") long rehearsalId,
+            @PathVariable("userId") long userId, @RequestParam Boolean presence) { 
+        RehearsalPresence res = rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(rehearsalId, userId, presence)); 
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
 }

@@ -12,9 +12,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "cp_presences")
+@Table(name = "rehearsals_presences")
 @IdClass(CpPresenceResultId.class)
-public class CpPresenceResult {
+public class RehearsalPresence {
     @Id
     @Column(name = "rehearsal_id", nullable = false)
     private Long rehearsalId;
@@ -36,10 +36,10 @@ public class CpPresenceResult {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-    public CpPresenceResult() {
+    public RehearsalPresence() {
     }
 
-    public CpPresenceResult(Long rehearsalId, Long userId, boolean present) {
+    public RehearsalPresence(Long rehearsalId, Long userId, boolean present) {
         this.rehearsalId = rehearsalId;
         this.userId = userId;
         this.present = present;
