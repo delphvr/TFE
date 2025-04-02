@@ -126,9 +126,12 @@ public class RehearsalService {
      * @return is the user free for the rehearsal
      */
     public boolean isPresent(Rehearsal rehearsal, Long userId){
-        List<Rehearsal> rehearsalsSameDate = rehearsalRepository.findByUserIdAndDate(userId, rehearsal.getDate());
-        for(Rehearsal otherRehearsal : rehearsalsSameDate){
+        List<Rehearsal> userRehearsals = getUserRehearsals(userId);
+        for(Rehearsal otherRehearsal : userRehearsals){
             if(otherRehearsal.getId() == rehearsal.getId()){
+                continue;
+            }
+            if(otherRehearsal.getDate() != rehearsal.getDate()){
                 continue;
             }
             if (!rehearsal.getTime().isBefore(otherRehearsal.getTime()) && !rehearsal.getTime().isAfter(otherRehearsal.getTime().plus(rehearsal.getDuration()))){
@@ -367,11 +370,28 @@ public class RehearsalService {
      * 
      * @param email the email of the user
      * @return the list og all the rehearsal the user is a part of
+     * @throws IllegalArgumentException if no user found with the given email
      */
     public List<Rehearsal> getUserRehearsals(String email){
         List<Rehearsal> res = new ArrayList<>();
         User user = userService.getUser(email);
         List<Participation> participations = participationRepository.findByUserId(user.getId());
+        for(Participation participation : participations){
+            Rehearsal rehearsal = rehearsalRepository.findById(participation.getRehearsalId()).get();
+            res.add(rehearsal);
+        }
+        return res;
+    }
+
+    /**
+     * Get all the rehearsal the user is a part of.
+     * 
+     * @param userId the id of the user
+     * @return the list og all the rehearsal the user is a part of
+     */
+    public List<Rehearsal> getUserRehearsals(Long userId){
+        List<Rehearsal> res = new ArrayList<>();
+        List<Participation> participations = participationRepository.findByUserId(userId);
         for(Participation participation : participations){
             Rehearsal rehearsal = rehearsalRepository.findById(participation.getRehearsalId()).get();
             res.add(rehearsal);
