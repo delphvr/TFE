@@ -86,12 +86,12 @@ public class CalendarCPTest {
          * 
          * Rehearsals :
          *  id 774, Rehearsal with both participants, duration 3h, project_id: 24, participants: User1, User2
-         *  id 775, Rehearsal with only first participant, duration 3h, project_id: 24, participants: User1
-         *  id 776, Rehearsal with only second participant, duration 3h, project_id: 24, participants: User2
+         *  id 775, Rehearsal with only first participant, duration 4h, project_id: 24, participants: User1
+         *  id 776, Rehearsal with only second participant, duration 4h, project_id: 24, participants: User2
          * 
          * Res:
          *  project_id: 24, rehearsal_id 774, beginning_date 2025-04-01 10:00:00
-         *  project_id: 24, rehearsal_id 775, beginning_date 2025-04-02 
+         *  project_id: 24, rehearsal_id 775, beginning_date 2025-04-02 14:00:00
          *  project_id: 24, rehearsal_id 776, beginning_date 
          * 
          */       
@@ -107,10 +107,11 @@ public class CalendarCPTest {
                 LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 1, 10, 0, 0);
                 assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
             } else if(res.getRehearsalId() == 775){
-                LocalDate expectedBeginningDate = LocalDate.of(2025, 4, 2);
-                assertEquals(expectedBeginningDate, res.getBeginningDate().toLocalDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong date");
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 2, 14, 0, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong date");
             }
         }
+
     }
 
     @Test
