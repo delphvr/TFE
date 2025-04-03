@@ -413,8 +413,8 @@ COPY public.rehearsals (id, date, description, duration, location, name, project
 6	2025-04-07	Rehearsal with both participants for project 29	10800000000000	\N	Rehearsal with both participants	29	\N
 7	\N	Rehearsal with both participants for project 30	7200000000000	\N	Rehearsal with both participants	30	10:00:00
 8	\N	Rehearsal with both participants for project 30	3600000000000	\N	Rehearsal with both participants	30	12:00:00
-775	\N	Rehearsal with only first participant	10800000000000	\N	Rehearsal with only first participant	24	\N
-776	\N	Rehearsal with only second participant	10800000000000	\N	Rehearsal with only second participant	24	\N
+775	\N	Rehearsal with only first participant	14400000000000	\N	Rehearsal with only first participant	24	\N
+776	\N	Rehearsal with only second participant	14400000000000	\N	Rehearsal with only second participant	24	\N
 \.
 
 
