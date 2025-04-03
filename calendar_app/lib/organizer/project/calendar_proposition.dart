@@ -24,11 +24,22 @@ class CalendarPropositionPage extends StatefulWidget {
 class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
   final user = FirebaseAuth.instance.currentUser!;
   late Future<Map<String, Map<String, List<dynamic>>>>? rehearsals;
+  Future<Map<int, Map<int, bool>>>? participations = Future.value({});
 
   @override
   void initState() {
     super.initState();
-    rehearsals = getPropositions(context, false);
+    fetchData();
+  }
+
+  void fetchData() async {
+    setState(() {
+      rehearsals = getPropositions(context, false);
+    });
+    await rehearsals; //If proposition not computed won't get the participations
+    setState(() {
+      participations = getParticipation(context);
+    });
   }
 
   dynamic getRehearsal(int id) async {
@@ -58,7 +69,7 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
       BuildContext context, bool recompute) async {
     String url =
         '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/calendarCP';
-    if(recompute){
+    if (recompute) {
       url += '?recompute=true';
     }
     try {
@@ -79,6 +90,16 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
             'duration': rehearsalData['duration'],
           };
         }));
+
+        propositions.sort((a, b) {
+          DateTime dateA = DateTime.parse(a['beginningDate']);
+          DateTime dateB = DateTime.parse(b['beginningDate']);
+          int yearComparison = dateA.year.compareTo(dateB.year);
+          if (yearComparison != 0) return yearComparison;
+          int monthComparison = dateA.month.compareTo(dateB.month);
+          if (monthComparison != 0) return monthComparison;
+          return dateA.day.compareTo(dateB.day);
+        });
 
         Map<String, Map<String, List<dynamic>>> rehearsalsByMonth = {};
         for (var rehearsal in propositions) {
@@ -101,6 +122,49 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
         return {};
       }
     } catch (e) {
+      if (context.mounted) {
+        Utils.errorMess('Erreur lors de la récupération de la proposition',
+            'Une erreur s\'est produite', context);
+      }
+      return {};
+    }
+  }
+
+  Future<Map<int, Map<int, bool>>> getParticipation(
+      BuildContext context) async {
+    String url =
+        '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/CPpresences';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> rawData =
+            json.decode(utf8.decode(response.bodyBytes));
+
+        // Convert keys from String to int
+        Map<int, Map<int, bool>> parsedData = rawData.map((key, value) {
+          return MapEntry(
+            int.parse(key), // Convert first-level key to int
+            (value as Map<String, dynamic>).map((subKey, subValue) {
+              return MapEntry(int.parse(subKey),
+                  subValue as bool); // Convert second-level key to int
+            }),
+          );
+        });
+
+        return parsedData;
+      } else {
+        print(response.statusCode);
+        print(response.body);
+        if (context.mounted) {
+          Utils.errorMess('Erreur lors de la récupération de la proposition',
+              'Une erreur s\'est produite', context);
+        }
+        return {};
+      }
+    } catch (e) {
+      print(e);
       if (context.mounted) {
         Utils.errorMess('Erreur lors de la récupération de la proposition',
             'Une erreur s\'est produite', context);
@@ -208,6 +272,7 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
                   rehearsals: rehearsals,
                   accept: accept,
                   isCalendar: false,
+                  participations: participations,
                 ),
                 const SizedBox(height: 25),
                 ButtonCustom(
@@ -220,9 +285,7 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
                 ButtonCustom(
                   text: 'Recalculer',
                   onTap: () {
-                    setState(() {
-                      rehearsals = getPropositions(context, true);
-                    });
+                    fetchData();
                   },
                 ),
                 const SizedBox(height: 25),

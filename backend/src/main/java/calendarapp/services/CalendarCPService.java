@@ -184,10 +184,9 @@ public class CalendarCPService {
      * 
      * @param model       the model to which add the variables and constraints
      * @param rehearsalId the rehearsal
-     * @param rehearsals  a map with the rehearsal in it
+     * @param rehearsalVariables  the rehearsals model variables
      */
-    private void notAtNight(CpModel model, Long rehearsalId, Map<Long, RehearsalVariables> rehearsals) {
-        RehearsalVariables rehearsalVariables = rehearsals.get(rehearsalId);
+    private void notAtNight(CpModel model, Long rehearsalId, RehearsalVariables rehearsalVariables) {
         // model.addGreaterOrEqual(schedule.start % 1440, minHour*60) (1440 minutes in
         // on day)
         IntVar hourStart = model.newIntVar(0, 1439, "modulo_start_" + rehearsalId);
@@ -280,7 +279,7 @@ public class CalendarCPService {
                 }
             }
             if (rehearsal.date == null && rehearsal.time == null) {
-                notAtNight(model, rehearsal.id, rehearsals);
+                notAtNight(model, rehearsal.id, rehearsals.get(rehearsal.id));
             }
         }
         return rehearsals;
@@ -531,7 +530,7 @@ public class CalendarCPService {
                 //if they both already have a date set then overide the rehearsal precedence
                 if(!(allRehearsals.get(rehearsalId).date !=null && allRehearsals.get(rehearsal.getId()).date != null)){
                     RehearsalVariables previousRehearsalVariables = rehearsalsVariables.get(rehearsal.getId());
-                    model.addLessOrEqual(previousRehearsalVariables.hourEnd, currentRehearsalVariables.hourStart);
+                    model.addLessOrEqual(previousRehearsalVariables.end, currentRehearsalVariables.start);
                 }
             }
         }
@@ -561,7 +560,7 @@ public class CalendarCPService {
 
                 LocalDateTime beginningDateTime = getRehearsalDate(project, solver.value(schedule.start));
 
-                System.out.println("prjectId: " + projectId + " rehearsal id: " + rehearsal.id + " begining date: "
+                System.out.println("DEBUGG : projectId: " + projectId + " rehearsal id: " + rehearsal.id + " begining date: "
                         + beginningDateTime);
 
                 boolean accepted = false;
@@ -577,6 +576,12 @@ public class CalendarCPService {
                     boolean presenceValue = solver.value(userPresence) == 1;
                     CpPresenceResult cpPresence = new CpPresenceResult(rehearsal.id, userId, presenceValue);
                     cpPresenceResultService.createCpPresence(cpPresence);
+                }
+                for (Map.Entry<Long, BoolVar> entry : schedule.usersPresence.entrySet()) {
+                    Long user = entry.getKey();
+                    BoolVar userPresence = entry.getValue();
+                    boolean presenceValue = solver.value(userPresence) == 1;
+                    System.out.println("DEBUGG :  User: " + user + " Presence: " + presenceValue + " " + rehearsal.id);
                 }
             }
         } else {

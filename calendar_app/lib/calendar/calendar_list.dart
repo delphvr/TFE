@@ -7,6 +7,7 @@ class CalendarList extends StatefulWidget {
   final Function? accept;
   final Future<Map<String, Map<String, List<dynamic>>>>? rehearsals;
   final bool isCalendar;
+  final Future<Map<int, Map<int, bool>>>? participations;
 
   const CalendarList({
     super.key,
@@ -14,6 +15,7 @@ class CalendarList extends StatefulWidget {
     required this.rehearsals,
     this.accept,
     required this.isCalendar,
+    this.participations,
   });
 
   @override
@@ -78,6 +80,21 @@ class _CalendarListState extends State<CalendarList> {
     int endMinutes = endDuration.inMinutes % 60;
 
     return '${endHours.toString().padLeft(2, '0')}:${endMinutes.toString().padLeft(2, '0')}';
+  }
+
+  Future<String> getParticipationProportions(int rehearsalId) async {
+    if (widget.participations == null) return "";
+
+    final participationData = await widget.participations!;
+    if (!participationData.containsKey(rehearsalId)) return "";
+
+    Map<int, bool> partic = participationData[rehearsalId]!;
+    int total = partic.length;
+    int accepted = partic.values.where((accepted) => accepted).length;
+
+    if (total == 0) return "0/0";
+
+    return "$accepted/$total";
   }
 
   //Done with the help of chatgpt
@@ -168,8 +185,8 @@ class _CalendarListState extends State<CalendarList> {
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
                                   color: widget.isCalendar
-                                      ? colors[
-                                          rehearsal['projectId'] % colors.length]
+                                      ? colors[rehearsal['projectId'] %
+                                          colors.length]
                                       : (rehearsal['accepted']
                                           ? Colors.green[100]
                                           : Colors.red[100]),
@@ -199,6 +216,17 @@ class _CalendarListState extends State<CalendarList> {
                                         ),
                                       ],
                                     ),
+                                    !widget.isCalendar
+                                        ? FutureBuilder<String>(
+                                            future: getParticipationProportions(
+                                                rehearsal['rehearsalId']),
+                                            builder: (context, snapshot) {
+                                              return Text(snapshot.data ?? "",
+                                                  style: const TextStyle(
+                                                      fontSize: 18));
+                                            },
+                                          )
+                                        : const SizedBox(),
                                     !widget.isCalendar
                                         ? GestureDetector(
                                             onTap: () {
