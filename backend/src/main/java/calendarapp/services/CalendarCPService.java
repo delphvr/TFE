@@ -261,7 +261,7 @@ public class CalendarCPService {
             else {
                 IntVar start = model.newIntVar(periode_begining, periode_end - rehearsal.duration,
                         "start_rehearsal_" + rehearsal.id);
-                IntVar end = model.newIntVar(periode_begining, periode_end, "end_rehearsal_" + rehearsal.id);
+                IntVar end = model.newIntVar(periode_begining + rehearsal.duration, periode_end, "end_rehearsal_" + rehearsal.id);
                 IntVar duration = model.newIntVar(rehearsal.duration, rehearsal.duration,
                         "duration_rehearsal_" + rehearsal.id);
                 IntervalVar interval = model.newIntervalVar(start, duration, end,

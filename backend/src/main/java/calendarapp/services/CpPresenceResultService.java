@@ -77,7 +77,7 @@ public class CpPresenceResultService {
      *                                  or if no user is found with the given id
      */
     public boolean getIsPresent(Long rehearsalId, Long userId){
-        rehearsalService.isRehearsal(userId);
+        rehearsalService.isRehearsal(rehearsalId);
         userService.isUser(userId);
         Optional<CpPresenceResult> presence = cpPresenceResultRepository
                         .findById(new CpPresenceResultId(rehearsalId, userId));

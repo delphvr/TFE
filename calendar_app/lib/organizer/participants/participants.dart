@@ -67,75 +67,78 @@ class _ParticipantsPage extends State<ParticipantsPage> {
     return CustomScaffold(
         body: Align(
             alignment: Alignment.topCenter,
-            child: Column(
-              children: [
-                Text(
-                  "Participants sur le projet ${widget.name}",
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 27,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25),
+              child: Column(
+                children: [
+                  Text(
+                    "Participants sur le projet ${widget.name}",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 27,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 25),
-                ButtonCustom(
-                  text: 'Ajouter un participant',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AddParticipant(
-                          projectId: widget.id,
-                          projectName: widget.name,
+                  const SizedBox(height: 25),
+                  ButtonCustom(
+                    text: 'Ajouter un participant',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddParticipant(
+                            projectId: widget.id,
+                            projectName: widget.name,
+                          ),
                         ),
-                      ),
-                    ).then((_) {
-                      setState(() {
-                        users = getUsersOnProject(context);
+                      ).then((_) {
+                        setState(() {
+                          users = getUsersOnProject(context);
+                        });
                       });
-                    });
-                  },
-                ),
-                const SizedBox(height: 25),
-                Flexible(
-                  child: FutureBuilder<List>(
-                    future: users,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Center(
-                          child: Text("Erreur: ${snapshot.error}"),
-                        );
-                      } else if (snapshot.hasData) {
-                        final users = snapshot.data!;
-
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: users.length,
-                          itemBuilder: (context, index) {
-                            return UsersElement(
-                              projectId: widget.id,
-                              userId: users[index]['id'],
-                              firstName: users[index]['firstName'],
-                              lastName: users[index]['lastName'],
-                              email: users[index]['email'],
-                              //roles: users[index]['roles'],
-                              onUpdate: refreshUsers,
-                            );
-                          },
-                        );
-                      } else {
-                        return const Center(
-                          child: Text('Aucun participant trouvé'),
-                        );
-                      }
                     },
                   ),
-                ),
-              ],
+                  const SizedBox(height: 25),
+                  Flexible(
+                    child: FutureBuilder<List>(
+                      future: users,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text("Erreur: ${snapshot.error}"),
+                          );
+                        } else if (snapshot.hasData) {
+                          final users = snapshot.data!;
+              
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: users.length,
+                            itemBuilder: (context, index) {
+                              return UsersElement(
+                                projectId: widget.id,
+                                userId: users[index]['id'],
+                                firstName: users[index]['firstName'],
+                                lastName: users[index]['lastName'],
+                                email: users[index]['email'],
+                                //roles: users[index]['roles'],
+                                onUpdate: refreshUsers,
+                              );
+                            },
+                          );
+                        } else {
+                          return const Center(
+                            child: Text('Aucun participant trouvé'),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
             )),
         selectedIndex: 1);
   }
