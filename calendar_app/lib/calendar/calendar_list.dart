@@ -8,6 +8,8 @@ class CalendarList extends StatefulWidget {
   final Future<Map<String, Map<String, List<dynamic>>>>? rehearsals;
   final bool isCalendar;
   final Future<Map<int, Map<int, bool>>>? participations;
+  final Future<Map<int, bool>>? userPresences;
+  final Function? updatePresences;
 
   const CalendarList({
     super.key,
@@ -16,6 +18,8 @@ class CalendarList extends StatefulWidget {
     this.accept,
     required this.isCalendar,
     this.participations,
+    this.userPresences,
+    this.updatePresences,
   });
 
   @override
@@ -95,6 +99,12 @@ class _CalendarListState extends State<CalendarList> {
     if (total == 0) return "0/0";
 
     return "$accepted/$total";
+  }
+
+  Future<bool> isUserPresent(int rehearsalId) async {
+    if (widget.userPresences == null) return false;
+    final presenceMap = await widget.userPresences!;
+    return presenceMap[rehearsalId] ?? false;
   }
 
   //Done with the help of chatgpt
@@ -238,6 +248,30 @@ class _CalendarListState extends State<CalendarList> {
                                                   : Icons.close,
                                               size: 30,
                                             ),
+                                          )
+                                        : const SizedBox(),
+                                    widget.isCalendar
+                                        ? FutureBuilder<bool>(
+                                            future: isUserPresent(
+                                                rehearsal['rehearsalId']),
+                                            builder: (context, snapshot) {
+                                              if (!snapshot.hasData) {
+                                                return const SizedBox(
+                                                    width: 30, height: 30);
+                                              }
+                                              final present = snapshot.data!;
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  widget.updatePresences!(context, rehearsal['rehearsalId'], !present);
+                                                },
+                                                child: Icon(
+                                                  present
+                                                      ? Icons.check
+                                                      : Icons.close,
+                                                  size: 30,
+                                                ),
+                                              );
+                                            },
                                           )
                                         : const SizedBox(),
                                   ],

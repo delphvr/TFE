@@ -5,6 +5,7 @@ import calendarapp.model.RehearsalPresence;
 import calendarapp.model.User;
 import calendarapp.request.RehearsalRequest;
 import calendarapp.response.RehearsalPrecedenceResponse;
+import calendarapp.response.RehearsalPresencesResponse;
 import calendarapp.response.RehearsalResponse;
 import calendarapp.services.RehearsalPrecedenceService;
 import calendarapp.services.RehearsalService;
@@ -13,7 +14,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -120,18 +120,25 @@ public class RehearsalController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @Operation(summary = "Get the users presence for the rehearsals of the project")
-	@GetMapping("/projects/{id}/presences")
-	public ResponseEntity<Map<Long, Map<Long, Boolean>>> getRehearsalsPresences(@PathVariable("id") long id) {
-		Map<Long, Map<Long, Boolean>> res = rehearsalService.getPresences(id);
+    @Operation(summary = "Get the users presence for all his the rehearsals")
+	@GetMapping("/users/{email}/presences")
+	public ResponseEntity<List<RehearsalPresence>> getProjectRehearsalsPresences(@PathVariable("email") String email) {
+		List<RehearsalPresence> res = rehearsalService.getUsersPresences(email);
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+    @Operation(summary = "Get the users presence for a rehearsal")
+	@GetMapping("/rehearsals/{id}/presences")
+	public ResponseEntity<RehearsalPresencesResponse> getRehearsalsPresences(@PathVariable("id") long id) {
+		RehearsalPresencesResponse res = rehearsalService.getRehearsalPresences(id);
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
     @Operation(summary = "Update the user presence for the rehearsal")
-    @PutMapping("/rehearsals/{rehearsalId}/users/{userId}/presences")
+    @PutMapping("/rehearsals/{rehearsalId}/users/{email}/presences")
     public ResponseEntity<RehearsalPresence> updateUserPresence(@PathVariable("rehearsalId") long rehearsalId,
-            @PathVariable("userId") long userId, @RequestParam Boolean presence) { 
-        RehearsalPresence res = rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(rehearsalId, userId, presence)); 
+            @PathVariable("email") String email, @RequestParam Boolean presence) { 
+        RehearsalPresence res = rehearsalService.createOrUpdateRehearsalPresence(rehearsalId, email, presence); 
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 

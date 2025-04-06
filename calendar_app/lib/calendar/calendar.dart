@@ -19,11 +19,13 @@ class CalendarPage extends StatefulWidget {
 class _CalendarPageState extends State<CalendarPage> {
   final user = FirebaseAuth.instance.currentUser!;
   late Future<Map<String, Map<String, List<dynamic>>>>? rehearsals;
+  late Future<Map<int, bool>>? userPresences = Future.value({});
 
   @override
   void initState() {
     super.initState();
     rehearsals = getUserRehearsals(context);
+    userPresences = getUserpresences(context);
   }
 
   Future<Map<String, Map<String, List<dynamic>>>> getUserRehearsals(
@@ -72,6 +74,75 @@ class _CalendarPageState extends State<CalendarPage> {
       if (context.mounted) {
         Utils.errorMess('Erreur lors de la récupération du calendrier',
             'Une erreur s\'est produite', context);
+      }
+      return {};
+    }
+  }
+
+  Future<Map<int, bool>> getUserpresences(BuildContext context) async {
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/users/${user.email!}/presences';
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+
+        final Map<int, bool> presenceMap = {};
+        for (var item in data) {
+          final int rehearsalId = item['rehearsalId'];
+          final bool present = item['present'];
+          presenceMap[rehearsalId] = present;
+        }
+        return presenceMap;
+      } else {
+        if (context.mounted) {
+          Utils.errorMess('Erreur lors de la récupération des présences',
+              'Une erreur s\'est produite', context);
+        }
+        return {};
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Utils.errorMess('Erreur lors de la récupération des présences',
+            'Une erreur s\'est produite', context);
+      }
+      return {};
+    }
+  }
+
+  Future<Map<int, bool>> updateUserpresences(
+      BuildContext context, int rehearsalId, bool presence) async {
+    final String url =
+        '${dotenv.env['API_BASE_URL']}/rehearsals/$rehearsalId/users/${user.email!}/presences?presence=$presence';
+    try {
+      final response = await http.put(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        final bool present = data['present'];
+
+        final currentPresences = await userPresences!;
+
+        setState(() {
+          userPresences = Future.value({
+            ...currentPresences,
+            rehearsalId: present,
+          });
+        });
+
+        return {rehearsalId: present};
+      } else {
+        if (context.mounted) {
+          Utils.errorMess(
+              'Erreur est survenue', 'Merci de réessayer plus tard', context);
+        }
+        return {};
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Utils.errorMess(
+            'Erreur est survenue', 'Merci de réessayer plus tard', context);
       }
       return {};
     }
@@ -127,6 +198,8 @@ class _CalendarPageState extends State<CalendarPage> {
                 CalendarList(
                   rehearsals: rehearsals,
                   isCalendar: true,
+                  userPresences: userPresences,
+                  updatePresences: updateUserpresences,
                 ),
                 const SizedBox(height: 25),
               ],
