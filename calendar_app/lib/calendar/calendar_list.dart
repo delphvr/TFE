@@ -1,3 +1,4 @@
+import 'package:calendar_app/organizer/rehearsals/rehearsal_details.dart';
 import 'package:calendar_app/organizer/rehearsals/rehearsal_presences.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -193,11 +194,33 @@ class _CalendarListState extends State<CalendarList> {
                               return GestureDetector(
                                 onTap: () {
                                   if (!widget.isCalendar) {
-                                    // Navigate to a new page with rehearsal details
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => PresencesPage(rehearsalId: rehearsal['rehearsalId'], name: rehearsal['name'], isCalendar: true,),
+                                        builder: (context) => PresencesPage(
+                                          rehearsalId: rehearsal['rehearsalId'],
+                                          name: rehearsal['name'],
+                                          isCalendar: true,
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            RehearsalDetailsPage(
+                                                rehearsalId:
+                                                    rehearsal['rehearsalId'],
+                                                projectId: rehearsal['projectId'],
+                                                name: rehearsal['name'],
+                                                description:
+                                                    rehearsal['description'],
+                                                date: rehearsal['date'],
+                                                time: rehearsal['time'],
+                                                duration: rehearsal['duration'],
+                                                participantsIds: const [],
+                                                organizerPage: false),
                                       ),
                                     );
                                   }
@@ -225,7 +248,8 @@ class _CalendarListState extends State<CalendarList> {
                                         children: [
                                           Text(
                                             "${rehearsal['name']}",
-                                            style: const TextStyle(fontSize: 18),
+                                            style:
+                                                const TextStyle(fontSize: 18),
                                           ),
                                           Text(
                                             widget.isCalendar
@@ -240,8 +264,9 @@ class _CalendarListState extends State<CalendarList> {
                                       ),
                                       !widget.isCalendar
                                           ? FutureBuilder<String>(
-                                              future: getParticipationProportions(
-                                                  rehearsal['rehearsalId']),
+                                              future:
+                                                  getParticipationProportions(
+                                                      rehearsal['rehearsalId']),
                                               builder: (context, snapshot) {
                                                 return Text(snapshot.data ?? "",
                                                     style: const TextStyle(
@@ -276,7 +301,8 @@ class _CalendarListState extends State<CalendarList> {
                                                   onTap: () {
                                                     widget.updatePresences!(
                                                         context,
-                                                        rehearsal['rehearsalId'],
+                                                        rehearsal[
+                                                            'rehearsalId'],
                                                         !present);
                                                   },
                                                   child: Icon(

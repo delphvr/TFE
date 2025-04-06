@@ -81,6 +81,11 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
             'email': item['email'],
           };
         }).toList();
+        setState(() {
+          participantsIds = data.map<int>((item) {
+            return item['id'] as int;
+          }).toList();
+        });
         return userRehearsal;
       }
       return [];
@@ -296,24 +301,24 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                   ),
                   const SizedBox(height: 20),
                   if (date != null && time != null)
-                  ButtonCustom(
-                    text: 'Afficher les présences',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PresencesPage(
-                            rehearsalId: widget.rehearsalId,
-                            name: name,
-                            isCalendar: false,
+                    ButtonCustom(
+                      text: 'Afficher les présences',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PresencesPage(
+                              rehearsalId: widget.rehearsalId,
+                              name: name,
+                              isCalendar: false,
+                            ),
                           ),
-                        ),
-                      ).then((_) {
-                        getRehearsal();
-                        refreshUsers();
-                      });
-                    },
-                  ),
+                        ).then((_) {
+                          getRehearsal();
+                          refreshUsers();
+                        });
+                      },
+                    ),
                   const SizedBox(height: 20),
                   ButtonCustom(
                     text: 'Supprimer la répétition',

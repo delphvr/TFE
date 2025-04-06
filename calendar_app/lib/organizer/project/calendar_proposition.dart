@@ -29,12 +29,12 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
   @override
   void initState() {
     super.initState();
-    fetchData();
+    fetchData(false);
   }
 
-  void fetchData() async {
+  void fetchData(bool recompute) async {
     setState(() {
-      rehearsals = getPropositions(context, false);
+      rehearsals = getPropositions(context, recompute);
     });
     await rehearsals; //If proposition not computed won't get the participations
     setState(() {
@@ -285,7 +285,7 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
                 ButtonCustom(
                   text: 'Recalculer',
                   onTap: () {
-                    fetchData();
+                    fetchData(true);
                   },
                 ),
                 const SizedBox(height: 25),

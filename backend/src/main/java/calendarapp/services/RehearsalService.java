@@ -134,10 +134,9 @@ public class RehearsalService {
             if (otherRehearsal.getDate() != rehearsal.getDate()) {
                 continue;
             }
+            // if he is not present at the rehearsal we don't take it into acount
             Optional<RehearsalPresence> rehearsalPresence = rehearsalPresenceRepository
-                    .findById(new CpPresenceResultId(otherRehearsal.getId(), userId)); // if he is not present at the
-                                                                                       // rehearsal we don't take it
-                                                                                       // into acount
+                    .findById(new CpPresenceResultId(otherRehearsal.getId(), userId));
             if (!rehearsalPresence.isPresent()) {
                 continue;
             }
