@@ -1,3 +1,4 @@
+import 'package:calendar_app/organizer/rehearsals/rehearsal_presences.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -189,92 +190,107 @@ class _CalendarListState extends State<CalendarList> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: reherasalsList.map((rehearsal) {
-                              return Container(
-                                width: 500,
-                                margin: const EdgeInsets.only(bottom: 8),
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: widget.isCalendar
-                                      ? colors[rehearsal['projectId'] %
-                                          colors.length]
-                                      : (rehearsal['accepted']
-                                          ? Colors.green[100]
-                                          : Colors.red[100]),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        //TODO make the widget clikable to see the detail of the rehearsal
-                                        Text(
-                                          "${rehearsal['name']}",
-                                          style: const TextStyle(fontSize: 18),
-                                        ),
-                                        Text(
-                                          widget.isCalendar
-                                              ? "${Utils.formatTimeString(rehearsal['time'])} - ${getEndTime(rehearsal['time'], rehearsal['duration'])}"
-                                              : "${formatTime(rehearsal['beginningDate'])} - ${formatTime(DateTime.parse(rehearsal['beginningDate']).add(Utils.parseDuration(rehearsal['duration'])).toString())}",
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontStyle: FontStyle.italic,
+                              return GestureDetector(
+                                onTap: () {
+                                  if (!widget.isCalendar) {
+                                    // Navigate to a new page with rehearsal details
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PresencesPage(rehearsalId: rehearsal['rehearsalId'], name: rehearsal['name'], isCalendar: true,),
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: Container(
+                                  width: 500,
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: widget.isCalendar
+                                        ? colors[rehearsal['projectId'] %
+                                            colors.length]
+                                        : (rehearsal['accepted']
+                                            ? Colors.green[100]
+                                            : Colors.red[100]),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "${rehearsal['name']}",
+                                            style: const TextStyle(fontSize: 18),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    !widget.isCalendar
-                                        ? FutureBuilder<String>(
-                                            future: getParticipationProportions(
-                                                rehearsal['rehearsalId']),
-                                            builder: (context, snapshot) {
-                                              return Text(snapshot.data ?? "",
-                                                  style: const TextStyle(
-                                                      fontSize: 18));
-                                            },
-                                          )
-                                        : const SizedBox(),
-                                    !widget.isCalendar
-                                        ? GestureDetector(
-                                            onTap: () {
-                                              widget.accept!(rehearsal);
-                                            },
-                                            child: Icon(
-                                              rehearsal['accepted']
-                                                  ? Icons.check
-                                                  : Icons.close,
-                                              size: 30,
+                                          Text(
+                                            widget.isCalendar
+                                                ? "${Utils.formatTimeString(rehearsal['time'])} - ${getEndTime(rehearsal['time'], rehearsal['duration'])}"
+                                                : "${formatTime(rehearsal['beginningDate'])} - ${formatTime(DateTime.parse(rehearsal['beginningDate']).add(Utils.parseDuration(rehearsal['duration'])).toString())}",
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontStyle: FontStyle.italic,
                                             ),
-                                          )
-                                        : const SizedBox(),
-                                    widget.isCalendar
-                                        ? FutureBuilder<bool>(
-                                            future: isUserPresent(
-                                                rehearsal['rehearsalId']),
-                                            builder: (context, snapshot) {
-                                              if (!snapshot.hasData) {
-                                                return const SizedBox(
-                                                    width: 30, height: 30);
-                                              }
-                                              final present = snapshot.data!;
-                                              return GestureDetector(
-                                                onTap: () {
-                                                  widget.updatePresences!(context, rehearsal['rehearsalId'], !present);
-                                                },
-                                                child: Icon(
-                                                  present
-                                                      ? Icons.check
-                                                      : Icons.close,
-                                                  size: 30,
-                                                ),
-                                              );
-                                            },
-                                          )
-                                        : const SizedBox(),
-                                  ],
+                                          ),
+                                        ],
+                                      ),
+                                      !widget.isCalendar
+                                          ? FutureBuilder<String>(
+                                              future: getParticipationProportions(
+                                                  rehearsal['rehearsalId']),
+                                              builder: (context, snapshot) {
+                                                return Text(snapshot.data ?? "",
+                                                    style: const TextStyle(
+                                                        fontSize: 18));
+                                              },
+                                            )
+                                          : const SizedBox(),
+                                      !widget.isCalendar
+                                          ? GestureDetector(
+                                              onTap: () {
+                                                widget.accept!(rehearsal);
+                                              },
+                                              child: Icon(
+                                                rehearsal['accepted']
+                                                    ? Icons.check
+                                                    : Icons.close,
+                                                size: 30,
+                                              ),
+                                            )
+                                          : const SizedBox(),
+                                      widget.isCalendar
+                                          ? FutureBuilder<bool>(
+                                              future: isUserPresent(
+                                                  rehearsal['rehearsalId']),
+                                              builder: (context, snapshot) {
+                                                if (!snapshot.hasData) {
+                                                  return const SizedBox(
+                                                      width: 30, height: 30);
+                                                }
+                                                final present = snapshot.data!;
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    widget.updatePresences!(
+                                                        context,
+                                                        rehearsal['rehearsalId'],
+                                                        !present);
+                                                  },
+                                                  child: Icon(
+                                                    present
+                                                        ? Icons.check
+                                                        : Icons.close,
+                                                    size: 30,
+                                                  ),
+                                                );
+                                              },
+                                            )
+                                          : const SizedBox(),
+                                    ],
+                                  ),
                                 ),
                               );
                             }).toList(),

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import calendarapp.model.CpResult;
+import calendarapp.response.RehearsalPresencesResponse;
 import calendarapp.services.CalendarCPService;
 import calendarapp.services.CpPresenceResultService;
 import calendarapp.services.CpResultService;
@@ -59,6 +60,13 @@ public class CalendarCPController {
 	@GetMapping("/projects/{id}/CPpresences")
 	public ResponseEntity<Map<Long, Map<Long, Boolean>>> getPresencesResult(@PathVariable("id") long id) {
 		Map<Long, Map<Long, Boolean>> res = cpPresenceResultService.getCpPresences(id);
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "Get the users presences for the rehearsal, for the planning computed by the cp")
+	@GetMapping("/rehearsals/{id}/CPpresences")
+	public ResponseEntity<RehearsalPresencesResponse> getRehearsalPresencesResult(@PathVariable("id") long id) {
+		RehearsalPresencesResponse res = cpPresenceResultService.getCpRehearsalPresences(id);
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 

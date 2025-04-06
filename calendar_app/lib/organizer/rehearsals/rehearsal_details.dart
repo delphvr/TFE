@@ -305,6 +305,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                           builder: (context) => PresencesPage(
                             rehearsalId: widget.rehearsalId,
                             name: name,
+                            isCalendar: false,
                           ),
                         ),
                       ).then((_) {

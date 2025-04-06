@@ -10,11 +10,13 @@ import 'dart:convert';
 class PresencesPage extends StatefulWidget {
   final int rehearsalId;
   final String name;
+  final bool isCalendar;
 
   const PresencesPage({
     super.key,
     required this.rehearsalId,
     required this.name,
+    required this.isCalendar,
   });
 
   @override
@@ -33,8 +35,14 @@ class _PresencesPageState extends State<PresencesPage> {
   }
 
   Future<void> getUsersPresences(BuildContext context) async {
-    final String url =
-        '${dotenv.env['API_BASE_URL']}/rehearsals/${widget.rehearsalId}/presences';
+    String url = "";
+    if (widget.isCalendar) {
+      url =
+          '${dotenv.env['API_BASE_URL']}/rehearsals/${widget.rehearsalId}/CPpresences';
+    } else {
+      url =
+          '${dotenv.env['API_BASE_URL']}/rehearsals/${widget.rehearsalId}/presences';
+    }
     try {
       final response = await http.get(Uri.parse(url));
 

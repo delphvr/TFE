@@ -1,5 +1,6 @@
 package calendarapp.services;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,10 @@ import org.springframework.stereotype.Service;
 
 import calendarapp.model.CpPresenceResult;
 import calendarapp.model.CpPresenceResultId;
+import calendarapp.model.Rehearsal;
+import calendarapp.model.User;
 import calendarapp.repository.CpPresenceResultRepository;
+import calendarapp.response.RehearsalPresencesResponse;
 import calendarapp.response.RehearsalResponse;
 
 @Service
@@ -65,6 +69,32 @@ public class CpPresenceResultService {
             res.put(rehearsal.getId(), rehearsalsParticipation);
         }
         return res;
+    }
+
+    /**
+     * Get for each rehearsals of the project who can attempte the rehearsal and who
+     * can't for the cp proposition.
+     * 
+     * @param rehearsalId the id of the rehearsal
+     * @return a Map with as key the rehearsals id, and as values another map with
+     *         as key the user id and as value a boolean representing if the user is
+     *         present at the rehearsal or not
+     * @throws IllegalArgumentException if no rehearsal is found with the given id
+     */
+    public RehearsalPresencesResponse getCpRehearsalPresences(Long rehearsalId) {
+        Rehearsal rehearsal = rehearsalService.getRehearsal(rehearsalId);
+        List<User> present = new ArrayList<>();
+        List<User> notPresent = new ArrayList<>();
+        for (User user : rehearsalService.getRehearsalParticipants(rehearsalId)) {
+            Optional<CpPresenceResult> presence = cpPresenceResultRepository
+                        .findById(new CpPresenceResultId(rehearsal.getId(), user.getId()));
+            if (presence.get().isPresent()) {
+                present.add(user);
+            } else {
+                notPresent.add(user);
+            }
+        }
+        return new RehearsalPresencesResponse(present, notPresent);
     }
 
     /**
