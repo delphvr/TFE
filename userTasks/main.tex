@@ -1,0 +1,93 @@
+\documentclass[11pt]{article}
+
+\usepackage[normalem]{ulem}
+\useunder{\uline}{\ul}{}
+\usepackage{setspace}
+\usepackage{abstract}
+\usepackage[T1]{fontenc}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage{babel}
+\usepackage{titling}
+\usepackage{blindtext}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{multicol}
+\usepackage{fancyvrb}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\renewcommand{\labelitemi}{$-$}
+\setlength{\headheight}{13.6pt}
+%\setlist[itemize]{itemsep=0pt}
+\author{}
+
+\begin{document}
+
+
+\pagestyle{fancy}
+\fancyhead{}
+\fancyhead[L]{TFE - Création d'une application pour conception et organisation de spectacles}
+\fancyhead[R]{D. van Rossum}
+
+
+\title{\vspace{-1cm}\huge{Test utilisateurs}\vspace{-1.7cm}}
+\date{}
+\maketitle
+\thispagestyle{fancy}
+\section{Create an account and Authentication}
+\begin{enumerate}
+    \item Create an account for a user with first name \texttt{Laura} and last name \texttt{Du Pont}.
+    \item Her email is \texttt{laura@mail.com}.
+    \item Her password is \texttt{laura123}.
+    \item Her professions are: Dancer, Singer, and Artistic Director.
+\end{enumerate}
+\section{Create a Project}
+\begin{enumerate}
+    \item Create a project named \texttt{Aladin}.
+    \item The project starts on \texttt{May 4th} and ends on \texttt{June 4th}.
+    \item Leave the description empty.
+\end{enumerate}
+\section{Update a Project}
+\begin{enumerate}
+    \item Add the following description to the project: \texttt{Spectacle de danse et de chant}
+\end{enumerate}
+\section{Add people to the project}
+\begin{enumerate}
+    \item Add the user with email \texttt{jean@mail.com} with the roles: \texttt{Circus Artist} and \texttt{Comedian}.
+    \item Add the user with email \texttt{eve@mail.com} with the role: \texttt{Choreographer}.
+    \item Modify the roles of Eve to add \texttt{Danser}
+\end{enumerate}
+\section{Encode Rehearsals}
+\begin{enumerate}
+    \item Add a rehearsal named \texttt{Répétition général}, lasting \texttt{5 hours}, with all participants.
+    \item Add a rehearsal named \texttt{Choreographing}, lasting \texttt{3 hours}, with only users \texttt{Jean} and \texttt{Eve}.
+    \item Add a rehearsal named \texttt{Small Rehearsal}, scheduled at \texttt{2:00 PM} but no date, lasting \texttt{2 hours}, with all participants.
+\end{enumerate}
+\section{Encode rehearsal order}
+\begin{enumerate}
+    \item In the \texttt{General Rehearsal}, add a precedence constraint indicating that all other rehearsals must happened before this one.
+\end{enumerate}
+\section{Availability}
+\begin{enumerate}
+    \item Go to your user profile.
+    \item Set your weekly availability to \texttt{Monday and Wednesday and Friday, from 8:00 AM to 2:00 PM}.
+    \item Add a vacation period from \texttt{April 27th to May 3rd}.
+\end{enumerate}
+
+\section{Rehearsal Calendar}
+\begin{enumerate}
+    \item In the project \texttt{Aldin}, compute the suggested rehearsal calendar.
+    \item Accept all suggested rehearsals.
+    \item Go to your calendar to view the finalized schedule for your rehearsals.
+\end{enumerate}
+
+\section{Connect as participant}
+\begin{enumerate}
+    \item log out
+    \item login as jean@mail.com 1234567
+    \item see the project information and your rehearsals
+\end{enumerate}
+
+
+\end{document}
