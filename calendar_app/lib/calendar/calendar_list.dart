@@ -120,7 +120,7 @@ class _CalendarListState extends State<CalendarList> {
         } else if (snapshot.hasError) {
           return const Text('Erreur de chargement');
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Text('Aucune proposition');
+          return widget.isCalendar ? const Text('Vous n\'avez pas encore de répétition de plannifié', textAlign: TextAlign.center) : const Text('Aucune proposition');
         }
 
         return Column(
