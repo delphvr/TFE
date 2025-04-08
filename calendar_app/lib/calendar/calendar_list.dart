@@ -33,10 +33,10 @@ class _CalendarListState extends State<CalendarList> {
 
   final colors = [
     Colors.purple[100],
-    Colors.green[100],
-    Colors.red[100],
+    //Colors.green[100],
+    //Colors.red[100],
     Colors.blue[100],
-    Colors.pink[100],
+    //Colors.pink[100],
     Colors.grey[100]
   ];
 
