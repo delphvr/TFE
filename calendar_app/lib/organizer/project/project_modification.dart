@@ -225,7 +225,7 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
               ),
               const SizedBox(height: 25),
               ButtonCustom(
-                text: 'Sauvgarder',
+                text: 'Sauvegarder',
                 onTap: () {
                   update(context);
                 },
