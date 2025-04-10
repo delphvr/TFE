@@ -282,7 +282,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                   ),
                   const SizedBox(height: 20),
                   ButtonCustom(
-                    text: 'Afficher les précédences',
+                    text: 'Ordre des répétitions',
                     onTap: () {
                       Navigator.push(
                         context,

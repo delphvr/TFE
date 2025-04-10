@@ -115,6 +115,8 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
         }
         return rehearsalsByMonth;
       } else {
+        print(response.body);
+        print(response.statusCode);
         if (context.mounted) {
           Utils.errorMess('Erreur lors de la récupération de la proposition',
               'Une erreur s\'est produite', context);

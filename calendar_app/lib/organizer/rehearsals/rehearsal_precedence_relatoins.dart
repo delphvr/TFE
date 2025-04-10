@@ -163,7 +163,7 @@ class _RehearsalPrecedencesPageState extends State<RehearsalPrecedencesPage> {
                         if (notConstraintRehearsals.isNotEmpty) ...[
                           //TODO, is it such a good idea to make the button disapear in that case ?
                           ButtonCustom(
-                            text: "Ajouter une préférence",
+                            text: "Ajouter une précédence",
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -184,7 +184,7 @@ class _RehearsalPrecedencesPageState extends State<RehearsalPrecedencesPage> {
                         ],
                         if (previousRehearsals.isNotEmpty) ...[
                           Text(
-                            "Répétitions qui doivent précèder la répétition ${widget.rehearsalName} :",
+                            "Répétitions qui doivent précèder la répétition \"${widget.rehearsalName}\" :",
                             style: const TextStyle(
                               fontSize: 17,
                             ),
@@ -209,7 +209,7 @@ class _RehearsalPrecedencesPageState extends State<RehearsalPrecedencesPage> {
                         ],
                         if (followingRehearsals.isNotEmpty) ...[
                           Text(
-                            "Répétitions qui doivent avoir lieu après la répétition ${widget.rehearsalName} :",
+                            "Répétitions qui doivent avoir lieu après la répétition \"${widget.rehearsalName}\" :",
                             style: const TextStyle(
                               fontSize: 17,
                             ),
