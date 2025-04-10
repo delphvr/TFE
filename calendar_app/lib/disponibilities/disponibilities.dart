@@ -221,7 +221,7 @@ class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
                     } else if (snapshot.hasError) {
                       return const Text('Erreur de chargement');
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Text('Aucune disponibilité encodée');
+                      return const Text('Veuillez indiquer vos disponibilités pour une semaine normale');
                     }
 
                     return Column(
