@@ -37,7 +37,10 @@ class Profession {
 
 class Register extends StatefulWidget {
   final Function()? onTap;
-  const Register({super.key, required this.onTap});
+  final http.Client? client;
+  final FirebaseAuth? auth;
+  const Register({super.key, required this.onTap, this.client, this.auth});
+
 
   @override
   State<Register> createState() => _RegisterState();
@@ -53,6 +56,8 @@ class _RegisterState extends State<Register> {
   List<Profession> professions = [];
   List<Profession> selectedProfessions = [];
   List<MultiSelectItem<Profession>> items = [];
+  http.Client get client => widget.client ?? http.Client();
+  FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -63,7 +68,7 @@ class _RegisterState extends State<Register> {
   Future<List<Profession>> getProfessions() async {
     String url = '${dotenv.env['API_BASE_URL']}/professions';
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         List<dynamic> jsonData = json.decode(utf8.decode(response.bodyBytes));
@@ -101,7 +106,7 @@ class _RegisterState extends State<Register> {
   Future<int> pushUserToBackend(
       String email, String firstName, String lastName) async {
     try {
-      final response = await http.post(
+      final response = await client.post(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
@@ -170,15 +175,15 @@ class _RegisterState extends State<Register> {
       );
       if (userId != -1) {
         try {
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          await auth.createUserWithEmailAndPassword(
               email: emailController.text, password: passwordController.text);
-        } on FirebaseAuthException catch (e) {
+        } on FirebaseAuthException catch (_) {
           await http.delete(
             Uri.parse("$url/$userId"),
           );
           if (mounted) {
             Utils.errorMess(
-              'Erreur lors de la création du compte', e.code, context);
+              'Erreur lors de la création du compte', "Merci de réessayer plus tard", context);
           }
         }
       }
@@ -207,6 +212,7 @@ class _RegisterState extends State<Register> {
                 const SizedBox(height: 20),
 
                 TextFieldcustom(
+                  key: const Key('firstNameField'),
                   labelText: 'Prénom',
                   controller: firstnameController,
                   obscureText: false,
@@ -216,6 +222,7 @@ class _RegisterState extends State<Register> {
                 const SizedBox(height: 20),
 
                 TextFieldcustom(
+                  key: const Key('lastNameField'),
                   labelText: 'Nom de famille',
                   controller: lastnameController,
                   obscureText: false,
@@ -226,6 +233,7 @@ class _RegisterState extends State<Register> {
 
                 //email
                 TextFieldcustom(
+                  key: const Key('emailField'),
                   labelText: 'Email',
                   controller: emailController,
                   obscureText: false,
@@ -236,6 +244,7 @@ class _RegisterState extends State<Register> {
 
                 //mot de passe
                 TextFieldcustom(
+                  key: const Key('passwordField'),
                   labelText: 'Mot de passe',
                   controller: passwordController,
                   obscureText: true,
@@ -245,6 +254,7 @@ class _RegisterState extends State<Register> {
                 const SizedBox(height: 20),
 
                 TextFieldcustom(
+                  key: const Key('confirmPasswordField'),
                   labelText: 'Confirmer le mot de passe',
                   controller: confirmpasswordController,
                   obscureText: true,

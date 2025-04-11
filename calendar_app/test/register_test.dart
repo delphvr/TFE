@@ -1,3 +1,4 @@
+import 'package:calendar_app/project/project_user.dart';
 import 'package:http/http.dart' as http;
 import 'package:calendar_app/auth/register.dart';
 import 'package:mockito/annotations.dart';
@@ -41,9 +42,7 @@ void main() {
         final body = jsonDecode(invocation.namedArguments[#body] as String);
         if (body['email'] == 'eve@mail.com' &&
             body['firstName'] == 'Eve' &&
-            body['lastName'] == 'Pley') //&&
-        //body['professions'] is List &&
-        //(body['professions'] as List).contains('Danseur'))
+            body['lastName'] == 'Pley') 
         {
           return http.Response(jsonEncode({'id': 1}), 201);
         } else {
@@ -57,7 +56,27 @@ void main() {
       )).thenAnswer((_) async => mockUserCredential);
     });
 
-    testWidgets('register successfully', (WidgetTester tester) async {
+    testWidgets('register with incorrect email', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Register(onTap: () {}, client: client, auth: mockAuth,
+),
+      ));
+
+      await tester.enterText(find.byKey(const Key('firstNameField')), 'Eve');
+      await tester.enterText(find.byKey(const Key('lastNameField')), 'Pley');
+      await tester.enterText(
+          find.byKey(const Key('emailField')), 'evemail.com');
+      await tester.enterText(
+          find.byKey(const Key('passwordField')), 'password');
+      await tester.enterText(
+          find.byKey(const Key('confirmPasswordField')), 'password');
+
+      await tester.tap(find.text('Créer mon compte'));
+      await tester.pumpAndSettle();
+      expect(find.text('Email non valide'), findsOneWidget);
+    });
+
+    testWidgets('register with incorrect password (at least 7 char)', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: Register(onTap: () {}, client: client, auth: mockAuth,
 ),
@@ -68,26 +87,14 @@ void main() {
       await tester.enterText(
           find.byKey(const Key('emailField')), 'eve@mail.com');
       await tester.enterText(
-          find.byKey(const Key('passwordField')), 'password');
+          find.byKey(const Key('passwordField')), '12345');
       await tester.enterText(
-          find.byKey(const Key('confirmPasswordField')), 'password');
-
-      //await tester.tap(find.text('Professions'));
-      //await tester.pumpAndSettle();
-      //await tester.tap(find.text('Danseur'));
-      //await tester.pump();
-      //await tester.tap(find.text('Valider'));
-      //await tester.pumpAndSettle();
-
-      //debugDumpApp();
+          find.byKey(const Key('confirmPasswordField')), '12345');
 
       await tester.tap(find.text('Créer mon compte'));
       await tester.pumpAndSettle();
-
       debugDumpApp();
-
-      //expect(find.byType(ProjectsUserPage), findsOneWidget);
-      expect(find.text('Projets'), findsOneWidget);
+      expect(find.text('Le mot de passe doit faire au moins 6 caractères.'), findsOneWidget);
     });
   });
 }
