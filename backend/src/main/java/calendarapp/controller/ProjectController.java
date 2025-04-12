@@ -31,7 +31,7 @@ public class ProjectController {
 
     @Operation(summary = "Get a project informations")
     @GetMapping("/projects/{id}")
-    public ResponseEntity<Project> getProjectById(@PathVariable("id") long id) {
+    public ResponseEntity<Project> getProjectById(@PathVariable("id") Long id) {
         Project project = projectService.getProject(id);
         return new ResponseEntity<>(project, HttpStatus.OK);
     }
@@ -59,7 +59,7 @@ public class ProjectController {
 
     @Operation(summary = "Delete a project")
     @DeleteMapping("/projects/{id}")
-    public ResponseEntity<HttpStatus> deleteProject(@PathVariable("id") long id) {
+    public ResponseEntity<HttpStatus> deleteProject(@PathVariable("id") Long id) {
         projectService.deleteProject(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

@@ -62,6 +62,26 @@ public class ProjectControllerTest {
     }
 
     @Test
+    public void testCreateProject2() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        Utils.pushUser(userJson, webTestClient);
+
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': null, 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"'); 
+
+        webTestClient.post().uri("/api/projects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(projectJson)
+            .exchange()
+            .expectStatus().isCreated()
+            .expectBody()
+            .jsonPath("$.name").isEqualTo("Christmas show")
+            .jsonPath("$.description").isEqualTo("Winter show with santa...")
+            .jsonPath("$.beginningDate").isEqualTo("2020-07-01")
+            .jsonPath("$.endingDate").isEqualTo(null);
+    }
+
+    @Test
     public void testCreateProjectProfessionNotFound() {
         String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['aaaa']}"
             .replace('\'', '"');

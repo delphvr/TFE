@@ -46,7 +46,7 @@ public class RehearsalPrecedenceService {
         List<RehearsalPrecedence> res = new ArrayList<>();
         for (Long precedingRehearsalId : precedingRehearsalsId) {
             rehearsalService.isRehearsal(precedingRehearsalId);
-            if (precedingRehearsalId == rehearsalId) {
+            if (precedingRehearsalId.equals(rehearsalId)) {
                 throw new IllegalArgumentException("Cannot add a precedence relation with itself");
             }
             if (!isPossible(rehearsalId, precedingRehearsalId)) {
@@ -110,12 +110,14 @@ public class RehearsalPrecedenceService {
             Rehearsal newRehearsal = new Rehearsal(rehearsal.getName(), rehearsal.getDescription(), rehearsal.getDate(),
             rehearsal.getTime(), rehearsal.getDuration(), rehearsal.getProjectId(), rehearsal.getLocation());
             newRehearsal.setId(rehearsal.getId());
-            if (rehearsalPrecedenceRepository.existsById(new RehearsalPrecedenceId(rehearsalId, rehearsal.getId()))) {
+            if(rehearsalId.equals(rehearsal.getId())){
+                continue;
+            } else if (rehearsalPrecedenceRepository.existsById(new RehearsalPrecedenceId(rehearsalId, rehearsal.getId()))) {
                 previous.add(newRehearsal);
             } else if (rehearsalPrecedenceRepository
                     .existsById(new RehearsalPrecedenceId(rehearsal.getId(), rehearsalId))) {
                 following.add(newRehearsal);
-            } else if(!isPossible(rehearsalId, rehearsal.getId())){
+            } else if(!isPossible(rehearsalId, rehearsal.getId()) || !isPossible(rehearsal.getId(), rehearsalId)){
                 constraintByOthers.add(newRehearsal);
             } else {
                 notConstraint.add(newRehearsal);
