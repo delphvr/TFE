@@ -1,4 +1,3 @@
-import 'package:calendar_app/project/project_user.dart';
 import 'package:http/http.dart' as http;
 import 'package:calendar_app/auth/register.dart';
 import 'package:mockito/annotations.dart';
@@ -14,7 +13,7 @@ import 'register_test.mocks.dart';
 //https://docs.flutter.dev/cookbook/testing/unit/mocking
 //https://docs.flutter.dev/cookbook/testing/widget/tap-drag
 
-@GenerateMocks([http.Client, FirebaseAuth, User])
+@GenerateMocks([http.Client, FirebaseAuth, User, UserCredential])
 void main() {
   group('register', () {
     late MockClient client;
@@ -93,7 +92,7 @@ void main() {
 
       await tester.tap(find.text('Créer mon compte'));
       await tester.pumpAndSettle();
-      debugDumpApp();
+      //debugDumpApp();
       expect(find.text('Le mot de passe doit faire au moins 6 caractères.'), findsOneWidget);
     });
   });

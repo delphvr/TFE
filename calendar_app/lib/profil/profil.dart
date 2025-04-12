@@ -12,8 +12,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ProfilPage extends StatefulWidget {
+  final FirebaseAuth? auth;
+  final http.Client? client;
+
   const ProfilPage({
     super.key,
+    this.auth,
+    this.client,
   });
 
   @override
@@ -21,6 +26,9 @@ class ProfilPage extends StatefulWidget {
 }
 
 class _ProfilPageSate extends State<ProfilPage> {
+  FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
+  http.Client get client => widget.client ?? http.Client();
+
   final user = FirebaseAuth.instance.currentUser!;
   String? firstName;
   String? lastName;
@@ -39,7 +47,7 @@ class _ProfilPageSate extends State<ProfilPage> {
     final String url =
         '${dotenv.env['API_BASE_URL']}/users?email=${user.email!}';
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));  // Use the client here
       if (response.statusCode == 200) {
         final Map<String, dynamic> data =
             json.decode(utf8.decode(response.bodyBytes));
@@ -67,7 +75,7 @@ class _ProfilPageSate extends State<ProfilPage> {
     final String url =
         '${dotenv.env['API_BASE_URL']}/users/${user.email!}/professions';
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));  // Use the client here
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
@@ -86,13 +94,12 @@ class _ProfilPageSate extends State<ProfilPage> {
 
   void deleteAcount() async {
     try {
-      await FirebaseAuth.instance.currentUser!.delete();
+      await auth.currentUser!.delete();
       final String url = '${dotenv.env['API_BASE_URL']}/users/${user.email!}';
-      await http.delete(Uri.parse(
-          url)); //TODO what if error when delete in db but already delete in firebase
+      await client.delete(Uri.parse(url));  // Use the client here
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const MyApp()),
+          MaterialPageRoute(builder: (context) => MyApp(auth: auth, client: client,)),
           (route) => false,
         );
       }
@@ -121,6 +128,8 @@ class _ProfilPageSate extends State<ProfilPage> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
+      auth: auth,
+      client: client, 
       body: Align(
         alignment: Alignment.topCenter,
         child: Column(
@@ -176,7 +185,7 @@ class _ProfilPageSate extends State<ProfilPage> {
             ),
             const SizedBox(height: 10),
             Flexible(
-              child: FutureBuilder<List>(
+              child: FutureBuilder<List>( 
                 future: professions,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {

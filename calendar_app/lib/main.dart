@@ -3,10 +3,11 @@ import 'package:calendar_app/project/project_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:http/http.dart' as http;
 import 'firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-//Source: https://gist.github.com/bicasoftware/d222e76e81d367f947f89d006a10165b
+// Source: https://gist.github.com/bicasoftware/d222e76e81d367f947f89d006a10165b
 class SadPageTransition extends PageTransitionsBuilder {
   @override
   Widget buildTransitions<T>(
@@ -19,28 +20,39 @@ class SadPageTransition extends PageTransitionsBuilder {
   }
 }
 
-void main() async {
+void main({FirebaseAuth? authInstance, http.Client? httpClient}) async {
   await dotenv.load(fileName: "lib/.env");
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  runApp(
+    MyApp(
+      auth: authInstance ?? FirebaseAuth.instance,
+      client: httpClient ?? http.Client(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final FirebaseAuth auth;
+  final http.Client client;
+
+  const MyApp({
+    super.key,
+    required this.auth,
+    required this.client,
+  });
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  bool isUserLoggedIn = false; 
+  bool isUserLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
-    
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+    widget.auth.authStateChanges().listen((User? user) {
       setState(() {
         isUserLoggedIn = user != null;
       });
@@ -70,9 +82,14 @@ class _MyAppState extends State<MyApp> {
     )
       ),
       home: isUserLoggedIn
-          ? const ProjectsUserPage()
-          : const LoginOrRegister(),
+          ? ProjectsUserPage(
+            auth: widget.auth,
+              client: widget.client,
+              )
+          : LoginOrRegister(
+              auth: widget.auth,
+              client: widget.client,
+            ),
     );
   }
 }
-

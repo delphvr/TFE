@@ -8,19 +8,24 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 
 class ProjectsUserPage extends StatefulWidget {
-  const ProjectsUserPage({super.key});
+  final http.Client? client;
+  final FirebaseAuth? auth;
+  const ProjectsUserPage({super.key, this.client, this.auth});
 
   @override
   State<ProjectsUserPage> createState() => _ProjectsUserPageState();
 }
 
 class _ProjectsUserPageState extends State<ProjectsUserPage> {
-  final user = FirebaseAuth.instance.currentUser!;
   late Future<List>? projects;
+  http.Client get client => widget.client ?? http.Client();
+  FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
+  late User user;
 
   @override
   void initState() {
     super.initState();
+    user = auth.currentUser!;
     projects = getProjects(context);
   }
 
@@ -28,7 +33,7 @@ class _ProjectsUserPageState extends State<ProjectsUserPage> {
     final email = user.email;
     final String url = '${dotenv.env['API_BASE_URL']}/projects/user/$email';
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));

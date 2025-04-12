@@ -5,13 +5,21 @@ import 'package:calendar_app/profil/profil.dart';
 import 'package:calendar_app/project/project_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class CustomScaffold extends StatefulWidget {
   final Widget body;
   final int selectedIndex;
+  final FirebaseAuth? auth;
+  final http.Client? client;
 
-  const CustomScaffold(
-      {super.key, required this.body, required this.selectedIndex});
+  const CustomScaffold({
+    super.key,
+    required this.body,
+    required this.selectedIndex,
+    this.auth,
+    this.client,
+  });
 
   @override
   State<CustomScaffold> createState() => _CustomScaffoldState();
@@ -19,6 +27,9 @@ class CustomScaffold extends StatefulWidget {
 
 class _CustomScaffoldState extends State<CustomScaffold> {
   int _selectedIndex = 0;
+
+  FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
+  http.Client get client => widget.client ?? http.Client();
 
   @override
   void initState() {
@@ -28,7 +39,10 @@ class _CustomScaffoldState extends State<CustomScaffold> {
 
   List<Widget> _pages() {
     return [
-      const ProjectsUserPage(),
+      ProjectsUserPage(
+        auth: auth,
+        client: client,
+      ),
       const ProjectOrganizerPage(),
       const CalendarPage(),
       const ProfilPage(),
@@ -46,7 +60,7 @@ class _CustomScaffoldState extends State<CustomScaffold> {
   }
 
   void logout(Function onLogoutSuccess) async {
-    await FirebaseAuth.instance.signOut();
+    await auth.signOut();
     onLogoutSuccess();
   }
 
@@ -62,7 +76,9 @@ class _CustomScaffoldState extends State<CustomScaffold> {
               onPressed: () {
                 logout(() {
                   Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const MyApp()),
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            MyApp(auth: auth, client: client)),
                     (route) => false,
                   );
                 });
@@ -83,7 +99,8 @@ class _CustomScaffoldState extends State<CustomScaffold> {
             BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Projets'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.assignment), label: 'Organisateurs'),
-                BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Calendrier'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.calendar_month), label: 'Calendrier'),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
           ],
         ),
