@@ -45,7 +45,8 @@ public class WeeklyAvailabilityService {
      * @throws IllegalArgumentException if no user found with the given id,
      *                                  or if the availability overlap with an
      *                                  existing availability in the database for
-     *                                  that user
+     *                                  that user,
+     *                                  or the start time is after the end time
      */
     @Transactional
     public List<WeeklyAvailability> createAvailability(CreateWeeklyAvailabilityRequest availabilities) {

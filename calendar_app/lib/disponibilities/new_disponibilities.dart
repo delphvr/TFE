@@ -78,7 +78,7 @@ class _NewDisponibilitiesPageSate extends State<NewDisponibilitiesPage> {
         if (context.mounted) {
           Utils.errorMess(
               errorTitle,
-              'Les disponibilités ne peuvent pas se supperposer.',
+              'Les disponibilités ne peuvent pas se superposer.',
               context);
         }
       } 

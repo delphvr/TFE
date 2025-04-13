@@ -369,7 +369,7 @@ public class RehearsalControllerTest {
         String userJson2 = "{'firstName': 'Eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         User user2 = Utils.pushUser(userJson2, webTestClient);
-        String user2VacationJson = "{'email': 'eve.ld@mail.com', 'startDate': '" + beginningDate+ "', 'endDate': '" + futureEndingDate + "}"
+        String user2VacationJson = ("{'email': 'eve.ld@mail.com', 'startDate': '" + beginningDate+ "', 'endDate': '" + futureEndingDate + "'}")
             .replace('\'', '"');
         Utils.pushVacation(user2VacationJson, webTestClient);
 
