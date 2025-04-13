@@ -11,6 +11,7 @@ import calendarapp.model.Rehearsal;
 import calendarapp.model.User;
 import calendarapp.model.Vacation;
 import calendarapp.model.WeeklyAvailability;
+import calendarapp.response.UserProjectResponse;
 
 public class Utils {
 
@@ -45,6 +46,17 @@ public class Utils {
             .returnResult()
             .getResponseBody();
         return rehearsal;
+    }
+
+    static public UserProjectResponse pushParticipantToProject(String userProjectJson, WebTestClient webTestClient){
+        UserProjectResponse userProjectResponse = webTestClient.post().uri("/api/userProjects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userProjectJson)
+            .exchange()
+            .expectBody(UserProjectResponse.class)
+            .returnResult()
+            .getResponseBody();
+        return userProjectResponse;
     }
 
     static public Vacation pushVacation(String jsonData, WebTestClient webTestClient){

@@ -8,6 +8,8 @@ public class UserProjectResponse {
     private Long projectId;
     private List<String> role;
 
+    UserProjectResponse() {}
+
     public UserProjectResponse(Long userId, Long projectId, List<String> role) {
         this.userId = userId;
         this.projectId = projectId;
