@@ -49,7 +49,7 @@ public class WeeklyAvailabilityService {
      */
     @Transactional
     public List<WeeklyAvailability> createAvailability(CreateWeeklyAvailabilityRequest availabilities) {
-        System.out.println(availabilities.getEmail());
+        //TODO: if had that day 15 to 18 and now add 10 to 15, merge to get 10 to 18 
         User user = userService.getUser(availabilities.getEmail());
         List<WeeklyAvailability> res = new ArrayList<>();
         for (Integer weekday : availabilities.getWeekdays()){
@@ -57,7 +57,11 @@ public class WeeklyAvailabilityService {
             if (isOverlapping(weeklyAvailability)) {
                 throw new IllegalArgumentException("Availabilities cannot overlap");
             }
-            weeklyAvailabilityRepository.save(weeklyAvailability);
+            if (weeklyAvailability.getStartTime().isAfter(weeklyAvailability.getEndTime())){ //TODO check that there is this check in the frontend as well
+                throw new IllegalArgumentException("The end time cannot happend before the start time");
+            }
+            weeklyAvailability = weeklyAvailabilityRepository.save(weeklyAvailability);
+            res.add(weeklyAvailability);
         }        
         return res;
     }
