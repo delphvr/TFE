@@ -1211,6 +1211,94 @@ public class RehearsalControllerTest {
             .jsonPath("$[0].userId").isEqualTo(user1.getId())
             .jsonPath("$[1].userId").isEqualTo(user1.getId())
             .jsonPath("$[*].rehearsalId").value(containsInAnyOrder(rehearsal.getId().intValue(), rehearsal2.getId().intValue()));
+
+        webTestClient.get().uri("/api/rehearsals/" + rehearsal.getId() + "/presences")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.present.length()").isEqualTo(0)
+            .jsonPath("$.notPresent.length()").isEqualTo(1)
+            .jsonPath("$.notPresent[0].id").isEqualTo(user1.getId());
+
+        webTestClient.get().uri("/api/rehearsals/" + rehearsal2.getId() + "/presences")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.present.length()").isEqualTo(1)
+            .jsonPath("$.present[0].id").isEqualTo(user1.getId())
+            .jsonPath("$.notPresent.length()").isEqualTo(0);
+        
+    }
+
+    @Test
+    public void testGetRehearsalsPresences3() {
+        String beginningDate = LocalDate.now().toString();
+        String futureEndingDate = LocalDate.now().plusDays(30).toString();
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        User user1 = Utils.pushUser(userJson, webTestClient);
+        String user1AvailabilityJson = "{'email': 'del.vr@mail.com', 'startTime': '08:00:00', 'endTime': '23:00:00', 'weekdays': [0, 1, 2, 3, 4, 5, 6]}".replace('\'', '"');
+        Utils.pushAvailability(user1AvailabilityJson, webTestClient);
+
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project =  Utils.pushProject(projectJson, webTestClient);
+
+        String projectJson2 = ("{ 'name': 'Project 2', 'description': 'tt', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project2 =  Utils.pushProject(projectJson2, webTestClient);
+
+        String rehearsalDate = LocalDate.now().plusDays(3).toString();
+        String rehearsalJson2 = ("{'name': 'Rehearsal 2', 'description' :'tt', 'date': '"+ rehearsalDate + "', 'time': '14:00:00', 'duration': 'PT3H', 'projectId': ' "+ project2.getId() + "', 'participantsIds': [" + user1.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal2 = Utils.pushRehearsal(rehearsalJson2, webTestClient);
+
+        String rehearsalJson = ("{'name': 'Little rehearsal', 'description' :'Juste check the placements', 'date': '"+ rehearsalDate + "', 'time': '17:00:00', 'duration': 'PT3H', 'projectId': ' "+ project.getId() + "', 'participantsIds': [" + user1.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal = Utils.pushRehearsal(rehearsalJson, webTestClient);
+
+        webTestClient.get().uri("/api/users/del.vr@mail.com/presences")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.length()").isEqualTo(2)
+            .jsonPath("$[0].present").isEqualTo(true)
+            .jsonPath("$[1].present").isEqualTo(true)
+            .jsonPath("$[0].userId").isEqualTo(user1.getId())
+            .jsonPath("$[1].userId").isEqualTo(user1.getId())
+            .jsonPath("$[*].rehearsalId").value(containsInAnyOrder(rehearsal.getId().intValue(), rehearsal2.getId().intValue()));
+    }
+
+    @Test
+    public void testGetRehearsalsPresences4() {
+        String beginningDate = LocalDate.now().toString();
+        String futureEndingDate = LocalDate.now().plusDays(30).toString();
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        User user1 = Utils.pushUser(userJson, webTestClient);
+        String user1AvailabilityJson = "{'email': 'del.vr@mail.com', 'startTime': '08:00:00', 'endTime': '23:00:00', 'weekdays': [0, 1, 2, 3, 4, 5, 6]}".replace('\'', '"');
+        Utils.pushAvailability(user1AvailabilityJson, webTestClient);
+
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project =  Utils.pushProject(projectJson, webTestClient);
+
+        String projectJson2 = ("{ 'name': 'Project 2', 'description': 'tt', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project2 =  Utils.pushProject(projectJson2, webTestClient);
+
+        String rehearsalDate2 = LocalDate.now().plusDays(3).toString();
+        String rehearsalJson2 = ("{'name': 'Rehearsal 2', 'description' :'tt', 'date': '"+ rehearsalDate2 + "', 'time': '14:00:00', 'duration': 'PT3H', 'projectId': ' "+ project2.getId() + "', 'participantsIds': [" + user1.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal2 = Utils.pushRehearsal(rehearsalJson2, webTestClient);
+
+        String rehearsalDate = LocalDate.now().plusDays(4).toString();
+        String rehearsalJson = ("{'name': 'Little rehearsal', 'description' :'Juste check the placements', 'date': '"+ rehearsalDate + "', 'time': '14:00:00', 'duration': 'PT3H', 'projectId': ' "+ project.getId() + "', 'participantsIds': [" + user1.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal = Utils.pushRehearsal(rehearsalJson, webTestClient);
+
+        webTestClient.get().uri("/api/users/del.vr@mail.com/presences")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.length()").isEqualTo(2)
+            .jsonPath("$[0].present").isEqualTo(true)
+            .jsonPath("$[1].present").isEqualTo(true)
+            .jsonPath("$[0].userId").isEqualTo(user1.getId())
+            .jsonPath("$[1].userId").isEqualTo(user1.getId())
+            .jsonPath("$[*].rehearsalId").value(containsInAnyOrder(rehearsal.getId().intValue(), rehearsal2.getId().intValue()));
     }
 
 }

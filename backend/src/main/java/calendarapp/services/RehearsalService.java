@@ -140,8 +140,12 @@ public class RehearsalService {
             if (!rehearsalPresence.get().isPresent()) {
                 continue;
             }
-            if (rehearsal.getTime().isBefore(otherRehearsal.getTime().plus(rehearsal.getDuration()))
-                    && rehearsal.getTime().plus(rehearsal.getDuration()).isAfter(otherRehearsal.getTime())) {
+            LocalDateTime rehearsalStart = LocalDateTime.of(rehearsal.getDate(), rehearsal.getTime());
+            LocalDateTime rehearsalEnd = rehearsalStart.plus(rehearsal.getDuration());
+
+            LocalDateTime otherStart = LocalDateTime.of(otherRehearsal.getDate(), otherRehearsal.getTime());
+            LocalDateTime otherEnd = otherStart.plus(otherRehearsal.getDuration());
+            if (rehearsalStart.isBefore(otherEnd) && rehearsalEnd.isAfter(otherStart)) {
                 return false;
             }
         }
@@ -157,7 +161,8 @@ public class RehearsalService {
             int rehearsalWeekday = (rehearsal.getDate().getDayOfWeek().getValue() - 1) % 7;
             if (weeklyAvailability.getWeekday() == rehearsalWeekday) {
                 if (rehearsal.getTime().isBefore(weeklyAvailability.getEndTime())
-                        && rehearsal.getTime().plus(rehearsal.getDuration()).isAfter(weeklyAvailability.getStartTime())) {
+                        && rehearsal.getTime().plus(rehearsal.getDuration())
+                                .isAfter(weeklyAvailability.getStartTime())) {
                     return true;
                 }
             }
@@ -413,17 +418,18 @@ public class RehearsalService {
         return res;
     }
 
-     /**
-      * Save or update the given rehearsal presence in the database.
-      * 
-      * @param rehearsalPresence the rehearsal presence to be save or update in the database
-      * @return the saved rehearsal presence
-      * @throws IllegalArgumentException if no user is found with the given
-      *                                  user id,
-      *                                  or if no rehearsal is found with the given
-      *                                  rehearsal id
-      */
-      public RehearsalPresence createOrUpdateRehearsalPresence(RehearsalPresence rehearsalPresence) {
+    /**
+     * Save or update the given rehearsal presence in the database.
+     * 
+     * @param rehearsalPresence the rehearsal presence to be save or update in the
+     *                          database
+     * @return the saved rehearsal presence
+     * @throws IllegalArgumentException if no user is found with the given
+     *                                  user id,
+     *                                  or if no rehearsal is found with the given
+     *                                  rehearsal id
+     */
+    public RehearsalPresence createOrUpdateRehearsalPresence(RehearsalPresence rehearsalPresence) {
         userService.isUser(rehearsalPresence.getUserId());
         isRehearsal(rehearsalPresence.getRehearsalId());
         RehearsalPresence res = rehearsalPresenceRepository.save(rehearsalPresence);
@@ -434,8 +440,9 @@ public class RehearsalService {
      * Save or update the given rehearsal presence in the database.
      * 
      * @param rehearsalId the id of the rehearsal
-     * @param email the email of the user
-     * @param presence bolean representing if the user is present or not at the rehearsal
+     * @param email       the email of the user
+     * @param presence    bolean representing if the user is present or not at the
+     *                    rehearsal
      * @return the saved rehearsal presence
      * @throws IllegalArgumentException if no user is found with the given
      *                                  user email,
@@ -443,15 +450,10 @@ public class RehearsalService {
      *                                  rehearsal id
      */
     public RehearsalPresence createOrUpdateRehearsalPresence(Long rehearsalId, String email, boolean presence) {
-        System.out.println(1);
         User user = userService.getUser(email);
-        System.out.println(2);
         isRehearsal(rehearsalId);
-        System.out.println(3);
-        RehearsalPresence rehearsalPresence= new RehearsalPresence(rehearsalId, user.getId(), presence);
-        System.out.println(4);
+        RehearsalPresence rehearsalPresence = new RehearsalPresence(rehearsalId, user.getId(), presence);
         RehearsalPresence res = rehearsalPresenceRepository.save(rehearsalPresence);
-        System.out.println(5);
         return res;
     }
 
@@ -459,7 +461,7 @@ public class RehearsalService {
      * Get for each rehearsals of the user if he can attempte the rehearsal or not.
      * 
      * @param email the email of the user
-     * @return the list of presence of the user 
+     * @return the list of presence of the user
      * @throws IllegalArgumentException if no user is found with the given email
      */
     public List<RehearsalPresence> getUsersPresences(String email) {
