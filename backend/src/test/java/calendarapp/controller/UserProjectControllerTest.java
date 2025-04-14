@@ -476,6 +476,22 @@ public class UserProjectControllerTest {
     }
 
     @Test
+    public void testDeleteRoleNotFound() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project = Utils.pushProject(projectJson, webTestClient);
+
+        webTestClient.delete().uri("/api/projects/" + project.getId() + "/users/" + user.getId() + "/roles/abc")
+            .exchange()
+            .expectStatus().isNotFound();
+            
+    }
+
+    @Test
     public void testDeleteRoleNoOrganizer() {
         String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
@@ -610,12 +626,117 @@ public class UserProjectControllerTest {
         String roles =  "{'roles': ['Metteur en scène', 'Directeur artistique']}"
                 .replace('\'', '"');
 
-
         webTestClient.put().uri("/api/projects/" + project.getId() + "/users/" + user.getId() + "/roles")
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
             .bodyValue(roles)
             .exchange()
             .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testUpdateRoleNonDefini() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        Utils.pushUser(userJson, webTestClient);
+
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Costumier']}"
+            .replace('\'', '"');
+        User user = Utils.pushUser(user2Json, webTestClient);
+
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project = Utils.pushProject(projectJson, webTestClient);
+
+        String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
+                + ", 'roles':  ['Danseur', 'Organizer']}"
+                        .replace('\'', '"');
+
+        webTestClient.post().uri("/api/userProjects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userProjectJson)
+            .exchange();
+
+        String roles =  "{'roles': ['Metteur en scène', 'Directeur artistique']}"
+                .replace('\'', '"');
+
+        webTestClient.post().uri("/api/projects/" + project.getId() + "/users/" + user.getId() + "/roles")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(roles)
+            .exchange();
+
+        String roles2 =  "{'roles': []}".replace('\'', '"');
+
+        webTestClient.put().uri("/api/projects/" + project.getId() + "/users/" + user.getId() + "/roles")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(roles2)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.projectId").isEqualTo(project.getId())
+            .jsonPath("$.userId").isEqualTo(user.getId())
+            .jsonPath("$.role").isArray()
+            .jsonPath("$.role.length()").isEqualTo(1)
+            .jsonPath("$.role[0]").isEqualTo("Non défini");
+
+        webTestClient.get().uri("/api/projects/" + project.getId() + "/users/" + user.getId() + "/roles")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.length()").isEqualTo(1)
+            .jsonPath("$[*]").value(hasItems("Non défini"));
+    }
+
+    @Test
+    public void testUpdateRole2() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        Utils.pushUser(userJson, webTestClient);
+
+        String user2Json = "{'firstName': 'eve', 'lastName': 'ld', 'email': 'eve.ld@mail.com', 'professions': ['Costumier']}"
+            .replace('\'', '"');
+        User user = Utils.pushUser(user2Json, webTestClient);
+
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project = Utils.pushProject(projectJson, webTestClient);
+
+        String userProjectJson = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
+                + ", 'roles':  ['Danseur', 'Organizer']}"
+                        .replace('\'', '"');
+
+        webTestClient.post().uri("/api/userProjects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(userProjectJson)
+            .exchange();
+
+        String roles =  "{'roles': []}".replace('\'', '"');
+
+        webTestClient.post().uri("/api/projects/" + project.getId() + "/users/" + user.getId() + "/roles")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(roles)
+            .exchange();
+
+        String roles2 =  "{'roles': ['Organizer', 'Directeur artistique']}"
+            .replace('\'', '"');
+
+        webTestClient.put().uri("/api/projects/" + project.getId() + "/users/" + user.getId() + "/roles")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(roles2)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.projectId").isEqualTo(project.getId())
+            .jsonPath("$.userId").isEqualTo(user.getId())
+            .jsonPath("$.role").isArray()
+            .jsonPath("$.role.length()").isEqualTo(2)
+            .jsonPath("$.role[*]").value(hasItems("Organizer", "Directeur artistique"));
+
+        webTestClient.get().uri("/api/projects/" + project.getId() + "/users/" + user.getId() + "/roles")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.length()").isEqualTo(2)
+            .jsonPath("$[*]").value(hasItems("Organizer", "Directeur artistique"));
     }
 
     /*
@@ -680,6 +801,21 @@ public class UserProjectControllerTest {
         webTestClient.delete().uri("/api/projects/0/users/" + user.getId())
             .exchange()
             .expectStatus().isNotFound();
+    }
+
+    @Test
+    public void testDeleteParticipantOnlyOrganizer() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '2020-07-01', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project = Utils.pushProject(projectJson, webTestClient);
+
+        webTestClient.delete().uri("/api/projects/" + project.getId() + "/users/" + user.getId())
+            .exchange()
+            .expectStatus().isBadRequest();
     }
 
     /*

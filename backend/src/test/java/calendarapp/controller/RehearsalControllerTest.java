@@ -1301,4 +1301,148 @@ public class RehearsalControllerTest {
             .jsonPath("$[*].rehearsalId").value(containsInAnyOrder(rehearsal.getId().intValue(), rehearsal2.getId().intValue()));
     }
 
+    /**
+     * Test update rehearsal presences
+     */
+
+    @Test
+    public void testPutRehearsalsPresences1() {
+        String beginningDate = LocalDate.now().toString();
+        String futureEndingDate = LocalDate.now().plusDays(30).toString();
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        User user1 = Utils.pushUser(userJson, webTestClient);
+        String user1AvailabilityJson = "{'email': 'del.vr@mail.com', 'startTime': '08:00:00', 'endTime': '23:00:00', 'weekdays': [0, 1, 2, 3, 4, 5, 6]}".replace('\'', '"');
+        Utils.pushAvailability(user1AvailabilityJson, webTestClient);
+
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project =  Utils.pushProject(projectJson, webTestClient);
+
+        String rehearsalDate = LocalDate.now().plusDays(4).toString();
+        String rehearsalJson = ("{'name': 'Little rehearsal', 'description' :'Juste check the placements', 'date': '"+ rehearsalDate + "', 'time': '14:00:00', 'duration': 'PT3H', 'projectId': ' "+ project.getId() + "', 'participantsIds': [" + user1.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal = Utils.pushRehearsal(rehearsalJson, webTestClient);
+
+        webTestClient.put().uri("/api/rehearsals/" + rehearsal.getId() + "/users/del.vr@mail.com/presences?presence=false")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.rehearsalId").isEqualTo(rehearsal.getId())
+            .jsonPath("$.present").isEqualTo(false)
+            .jsonPath("$.userId").isEqualTo(user1.getId());
+
+        webTestClient.get().uri("/api/rehearsals/" + rehearsal.getId() + "/presences")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.present.length()").isEqualTo(0)
+            .jsonPath("$.notPresent.length()").isEqualTo(1)
+            .jsonPath("$.notPresent[0].id").isEqualTo(user1.getId());
+    }
+
+    @Test
+    public void testPutRehearsalsPresences2() {
+        String beginningDate = LocalDate.now().toString();
+        String futureEndingDate = LocalDate.now().plusDays(30).toString();
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        User user1 = Utils.pushUser(userJson, webTestClient);
+        String user1AvailabilityJson = "{'email': 'del.vr@mail.com', 'startTime': '08:00:00', 'endTime': '23:00:00', 'weekdays': [0, 1, 2, 3, 4, 5, 6]}".replace('\'', '"');
+        Utils.pushAvailability(user1AvailabilityJson, webTestClient);
+        String userVacationJson = ("{'email': 'del.vr@mail.com', 'startDate': '" + beginningDate+ "', 'endDate': '" + futureEndingDate + "'}")
+            .replace('\'', '"');
+        Utils.pushVacation(userVacationJson, webTestClient);
+
+
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project =  Utils.pushProject(projectJson, webTestClient);
+
+        String rehearsalDate = LocalDate.now().plusDays(4).toString();
+        String rehearsalJson = ("{'name': 'Little rehearsal', 'description' :'Juste check the placements', 'date': '"+ rehearsalDate + "', 'time': '14:00:00', 'duration': 'PT3H', 'projectId': ' "+ project.getId() + "', 'participantsIds': [" + user1.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal = Utils.pushRehearsal(rehearsalJson, webTestClient);
+
+        webTestClient.put().uri("/api/rehearsals/" + rehearsal.getId() + "/users/del.vr@mail.com/presences?presence=true")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.rehearsalId").isEqualTo(rehearsal.getId())
+            .jsonPath("$.present").isEqualTo(true)
+            .jsonPath("$.userId").isEqualTo(user1.getId());
+
+        webTestClient.get().uri("/api/rehearsals/" + rehearsal.getId() + "/presences")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.notPresent.length()").isEqualTo(0)
+            .jsonPath("$.present.length()").isEqualTo(1)
+            .jsonPath("$.present[0].id").isEqualTo(user1.getId());
+    }
+
+    @Test
+    public void testPutRehearsalsPresences3() {
+        String beginningDate = LocalDate.now().toString();
+        String futureEndingDate = LocalDate.now().plusDays(30).toString();
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        User user1 = Utils.pushUser(userJson, webTestClient);
+        String userVacationJson = ("{'email': 'del.vr@mail.com', 'startDate': '" + beginningDate+ "', 'endDate': '" + futureEndingDate + "'}")
+            .replace('\'', '"');
+        Utils.pushVacation(userVacationJson, webTestClient);
+
+
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project =  Utils.pushProject(projectJson, webTestClient);
+
+        String rehearsalDate = LocalDate.now().plusDays(4).toString();
+        String rehearsalJson = ("{'name': 'Little rehearsal', 'description' :'Juste check the placements', 'date': '"+ rehearsalDate + "', 'time': '14:00:00', 'duration': 'PT3H', 'projectId': ' "+ project.getId() + "', 'participantsIds': [" + user1.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal = Utils.pushRehearsal(rehearsalJson, webTestClient);
+
+        webTestClient.put().uri("/api/rehearsals/" + rehearsal.getId() + "/users/del.vr@mail.com/presences?presence=false")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.rehearsalId").isEqualTo(rehearsal.getId())
+            .jsonPath("$.present").isEqualTo(false)
+            .jsonPath("$.userId").isEqualTo(user1.getId());
+
+        webTestClient.get().uri("/api/rehearsals/" + rehearsal.getId() + "/presences")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.present.length()").isEqualTo(0)
+            .jsonPath("$.notPresent.length()").isEqualTo(1)
+            .jsonPath("$.notPresent[0].id").isEqualTo(user1.getId());
+    }
+
+    @Test
+    public void testPutRehearsalsPresencesWrongEmail() {
+        String beginningDate = LocalDate.now().toString();
+        String futureEndingDate = LocalDate.now().plusDays(30).toString();
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        User user1 = Utils.pushUser(userJson, webTestClient);
+
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
+        Project project =  Utils.pushProject(projectJson, webTestClient);
+
+        String rehearsalDate = LocalDate.now().plusDays(4).toString();
+        String rehearsalJson = ("{'name': 'Little rehearsal', 'description' :'Juste check the placements', 'date': '"+ rehearsalDate + "', 'time': '14:00:00', 'duration': 'PT3H', 'projectId': ' "+ project.getId() + "', 'participantsIds': [" + user1.getId() + "]}").replace('\'', '"');
+        Rehearsal rehearsal = Utils.pushRehearsal(rehearsalJson, webTestClient);
+
+        webTestClient.put().uri("/api/rehearsals/" + rehearsal.getId() + "/users/null/presences?presence=false")
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+
+    @Test
+    public void testPutRehearsalsPresencesWrongId() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        Utils.pushUser(userJson, webTestClient);
+
+        webTestClient.put().uri("/api/rehearsals/0/users/del.vr@mail.com/presences?presence=true")
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+    
+
 }

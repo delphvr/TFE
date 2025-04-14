@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,7 +49,7 @@ public class UserProjectService {
      * @throws IllegalArgumentException if no project is found with the given Id
      */
     public void isProject(Long projectId) {
-        if(projectId == null){
+        if (projectId == null) {
             throw new IllegalArgumentException("Project not found with id " + projectId);
         }
         Optional<Project> project = projectRepository.findById(projectId);
@@ -65,7 +66,7 @@ public class UserProjectService {
      * @throws IllegalArgumentException if the role is not found
      */
     public void isRole(String roleStr) {
-        if(roleStr == null){
+        if (roleStr == null) {
             throw new IllegalArgumentException("Role " + roleStr + " not found.");
         }
         Optional<Role> role = roleRepository.findById(roleStr);
@@ -323,17 +324,11 @@ public class UserProjectService {
      */
     @Transactional
     public UserProjectResponse addUserRolesToUserInProject(Long userId, Long projectId, List<String> roles) {
-        System.out.println("DEBUGG Received userId: " + userId);
-        System.out.println("DEBUGG Received projectId: " + projectId);
-        System.out.println("DEBUGG Received roles: " + roles);
-
         userService.isUser(userId);
         isProject(projectId);
         List<String> addedRoles = new ArrayList<>();
         for (String role : roles) {
-            System.out.println("DEBUGG Received role: " + role);
             isRole(role);
-            System.out.println("DEBUGG Received role " + role);
             Optional<UserProject> existingUserProject = userProjectRepository
                     .findById(new UserProjectId(userId, projectId, role));
             if (!existingUserProject.isPresent()) {
@@ -384,6 +379,11 @@ public class UserProjectService {
                 }
             }
             userProjectRepository.deleteById(new UserProjectId(userId, projectId, roleToRemove));
+        }
+        if (roles.isEmpty()) {
+            UserProject userProject = new UserProject(userId, projectId, "Non défini");
+            userProjectRepository.save(userProject);
+            return new UserProjectResponse(userId, projectId, new ArrayList<>(Arrays.asList("Non défini")));
         }
         List<String> roleToAdd = roles.stream().filter(role -> !existingRoles.contains(role))
                 .collect(Collectors.toList());
