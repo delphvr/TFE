@@ -216,13 +216,13 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
       } else {
         if (mounted) {
           Utils.errorMess('Une erreur est survenue',
-              'Merci de réessayer plustard', context);
+              'Merci de réessayer plus tard', context);
         }
       }
     } catch (e) {
       if (mounted) {
         Utils.errorMess(
-            'Une erreur est survenue', 'Merci de réessayer plustard', context);
+            'Une erreur est survenue', 'Merci de réessayer plus tard', context);
       }
     }
   }
@@ -239,13 +239,13 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
       } else {
         if (mounted) {
           Utils.errorMess('Une erreur est survenue',
-              'Merci de réessayer plustard', context);
+              'Merci de réessayer plus tard', context);
         }
       }
     } catch (e) {
       if (mounted) {
         Utils.errorMess(
-            'Une erreur est survenue', 'Merci de réessayer plustard', context);
+            'Une erreur est survenue', 'Merci de réessayer plus tard', context);
       }
     }
   }

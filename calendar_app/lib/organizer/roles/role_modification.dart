@@ -175,7 +175,7 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "Ajout de rôles pour ${widget.lastName} ${widget.firstName}",
+                    "Modification des rôles pour ${widget.lastName} ${widget.firstName}",
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 27,
@@ -197,7 +197,7 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
                   ),
                   const SizedBox(height: 10),
                   ButtonCustom(
-                    text: 'Ajouter',
+                    text: 'Valider',
                     onTap: () {
                       addUserRole(context);
                     },

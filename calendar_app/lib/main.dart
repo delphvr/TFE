@@ -1,5 +1,5 @@
 import 'package:calendar_app/auth/login_or_register.dart';
-import 'package:calendar_app/project/project_user.dart';
+import 'package:calendar_app/organizer/project/project_admin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -82,10 +82,7 @@ class _MyAppState extends State<MyApp> {
     )
       ),
       home: isUserLoggedIn
-          ? ProjectsUserPage(
-            auth: widget.auth,
-              client: widget.client,
-              )
+          ? const ProjectOrganizerPage() // Ensure this class is defined or imported
           : LoginOrRegister(
               auth: widget.auth,
               client: widget.client,
