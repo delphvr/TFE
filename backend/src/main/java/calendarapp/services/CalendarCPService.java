@@ -436,8 +436,6 @@ public class CalendarCPService {
             rehearsalNotPossible = cpResultService.checkPreviousResult(projectId);
         }
 
-        System.out.println("DEBUGG : rehearsalNotPossible " + rehearsalNotPossible);
-
         Loader.loadNativeLibraries();
 
         Map<Long, RehearsalData> allRehearsals = new HashMap<>();
@@ -567,9 +565,6 @@ public class CalendarCPService {
 
                 boolean accepted = false;
                 if (!allRehearsalsToConstraint.containsKey(rehearsal.id)) {
-                    System.out.println("DEBUGG : rehearsal.id" + rehearsal.id);
-                    System.out.println("DEBUGG : allRehearsalsToConstraint" + allRehearsalsToConstraint);
-                    System.out.println("DEBUGG : allRehearsalsToConstraint.containsKey(rehearsal.id)" + allRehearsalsToConstraint.containsKey(rehearsal.id));
                     accepted = true;
                 }
                 CpResult cp = new CpResult(projectId, rehearsal.id, accepted, beginningDateTime);
