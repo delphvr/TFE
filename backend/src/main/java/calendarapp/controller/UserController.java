@@ -1,7 +1,6 @@
 package calendarapp.controller;
 
 import calendarapp.model.User;
-import calendarapp.repository.UserRepository;
 import calendarapp.request.UserRequest;
 import calendarapp.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,7 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,20 +30,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class UserController {
 
 	@Autowired
-	private UserRepository userRepository;
-
-	@Autowired
 	private UserService userService;
 
 	@Operation(summary = "Get a user")
 	@GetMapping("/users/{id}")
 	public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
-		Optional<User> userData = userRepository.findById(id);
-		if (userData.isPresent()) {
-			return new ResponseEntity<>(userData.get(), HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+		User user = userService.getUser(id);
+		return ResponseEntity.ok(user);
 	}
 
 	@Operation(summary = "Get a user by email")

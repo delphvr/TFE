@@ -205,11 +205,18 @@ public class UserControllerTest {
             .json("['Danseur']");
     }
 
+    @Test
+    public void testGetUserProfessionsWrongEmail() {
+        webTestClient.get().uri("/api/users/del.vr@mail.com/professions")
+            .exchange()
+            .expectStatus().isNotFound();
+    }
+
     /*
-     * Tests update a user //TODO test changing the professions
+     * Tests update a user 
      */
     @Test
-    public void testUpdateUser() {
+    public void testUpdateUser1() {
         String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}".replace('\'', '"');
         User user = Utils.pushUser(userJson, webTestClient);
 
@@ -224,6 +231,34 @@ public class UserControllerTest {
             .jsonPath("$.firstName").isEqualTo("Deli")
             .jsonPath("$.lastName").isEqualTo("vr")
             .jsonPath("$.email").isEqualTo("deli.vr@mail.com");
+    }
+
+    @Test
+    public void testUpdateUser2() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}".replace('\'', '"');
+        User user = Utils.pushUser(userJson, webTestClient);
+
+        String updatedUserJson = "{'firstName': 'Deli', 'lastName': 'vr', 'email': 'deli.vr@mail.com', 'professions': ['Costumier']}".replace('\'', '"');
+
+        webTestClient.put().uri("/api/users/" + user.getId())
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(updatedUserJson)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.firstName").isEqualTo("Deli")
+            .jsonPath("$.lastName").isEqualTo("vr")
+            .jsonPath("$.email").isEqualTo("deli.vr@mail.com");
+
+        webTestClient.get().uri("/api/users/" + user.getEmail() +"/professions")
+            .exchange()
+            .expectStatus().isNotFound();
+
+        webTestClient.get().uri("/api/users/deli.vr@mail.com/professions")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .json("['Costumier']");
     }
 
 }

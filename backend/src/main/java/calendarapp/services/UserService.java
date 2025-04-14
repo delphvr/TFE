@@ -176,10 +176,6 @@ public class UserService {
         return userRepository.save(_user);
     }
 
-    public void deleteUser(long id) {
-        userRepository.deleteById(id);
-    }
-
     /**
      * Get the list of the user professions
      * 
