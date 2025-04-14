@@ -1,6 +1,7 @@
 package calendarapp.services;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,9 +109,10 @@ public class CpResultService {
      * @throws IllegalArgumentException if no project found with id `projectId`
      */
     @Transactional
-    public void acceptAll(Long projectId) {
+    public List<CpResult> acceptAll(Long projectId) {
         projectService.isProject(projectId);
         List<CpResult> cpResults = cpResultRepository.findByProjectId(projectId);
+        List<CpResult> res = new ArrayList<>();
         for (CpResult cpResult : cpResults) {
             List<User> users = rehearsalService.getRehearsalParticipants(cpResult.getRehearsalId());
             for (User user : users) {
@@ -120,8 +122,11 @@ public class CpResultService {
             }
             rehearsalService.updateReheasalDateAndTime(cpResult.getRehearsalId(), projectId,
                     cpResult.getBeginningDate());
+            cpResult.setAccepted(true);
+            res.add(cpResult);
             cpResultRepository.delete(cpResult);
         }
+        return res;
     }
 
 }

@@ -81,8 +81,8 @@ public class Utils {
         return availability;
     }
 
-    static public List<CpResult> getCpResults(int projectId, WebTestClient webTestClient){
-        List<CpResult> results = webTestClient.get().uri("/api/projects/" + projectId + "/calendarCP")
+    static public List<CpResult> getCpResults(int projectId, WebTestClient webTestClient, boolean recompute){
+        List<CpResult> results = webTestClient.get().uri("/api/projects/" + projectId + "/calendarCP?recompute=" + recompute)
            .exchange()
            .expectBodyList(CpResult.class)
            .returnResult()

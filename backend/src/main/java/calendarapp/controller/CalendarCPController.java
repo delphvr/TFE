@@ -52,8 +52,8 @@ public class CalendarCPController {
 	@Operation(summary = "Accept all CpResults for a project")
 	@PutMapping("/projects/{projectId}/calendarCP/accept")
 	public ResponseEntity<List<CpResult>> acceptAllCpResults(@PathVariable("projectId") Long projectId) {
-		cpResultService.acceptAll(projectId);
-		return new ResponseEntity<>(HttpStatus.OK);
+		List<CpResult> cpResults = cpResultService.acceptAll(projectId);
+		return new ResponseEntity<>(cpResults, HttpStatus.OK);
 	}
 
 	@Operation(summary = "Get the users presences for the rehearsals planning computed by the cp")
