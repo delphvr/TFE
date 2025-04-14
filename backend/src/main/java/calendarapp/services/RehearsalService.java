@@ -131,9 +131,6 @@ public class RehearsalService {
             if (otherRehearsal.getId() == rehearsal.getId()) {
                 continue;
             }
-            if (otherRehearsal.getDate() != rehearsal.getDate()) {
-                continue;
-            }
             // if he is not present at the rehearsal we don't take it into acount
             Optional<RehearsalPresence> rehearsalPresence = rehearsalPresenceRepository
                     .findById(new CpPresenceResultId(otherRehearsal.getId(), userId));
@@ -143,24 +140,24 @@ public class RehearsalService {
             if (!rehearsalPresence.get().isPresent()) {
                 continue;
             }
-            if (!rehearsal.getTime().isBefore(otherRehearsal.getTime())
-                    && !rehearsal.getTime().isAfter(otherRehearsal.getTime().plus(rehearsal.getDuration()))) {
+            if (rehearsal.getTime().isBefore(otherRehearsal.getTime().plus(rehearsal.getDuration()))
+                    && rehearsal.getTime().plus(rehearsal.getDuration()).isAfter(otherRehearsal.getTime())) {
                 return false;
             }
         }
         List<WeeklyAvailability> weeklyAvailabilities = weeklyAvailabilityService.getUserAvailabilities(userId);
         List<Vacation> vacations = vacationService.getUserVacations(userId);
         for (Vacation vacation : vacations) {
-            if (!rehearsal.getDate().isBefore(vacation.getStartDate())
-                    && !rehearsal.getDate().isAfter(vacation.getEndDate())) {
+            if (rehearsal.getDate().isBefore(vacation.getEndDate())
+                    && rehearsal.getDate().isAfter(vacation.getStartDate())) {
                 return false;
             }
         }
         for (WeeklyAvailability weeklyAvailability : weeklyAvailabilities) {
             int rehearsalWeekday = (rehearsal.getDate().getDayOfWeek().getValue() - 1) % 7;
             if (weeklyAvailability.getWeekday() == rehearsalWeekday) {
-                if (!rehearsal.getTime().isBefore(weeklyAvailability.getStartTime())
-                        && !rehearsal.getTime().isAfter(weeklyAvailability.getEndTime())) {
+                if (rehearsal.getTime().isBefore(weeklyAvailability.getEndTime())
+                        && rehearsal.getTime().plus(rehearsal.getDuration()).isAfter(weeklyAvailability.getStartTime())) {
                     return true;
                 }
             }
