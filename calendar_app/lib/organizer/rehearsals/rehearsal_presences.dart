@@ -9,12 +9,14 @@ import 'dart:convert';
 
 class PresencesPage extends StatefulWidget {
   final int rehearsalId;
+  final int projectId;
   final String name;
   final bool isCalendar;
 
   const PresencesPage({
     super.key,
     required this.rehearsalId,
+    required this.projectId,
     required this.name,
     required this.isCalendar,
   });
@@ -133,7 +135,7 @@ class _PresencesPageState extends State<PresencesPage> {
                             itemCount: users.length,
                             itemBuilder: (context, index) {
                               return UsersElement(
-                                projectId: widget.rehearsalId,
+                                projectId: widget.projectId,
                                 userId: users[index]['id'],
                                 firstName: users[index]['firstName'],
                                 lastName: users[index]['lastName'],
@@ -185,7 +187,7 @@ class _PresencesPageState extends State<PresencesPage> {
                             itemCount: users.length,
                             itemBuilder: (context, index) {
                               return UsersElement(
-                                projectId: widget.rehearsalId,
+                                projectId: widget.projectId,
                                 userId: users[index]['id'],
                                 firstName: users[index]['firstName'],
                                 lastName: users[index]['lastName'],

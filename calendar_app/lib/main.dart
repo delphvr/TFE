@@ -82,7 +82,7 @@ class _MyAppState extends State<MyApp> {
     )
       ),
       home: isUserLoggedIn
-          ? const ProjectOrganizerPage() // Ensure this class is defined or imported
+          ? const ProjectOrganizerPage()
           : LoginOrRegister(
               auth: widget.auth,
               client: widget.client,

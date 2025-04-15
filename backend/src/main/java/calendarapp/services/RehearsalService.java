@@ -458,7 +458,7 @@ public class RehearsalService {
     }
 
     /**
-     * Get for each rehearsals of the user if he can attempte the rehearsal or not.
+     * Get for each rehearsals of the user if he can attempte the rehearsal or not, if the rehearsal has a date and time set.
      * 
      * @param email the email of the user
      * @return the list of presence of the user
@@ -469,9 +469,11 @@ public class RehearsalService {
         List<Rehearsal> rehearsals = getUserRehearsals(user.getId());
         List<RehearsalPresence> res = new ArrayList<>();
         for (Rehearsal rehearsal : rehearsals) {
-            Optional<RehearsalPresence> presence = rehearsalPresenceRepository
-                    .findById(new CpPresenceResultId(rehearsal.getId(), user.getId()));
-            res.add(presence.get());
+            if(rehearsal.getDate() != null && rehearsal.getTime()!= null){
+                Optional<RehearsalPresence> presence = rehearsalPresenceRepository
+                        .findById(new CpPresenceResultId(rehearsal.getId(), user.getId()));
+                res.add(presence.get());
+            }
         }
         return res;
     }
@@ -488,6 +490,9 @@ public class RehearsalService {
         Rehearsal rehearsal = getRehearsal(rehearsalId);
         List<User> present = new ArrayList<>();
         List<User> notPresent = new ArrayList<>();
+        if(rehearsal.getDate() == null || rehearsal.getTime() == null){
+            return new RehearsalPresencesResponse(present, notPresent);
+        }
         for (User user : getRehearsalParticipants(rehearsalId)) {
             Optional<RehearsalPresence> presence = rehearsalPresenceRepository
                     .findById(new CpPresenceResultId(rehearsal.getId(), user.getId()));

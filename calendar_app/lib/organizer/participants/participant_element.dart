@@ -8,6 +8,7 @@ class UsersElement extends StatefulWidget {
   final String lastName;
   final String email;
   //final List roles;
+  final bool organizerPage;
   final VoidCallback onUpdate;
 
   const UsersElement({
@@ -19,6 +20,7 @@ class UsersElement extends StatefulWidget {
     required this.email,
     //required this.roles,
     required this.onUpdate,
+    this.organizerPage = true,
   });
 
   @override

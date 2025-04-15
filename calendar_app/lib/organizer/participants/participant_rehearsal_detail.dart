@@ -13,6 +13,7 @@ class ParticpipantRehearsalDetailPage extends StatefulWidget {
   final String firstName;
   final String lastName;
   final String email;
+  final bool organizerPage;
 
   const ParticpipantRehearsalDetailPage({
     super.key,
@@ -22,6 +23,7 @@ class ParticpipantRehearsalDetailPage extends StatefulWidget {
     required this.firstName,
     required this.lastName,
     required this.email,
+    required this.organizerPage,
   });
 
   @override
@@ -142,6 +144,6 @@ class _ParticpipantRehearsalDetailPage
             ],
           ),
         ),
-        selectedIndex: 1);
+        selectedIndex: widget.organizerPage ? 1 : 0);
   }
 }

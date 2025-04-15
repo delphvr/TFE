@@ -9,13 +9,15 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ParticipantsPage extends StatefulWidget {
-  final int id;
+  final int projectId;
   final String name;
+  final bool organizerPage;
 
   const ParticipantsPage({
     super.key,
-    required this.id,
+    required this.projectId,
     required this.name,
+    this.organizerPage = true,
   });
 
   @override
@@ -34,7 +36,7 @@ class _ParticipantsPage extends State<ParticipantsPage> {
 
   Future<List> getUsersOnProject(BuildContext context) async {
     final String url =
-        '${dotenv.env['API_BASE_URL']}/userProjects/${widget.id}';
+        '${dotenv.env['API_BASE_URL']}/userProjects/${widget.projectId}';
     try {
       final response = await http.get(Uri.parse(url));
 
@@ -86,7 +88,7 @@ class _ParticipantsPage extends State<ParticipantsPage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => AddParticipant(
-                            projectId: widget.id,
+                            projectId: widget.projectId,
                             projectName: widget.name,
                           ),
                         ),
@@ -119,12 +121,13 @@ class _ParticipantsPage extends State<ParticipantsPage> {
                             itemCount: users.length,
                             itemBuilder: (context, index) {
                               return UsersElement(
-                                projectId: widget.id,
+                                projectId: widget.projectId,
                                 userId: users[index]['id'],
                                 firstName: users[index]['firstName'],
                                 lastName: users[index]['lastName'],
                                 email: users[index]['email'],
                                 //roles: users[index]['roles'],
+                                organizerPage: widget.organizerPage,
                                 onUpdate: refreshUsers,
                               );
                             },
@@ -140,6 +143,6 @@ class _ParticipantsPage extends State<ParticipantsPage> {
                 ],
               ),
             )),
-        selectedIndex: 1);
+        selectedIndex:  widget.organizerPage ? 1 : 0);
   }
 }

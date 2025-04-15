@@ -242,6 +242,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                               lastName: users[index]['lastName'],
                               email: users[index]['email'],
                               //roles: users[index]['roles'],
+                              organizerPage: widget.organizerPage,
                               onUpdate: refreshUsers,
                             );
                           },
@@ -309,6 +310,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                           MaterialPageRoute(
                             builder: (context) => PresencesPage(
                               rehearsalId: widget.rehearsalId,
+                              projectId: widget.projectId,
                               name: name,
                               isCalendar: false,
                             ),

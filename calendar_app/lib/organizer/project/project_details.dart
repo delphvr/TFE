@@ -266,7 +266,7 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => ParticipantsPage(
-                                id: widget.id,
+                                projectId: widget.id,
                                 name: name!,
                               )),
                     );

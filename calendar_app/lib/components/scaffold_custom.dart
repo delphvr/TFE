@@ -26,7 +26,7 @@ class CustomScaffold extends StatefulWidget {
 }
 
 class _CustomScaffoldState extends State<CustomScaffold> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
 
   FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
   http.Client get client => widget.client ?? http.Client();

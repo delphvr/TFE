@@ -9,6 +9,7 @@ class ParticipantElement extends StatefulWidget {
   final String lastName;
   final String email;
   //final List roles;
+  final bool organizerPage;
   final VoidCallback onUpdate;
 
   const ParticipantElement({
@@ -21,6 +22,7 @@ class ParticipantElement extends StatefulWidget {
     required this.email,
     //required this.roles,
     required this.onUpdate,
+    required this.organizerPage,
   });
 
   @override
@@ -43,7 +45,7 @@ class _ParticipantElementState extends State<ParticipantElement> {
       child: GestureDetector(
         onTap: () {
           Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ParticpipantRehearsalDetailPage(projectId: widget.projectId,rehearsalId: widget.rehearsalId, userId: widget.userId, lastName: widget.lastName, firstName: widget.firstName, email: widget.email,)))
+                  MaterialPageRoute(builder: (context) => ParticpipantRehearsalDetailPage(projectId: widget.projectId,rehearsalId: widget.rehearsalId, userId: widget.userId, lastName: widget.lastName, firstName: widget.firstName, email: widget.email, organizerPage: widget.organizerPage,)))
               .then((_) {
             widget.onUpdate();
           });

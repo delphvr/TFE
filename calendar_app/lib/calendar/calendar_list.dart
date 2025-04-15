@@ -200,6 +200,7 @@ class _CalendarListState extends State<CalendarList> {
                                       MaterialPageRoute(
                                         builder: (context) => PresencesPage(
                                           rehearsalId: rehearsal['rehearsalId'],
+                                          projectId: widget.projectId!,
                                           name: rehearsal['name'],
                                           isCalendar: true,
                                         ),
