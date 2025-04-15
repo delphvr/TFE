@@ -65,8 +65,6 @@ public class CpResultService {
                         cpResult.getBeginningDate());
             } else {
                 rehearsalService.updateReheasalDateAndTime(cpResult.getRehearsalId(), projectId, null);
-                // TODO in the db? so can recompute several times and remeber all the previous
-                // negation
                 res.put(cpResult.getRehearsalId(), cpResult.getBeginningDate());
             }
         }

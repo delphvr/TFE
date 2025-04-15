@@ -39,6 +39,18 @@ class _NewDisponibilitiesPageSate extends State<NewDisponibilitiesPage> {
       return;
     }
 
+    TimeOfDay start = Utils.parseTimeOfDay(startTime);
+    TimeOfDay end = Utils.parseTimeOfDay(endTime);
+    final startDateTime = DateTime(2025, 04, 15, start.hour, start.minute);
+    final endDateTime = DateTime(2025, 04, 15, end.hour, end.minute);
+    if (startDateTime.isAfter(endDateTime)) {
+      Utils.errorMess(
+          errorTitle,
+          'L\'heure de fin ne peut pas avoir lieu avant l\'heure de début.',
+          context);
+      return;
+    }
+
     Map<String, int> weekdays = {
       "Lundi": 0,
       "Mardi": 1,
@@ -74,15 +86,12 @@ class _NewDisponibilitiesPageSate extends State<NewDisponibilitiesPage> {
         if (context.mounted) {
           Navigator.pop(context);
         }
-      } else if (response.statusCode == 400){
+      } else if (response.statusCode == 400) {
         if (context.mounted) {
-          Utils.errorMess(
-              errorTitle,
-              'Les disponibilités ne peuvent pas se superposer.',
-              context);
+          Utils.errorMess(errorTitle,
+              'Les disponibilités ne peuvent pas se superposer.', context);
         }
-      } 
-      else {
+      } else {
         if (context.mounted) {
           Utils.errorMess(
               errorTitle,

@@ -38,6 +38,17 @@ class _NewProjectPageState extends State<NewProjectPage> {
       return;
     }
 
+    if (beginningDate.isEmpty){
+      Utils.errorMess('Erreur lors de la création du project',
+          'Veuillez donner une date de début au project.', context);
+      return;
+    }
+    if(endingDate.isEmpty){
+      Utils.errorMess('Erreur lors de la création du project',
+          'Veuillez donner une date de fin au project.', context);
+      return;
+    }
+
     if (beginningDate.isNotEmpty && endingDate.isNotEmpty) {
       if (DateTime.parse(beginningDate).isAfter(DateTime.parse(endingDate))) {
         Utils.errorMess(
@@ -46,7 +57,9 @@ class _NewProjectPageState extends State<NewProjectPage> {
             context);
         return;
       }
-      if (DateTime.now().isAfter(DateTime.parse(endingDate))) {
+      DateTime today = DateTime.now();
+      DateTime todayWithoutTime = DateTime(today.year, today.month, today.day);
+      if (todayWithoutTime.isAfter(DateTime.parse(endingDate))) {
         Utils.errorMess(
             'Erreur lors de la création du project',
             'La date de fin du projet ne peut pas avoir lieu dans le passé.',
@@ -150,7 +163,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
                     readOnly: true,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'Date de début',
+                      labelText: 'Date de début*',
                       fillColor: Color(0xFFF2F2F2),
                       filled: true,
                       prefixIcon: Icon(Icons.calendar_today),
@@ -176,7 +189,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
                     readOnly: true,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'Date de fin',
+                      labelText: 'Date de fin*',
                       fillColor: Color(0xFFF2F2F2),
                       filled: true,
                       prefixIcon: Icon(Icons.calendar_today),

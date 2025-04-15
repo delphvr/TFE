@@ -95,15 +95,20 @@ public class ProjectService {
      * @return the newly created project
      * @throws IllegalArgumentException the ending date is in the past,
      *                                  or if no user is found with the given
-     *                                  organizer email
+     *                                  organizer email,
+     *                                  or if the project starting or ending date is not initialized
      */
     public Project createProject(CreateProjectRequest request) {
-        if (request.getEndingDate() != null) {
-            LocalDate endingDate = request.getEndingDate();
-            LocalDate now = LocalDate.now();
-            if (endingDate.isBefore(now)) {
-                throw new IllegalArgumentException("The ending date cannot be in the past");
-            }
+        if(request.getBeginningDate() == null){
+            throw new IllegalArgumentException("The beginning date cannot be null");
+        }
+        if(request.getEndingDate() == null){
+            throw new IllegalArgumentException("The ending date cannot be null");
+        }
+        LocalDate endingDate = request.getEndingDate();
+        LocalDate now = LocalDate.now();
+        if (endingDate.isBefore(now)) {
+            throw new IllegalArgumentException("The ending date cannot be in the past");
         }
         User user = userService.getUser(request.getOrganizerEmail());
         Project project = new Project(null, request.getName(), request.getDescription(), request.getBeginningDate(),

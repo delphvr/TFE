@@ -55,8 +55,6 @@ public class CalendarCPService {
     private int minHour;
     @Value("${calendar.rehearsal.max-hour}")
     private int maxHour;
-    @Value("${calendar.project.default-end}")
-    private Long defaultProjectEnd;
 
     final int periode_begining = 0;
     final LinearExpr oneDayInHour = LinearExpr.constant(24 * 60);
@@ -141,16 +139,8 @@ public class CalendarCPService {
      * 
      * @param project the project
      * @return the end value (number of minutes in the project periode)
-     * @throws IllegalArgumentException if the project begining date is not
-     *                                  initialize
      */
     private Long getEndValue(Project project) {
-        if (project.getBeginningDate() == null) {
-            throw new IllegalArgumentException("The project begining date need to be initialize");
-        }
-        if (project.getEndingDate() == null) {
-            return defaultProjectEnd;
-        }
         long durationInMinutes = java.time.Duration.between(
                 project.getBeginningDate().atStartOfDay(),
                 project.getEndingDate().atTime(LocalTime.MAX)).toMinutes();
@@ -165,13 +155,8 @@ public class CalendarCPService {
      * @param value   the LocalDateTime
      * @return number of minutes from the begining of the project and the given
      *         `value`
-     * @throws IllegalArgumentException if the project begining date is not
-     *                                  initialize
      */
     private Long getDateTimeValue(Project project, LocalDateTime value) {
-        if (project.getBeginningDate() == null) {
-            throw new IllegalArgumentException("The project begining date need to be initialize"); // TODO takes today ?
-        }
         long durationInMinutes = java.time.Duration.between(
                 project.getBeginningDate().atStartOfDay(),
                 value).toMinutes();
@@ -290,9 +275,6 @@ public class CalendarCPService {
         List<Vacation> vacations = vacationService.getUserVacations(participantId);
         for (Vacation vacation : vacations) {
             LocalDate endDate = project.getEndingDate();
-            if (endDate == null) {
-                endDate = project.getBeginningDate().plusDays(defaultProjectEnd / (60 * 24));
-            }
             // take only vacation that appears during the project dates
             if (vacation.getStartDate().isBefore(endDate)
                     && vacation.getEndDate().isAfter(project.getBeginningDate())) {
@@ -374,14 +356,9 @@ public class CalendarCPService {
      *                             project (beginning date at 00:00) and the date
      *                             time we are looking for
      * @return the LocalDateTime of the reherasal
-     * @throws IllegalArgumentException if the project begining date is not
-     *                                  initialize
      */
     private LocalDateTime getRehearsalDate(Project project, Long minutesFromBeginning) {
         LocalDate beginningDate = project.getBeginningDate();
-        if (beginningDate == null) {
-            throw new IllegalArgumentException("The project begining date need to be initialize");
-        }
         LocalDateTime startDateTime = beginningDate.atStartOfDay();
         LocalDateTime rehearsalDateTime = startDateTime.plusMinutes(minutesFromBeginning);
         return rehearsalDateTime;
@@ -393,9 +370,6 @@ public class CalendarCPService {
         LocalDate currentDate = project.getBeginningDate();
         int currentWeekDay = (currentDate.getDayOfWeek().getValue() - 1) % 7;
         LocalDate endDate = project.getEndingDate();
-        if (endDate == null) {
-            endDate = project.getBeginningDate().plusDays(defaultProjectEnd / (60 * 24));
-        }
         while (currentDate.isBefore(endDate.plusDays(1))) {
 
             for (NonAvailability nonAvailability : userNonDisponibilities.get(currentWeekDay)) {

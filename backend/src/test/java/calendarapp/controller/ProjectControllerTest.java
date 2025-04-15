@@ -62,7 +62,7 @@ public class ProjectControllerTest {
     }
 
     @Test
-    public void testCreateProject2() {
+    public void testCreateProjectNoEndingDate() {
         String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
             .replace('\'', '"');
         Utils.pushUser(userJson, webTestClient);
@@ -73,12 +73,23 @@ public class ProjectControllerTest {
             .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
             .bodyValue(projectJson)
             .exchange()
-            .expectStatus().isCreated()
-            .expectBody()
-            .jsonPath("$.name").isEqualTo("Christmas show")
-            .jsonPath("$.description").isEqualTo("Winter show with santa...")
-            .jsonPath("$.beginningDate").isEqualTo("2020-07-01")
-            .jsonPath("$.endingDate").isEqualTo(null);
+            .expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void testCreateProjectNoStartDate() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        Utils.pushUser(userJson, webTestClient);
+
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': null, 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"'); 
+
+        webTestClient.post().uri("/api/projects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(projectJson)
+            .exchange()
+            .expectStatus().isBadRequest();
     }
 
     @Test

@@ -68,7 +68,7 @@ public class VacationService {
         if (vacation.getEndDate().isBefore(now)) {
             throw new IllegalArgumentException("The ending date cannot be in the past");
         }
-        if (vacation.getEndDate().isBefore(vacation.getStartDate())){ //TODO check that is is also check in the frontend
+        if (vacation.getEndDate().isBefore(vacation.getStartDate())){
             throw new IllegalArgumentException("The ending date cannot be before the start date.");
         }
         Vacation res = new Vacation(user.getId(), vacation.getStartDate(), vacation.getEndDate());

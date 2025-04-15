@@ -58,7 +58,7 @@ public class WeeklyAvailabilityService {
             if (isOverlapping(weeklyAvailability)) {
                 throw new IllegalArgumentException("Availabilities cannot overlap");
             }
-            if (weeklyAvailability.getStartTime().isAfter(weeklyAvailability.getEndTime())){ //TODO check that there is this check in the frontend as well
+            if (weeklyAvailability.getStartTime().isAfter(weeklyAvailability.getEndTime())){
                 throw new IllegalArgumentException("The end time cannot happend before the start time");
             }
             weeklyAvailability = weeklyAvailabilityRepository.save(weeklyAvailability);
