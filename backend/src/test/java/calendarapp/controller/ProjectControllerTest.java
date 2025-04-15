@@ -124,6 +124,22 @@ public class ProjectControllerTest {
             .expectStatus().isBadRequest();
     }
 
+    @Test
+    public void testCreateProjectWrongDateOrder2() {
+        String userJson = "{'firstName': 'Del', 'lastName': 'vr', 'email': 'del.vr@mail.com', 'professions': ['Danseur']}"
+            .replace('\'', '"');
+        Utils.pushUser(userJson, webTestClient);
+        String futureEndingDate = LocalDate.now().plusDays(1).toString();
+        String futureStratingDate = LocalDate.now().plusDays(3).toString();
+        String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '"+  futureStratingDate + "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"'); 
+
+        webTestClient.post().uri("/api/projects")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .bodyValue(projectJson)
+            .exchange()
+            .expectStatus().isBadRequest();
+    }
+
     /*
      * Tests get projects of a user
      */

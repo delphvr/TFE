@@ -19,7 +19,6 @@ import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "rehearsals")
-//@RehearsalDate //TODO delete or fix
 public class Rehearsal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

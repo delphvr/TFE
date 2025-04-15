@@ -1,6 +1,8 @@
 package calendarapp.model;
 
 import java.time.LocalDate;
+
+import calendarapp.validator.VacationDate;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -10,6 +12,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "vacations")
 @IdClass(VacationId.class)
+@VacationDate
 public class Vacation {
 
     @Id
