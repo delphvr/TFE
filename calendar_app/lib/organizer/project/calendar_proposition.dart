@@ -23,6 +23,7 @@ class CalendarPropositionPage extends StatefulWidget {
 
 class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
   final user = FirebaseAuth.instance.currentUser!;
+  final String errorTitle = 'Erreur lors de la récupération de la proposition';
   late Future<Map<String, Map<String, List<dynamic>>>>? rehearsals;
   Future<Map<int, Map<int, bool>>>? participations = Future.value({});
 
@@ -51,14 +52,14 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
         return json.decode(utf8.decode(response.bodyBytes));
       } else {
         if (mounted) {
-          Utils.errorMess('Erreur lors de la récupérations de l\'agenda',
+          Utils.errorMess(errorTitle,
               'Une erreur c\'est produite', context);
         }
         return {};
       }
     } catch (e) {
       if (mounted) {
-        Utils.errorMess('Erreur lors de la récupérations de l\'agenda',
+        Utils.errorMess(errorTitle,
             'Une erreur c\'est produite', context);
       }
       return {};
@@ -114,18 +115,24 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
           rehearsalsByMonth[monthYear]?[day]?.add(rehearsal);
         }
         return rehearsalsByMonth;
+      } else if(response.statusCode == 404){
+          if (context.mounted) {
+          Utils.errorMess(errorTitle,
+              'Aucune solution trouvée, horaire infaisable.', context);
+        }
+        return {};
       } else {
         print(response.body);
         print(response.statusCode);
         if (context.mounted) {
-          Utils.errorMess('Erreur lors de la récupération de la proposition',
+          Utils.errorMess(errorTitle,
               'Une erreur s\'est produite', context);
         }
         return {};
       }
     } catch (e) {
       if (context.mounted) {
-        Utils.errorMess('Erreur lors de la récupération de la proposition',
+        Utils.errorMess(errorTitle,
             'Une erreur s\'est produite', context);
       }
       return {};
@@ -147,10 +154,10 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
         // Convert keys from String to int
         Map<int, Map<int, bool>> parsedData = rawData.map((key, value) {
           return MapEntry(
-            int.parse(key), // Convert first-level key to int
+            int.parse(key), 
             (value as Map<String, dynamic>).map((subKey, subValue) {
               return MapEntry(int.parse(subKey),
-                  subValue as bool); // Convert second-level key to int
+                  subValue as bool); 
             }),
           );
         });
@@ -160,7 +167,7 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
         print(response.statusCode);
         print(response.body);
         if (context.mounted) {
-          Utils.errorMess('Erreur lors de la récupération de la proposition',
+          Utils.errorMess(errorTitle,
               'Une erreur s\'est produite', context);
         }
         return {};
@@ -168,7 +175,7 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
     } catch (e) {
       print(e);
       if (context.mounted) {
-        Utils.errorMess('Erreur lors de la récupération de la proposition',
+        Utils.errorMess(errorTitle,
             'Une erreur s\'est produite', context);
       }
       return {};

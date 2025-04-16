@@ -613,8 +613,8 @@ public class CalendarCPService {
                 }
             }
         } else {
-            // TODO: how to represent this in the response ?
             System.out.println("No solution found");
+            throw new IllegalArgumentException("No solution found");
         }
 
         return res;
