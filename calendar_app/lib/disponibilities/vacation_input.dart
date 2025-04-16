@@ -98,7 +98,7 @@ class _NewVacationsPageSate extends State<NewVacationsPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'Modification du Compte',
+                  'Ajout de vacances',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 30,

@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 
 import calendarapp.Utils;
 import calendarapp.model.CpResult;
+import calendarapp.model.RehearsalPresence;
 import calendarapp.services.RehearsalService;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -579,7 +580,7 @@ public class CalendarCPTest {
             .jsonPath("$.present[0].id").isEqualTo(263)
             .jsonPath("$.notPresent.length()").isEqualTo(0);
 
-            webTestClient.get().uri("/api/rehearsals/776/presences")
+        webTestClient.get().uri("/api/rehearsals/776/presences")
             .exchange()
             .expectStatus().isOk()
             .expectBody()
@@ -590,6 +591,358 @@ public class CalendarCPTest {
         rehearsalService.updateReheasalDateAndTime(774L, 24L, null);
         rehearsalService.updateReheasalDateAndTime(775L, 24L, null);
         rehearsalService.updateReheasalDateAndTime(776L, 24L, null);
+    }
+
+    @Test
+    public void testConstraintsOnOrtherProjectRehearsals1() {       
+        /**
+         * User 1 (id 266) disponibilities:
+         *  weekday: 0(lundi), start_time: 9h, end_time: 10h
+         *  weekday: 1(mardi), start_time: 14h, end_time: 19h
+         * User 2 (id 267) disponibilities:
+         *  weekday: 1(mardi), start_time: 14h, end_time: 19h
+         *  weekday: 3(jeudi), start_time: 10h, end_time: 12h30   
+         * 
+         * Project:
+         *  id 31, beginning_date: 2025-04-21, ending_date: 2025-04-27
+         *  id 33, beginning_date: 2025-04-28, ending_date: 2025-05-04
+         * 
+         * Rehearsals :
+         *  id 780, 2h rehearsal with both participants, project_id: 31, participants: User1, User2
+         *  id 781, 3h rehearsal with both participants, project_id: 31, participants: User1, User2
+         *  id 782, 1h rehearsal with user 266 only, project_id: 31, participants: User1
+         *  id 783, 2h30 rehearsal with user 267 only, project_id: 31, participants: User2
+         *  id 788, 2h rehearsal with both participants, project_id: 33, participants: User1, User2
+         *  id 789, 3h rehearsal with both participants, project_id: 33, participants: User1, User2
+         *  id 790, 1h rehearsal with user 266 only, project_id: 33, participants: User1
+         *  id 791, 2h30 rehearsal with user 267 only, project_id: 33, participants: User2
+         * 
+         * Res:
+         *  project_id: 31, rehearsal_id 780, beginning_date 2025-04-22 14:00:00 || 17:00:00, User1 and User2 present
+         *  project_id: 31, rehearsal_id 781, beginning_date 2025-04-22 14:00:00 || 16:00:00, User1 and User2 present
+         *  project_id: 31, rehearsal_id 782, beginning_date 2025-04-21 09:00:00, User1 present
+         *  project_id: 31, rehearsal_id 783, beginning_date 2025-04-24 10:00:00, User2 present
+         *  project_id: 33, rehearsal_id 788, beginning_date 2025-04-29 14:00:00 || 17:00:00, User1 and User2 present
+         *  project_id: 33, rehearsal_id 789, beginning_date 2025-04-29 14:00:00 || 16:00:00, User1 and User2 present
+         *  project_id: 33, rehearsal_id 790, beginning_date 2025-04-28 09:00:00, User1 present
+         *  project_id: 33, rehearsal_id 791, beginning_date 2025-05-01 10:00:00, User2 present
+         * 
+         */       
+
+        List<CpResult> results = Utils.getCpResults(31, webTestClient, false);
+        Map<Long, Map<Long, Boolean>> presences = Utils.getCpPresencesResults(31, webTestClient);
+
+        assertEquals(4, results.size(), "There should be 4 rehearsals");
+        for(CpResult res: results){
+            assertTrue(res.getRehearsalId() == 780 || res.getRehearsalId() == 781 || res.getRehearsalId() == 782 || res.getRehearsalId() == 783, "Wrong rehearsal id");
+            assertEquals(31, res.getProjectId(), "Rehearsal " + res.getRehearsalId() + " has the wrong project id");
+            assertFalse(res.isAccepted(), "The result should not be marked as accepted for rehearsal " + res.getRehearsalId());
+            if(res.getRehearsalId() == 780){
+                LocalDateTime expectedBeginningDateTime1 = LocalDateTime.of(2025, 4, 22, 14, 00, 0);
+                LocalDateTime expectedBeginningDateTime2 = LocalDateTime.of(2025, 4, 22, 17, 00, 0);
+                assertTrue(expectedBeginningDateTime1.equals(res.getBeginningDate()) || expectedBeginningDateTime2.equals(res.getBeginningDate()), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 781){
+                LocalDateTime expectedBeginningDateTime1 = LocalDateTime.of(2025, 4, 22, 14, 00, 0);
+                LocalDateTime expectedBeginningDateTime2 = LocalDateTime.of(2025, 4, 22, 16, 00, 0);
+                assertTrue(expectedBeginningDateTime1.equals(res.getBeginningDate()) || expectedBeginningDateTime2.equals(res.getBeginningDate()), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 782){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 21, 9, 00, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            }
+            else if(res.getRehearsalId() == 783){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 24, 10, 00, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            }
+        }
+
+        assertTrue(presences.get(780L).get(266L), "User1 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(781L).get(266L), "User1 should be able to be present at the second rehearsal");
+        assertTrue(presences.get(780L).get(267L), "User2 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(781L).get(267L), "User2 should be able to be present at the second rehearsal");
+        assertTrue(presences.get(782L).get(266L), "User1 should be able to be present at the third rehearsal");
+        assertTrue(presences.get(783L).get(267L), "User2 should be able to be present at the fourth rehearsal"); 
+        
+        webTestClient.put().uri("/api/projects/31/calendarCP/accept")
+            .exchange();
+
+        results = Utils.getCpResults(33, webTestClient, false);
+        presences = Utils.getCpPresencesResults(33, webTestClient);
+
+        assertEquals(4, results.size(), "There should be 4 rehearsals");
+        for(CpResult res: results){
+            assertTrue(res.getRehearsalId() == 788 || res.getRehearsalId() == 789 || res.getRehearsalId() == 790 || res.getRehearsalId() == 791, "Wrong rehearsal id");
+            assertEquals(33, res.getProjectId(), "Rehearsal " + res.getRehearsalId() + " has the wrong project id");
+            assertFalse(res.isAccepted(), "The result should not be marked as accepted for rehearsal " + res.getRehearsalId());
+            if(res.getRehearsalId() == 788){
+                LocalDateTime expectedBeginningDateTime1 = LocalDateTime.of(2025, 4, 29, 14, 00, 0);
+                LocalDateTime expectedBeginningDateTime2 = LocalDateTime.of(2025, 4, 29, 17, 00, 0);
+                assertTrue(expectedBeginningDateTime1.equals(res.getBeginningDate()) || expectedBeginningDateTime2.equals(res.getBeginningDate()), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 789){
+                LocalDateTime expectedBeginningDateTime1 = LocalDateTime.of(2025, 4, 29, 14, 00, 0);
+                LocalDateTime expectedBeginningDateTime2 = LocalDateTime.of(2025, 4, 29, 16, 00, 0);
+                assertTrue(expectedBeginningDateTime1.equals(res.getBeginningDate()) || expectedBeginningDateTime2.equals(res.getBeginningDate()), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 790){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 28, 9, 00, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            }
+            else if(res.getRehearsalId() == 791){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 5, 1, 10, 00, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            }
+        }
+
+        assertTrue(presences.get(788L).get(266L), "User1 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(789L).get(266L), "User1 should be able to be present at the second rehearsal");
+        assertTrue(presences.get(788L).get(267L), "User2 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(789L).get(267L), "User2 should be able to be present at the second rehearsal");
+        assertTrue(presences.get(790L).get(266L), "User1 should be able to be present at the third rehearsal");
+        assertTrue(presences.get(791L).get(267L), "User2 should be able to be present at the fourth rehearsal");
+        
+        rehearsalService.updateReheasalDateAndTime(780L, 31L, null);
+        rehearsalService.updateReheasalDateAndTime(781L, 31L, null);
+        rehearsalService.updateReheasalDateAndTime(782L, 31L, null);
+        rehearsalService.updateReheasalDateAndTime(783L, 31L, null);
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(780L, 266L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(780L, 267L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(781L, 266L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(781L, 267L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(782L, 266L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(783L, 267L, false));
+    }
+
+    @Test
+    public void testConstraintsOnOrtherProjectRehearsals2() {       
+        /**
+         * User 1 (id 266) disponibilities:
+         *  weekday: 0(lundi), start_time: 9h, end_time: 10h
+         *  weekday: 1(mardi), start_time: 14h, end_time: 19h
+         * User 2 (id 267) disponibilities:
+         *  weekday: 1(mardi), start_time: 14h, end_time: 19h
+         *  weekday: 3(jeudi), start_time: 10h, end_time: 12h30   
+         * 
+         * Project:
+         *  id 32, beginning_date: 2025-04-28, ending_date: 2025-05-04
+         *  id 33, beginning_date: 2025-04-28, ending_date: 2025-05-04
+         * 
+         * Rehearsals :
+         *  id 784, 2h rehearsal with both participants, project_id: 32, participants: User1, User2
+         *  id 785, 3h rehearsal with both participants, project_id: 32, participants: User1, User2
+         *  id 786, 1h rehearsal with user 266 only, project_id: 32, participants: User1
+         *  id 787, 2h30 rehearsal with user 267 only, project_id: 32, participants: User2
+         *  id 788, 2h rehearsal with both participants, project_id: 33, participants: User1, User2
+         *  id 789, 3h rehearsal with both participants, project_id: 33, participants: User1, User2
+         *  id 790, 1h rehearsal with user 266 only, project_id: 33, participants: User1
+         *  id 791, 2h30 rehearsal with user 267 only, project_id: 33, participants: User2
+         * 
+         * Res:
+         *  project_id: 33, rehearsal_id 788, beginning_date 2025-04-29 14:00:00 || 17:00:00, User1 and User2 present
+         *  project_id: 33, rehearsal_id 789, beginning_date 2025-04-29 14:00:00 || 16:00:00, User1 and User2 present
+         *  project_id: 33, rehearsal_id 790, beginning_date 2025-04-28 09:00:00, User1 present
+         *  project_id: 33, rehearsal_id 791, beginning_date 2025-05-01 10:00:00, User2 present
+         *  project_id: 32, rehearsal_id 784, beginning_date 2025-04-22 14:00:00 || 17:00:00, User1 and User2 present
+         *  project_id: 32, rehearsal_id 785, beginning_date 2025-04-22 14:00:00 || 16:00:00, User1 and User2 present
+         *  project_id: 32, rehearsal_id 786, beginning_date 2025-04-21 09:00:00, User1 present
+         *  project_id: 32, rehearsal_id 787, beginning_date 2025-04-24 10:00:00, User2 present
+         * 
+         */       
+
+        List<CpResult> results = Utils.getCpResults(33, webTestClient, false);
+        Map<Long, Map<Long, Boolean>> presences = Utils.getCpPresencesResults(33, webTestClient);
+
+        assertEquals(4, results.size(), "There should be 4 rehearsals");
+        for(CpResult res: results){
+            assertTrue(res.getRehearsalId() == 788 || res.getRehearsalId() == 789 || res.getRehearsalId() == 790 || res.getRehearsalId() == 791, "Wrong rehearsal id");
+            assertEquals(33, res.getProjectId(), "Rehearsal " + res.getRehearsalId() + " has the wrong project id");
+            assertFalse(res.isAccepted(), "The result should not be marked as accepted for rehearsal " + res.getRehearsalId());
+            if(res.getRehearsalId() == 788){
+                LocalDateTime expectedBeginningDateTime1 = LocalDateTime.of(2025, 4, 29, 14, 00, 0);
+                LocalDateTime expectedBeginningDateTime2 = LocalDateTime.of(2025, 4, 29, 17, 00, 0);
+                assertTrue(expectedBeginningDateTime1.equals(res.getBeginningDate()) || expectedBeginningDateTime2.equals(res.getBeginningDate()), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 789){
+                LocalDateTime expectedBeginningDateTime1 = LocalDateTime.of(2025, 4, 29, 14, 00, 0);
+                LocalDateTime expectedBeginningDateTime2 = LocalDateTime.of(2025, 4, 29, 16, 00, 0);
+                assertTrue(expectedBeginningDateTime1.equals(res.getBeginningDate()) || expectedBeginningDateTime2.equals(res.getBeginningDate()), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 790){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 28, 9, 00, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            }
+            else if(res.getRehearsalId() == 791){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 5, 1, 10, 00, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            }
+        }
+
+        assertTrue(presences.get(788L).get(266L), "User1 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(789L).get(266L), "User1 should be able to be present at the second rehearsal");
+        assertTrue(presences.get(788L).get(267L), "User2 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(789L).get(267L), "User2 should be able to be present at the second rehearsal");
+        assertTrue(presences.get(790L).get(266L), "User1 should be able to be present at the third rehearsal");
+        assertTrue(presences.get(791L).get(267L), "User2 should be able to be present at the fourth rehearsal");
+        
+        webTestClient.put().uri("/api/projects/33/calendarCP/accept")
+            .exchange();
+
+        results = Utils.getCpResults(32, webTestClient, false);
+        presences = Utils.getCpPresencesResults(32, webTestClient);
+
+        assertEquals(4, results.size(), "There should be 4 rehearsals");
+        for(CpResult res: results){
+            assertTrue(res.getRehearsalId() == 784 || res.getRehearsalId() == 785 || res.getRehearsalId() == 786 || res.getRehearsalId() == 787, "Wrong rehearsal id");
+            assertEquals(32, res.getProjectId(), "Rehearsal " + res.getRehearsalId() + " has the wrong project id");
+            assertFalse(res.isAccepted(), "The result should not be marked as accepted for rehearsal " + res.getRehearsalId());
+            if(res.getRehearsalId() == 784){
+                LocalDateTime expectedBeginningDateTime1 = LocalDateTime.of(2025, 4, 22, 14, 00, 0);
+                LocalDateTime expectedBeginningDateTime2 = LocalDateTime.of(2025, 4, 22, 17, 00, 0);
+                assertTrue(expectedBeginningDateTime1.equals(res.getBeginningDate()) || expectedBeginningDateTime2.equals(res.getBeginningDate()), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 785){
+                LocalDateTime expectedBeginningDateTime1 = LocalDateTime.of(2025, 4, 22, 14, 00, 0);
+                LocalDateTime expectedBeginningDateTime2 = LocalDateTime.of(2025, 4, 22, 16, 00, 0);
+                assertTrue(expectedBeginningDateTime1.equals(res.getBeginningDate()) || expectedBeginningDateTime2.equals(res.getBeginningDate()), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 786){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 21, 9, 00, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            }
+            else if(res.getRehearsalId() == 787){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 24, 10, 00, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            }
+        }
+
+        assertTrue(presences.get(784L).get(266L), "User1 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(785L).get(266L), "User1 should be able to be present at the second rehearsal");
+        assertTrue(presences.get(784L).get(267L), "User2 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(785L).get(267L), "User2 should be able to be present at the second rehearsal");
+        assertTrue(presences.get(786L).get(266L), "User1 should be able to be present at the third rehearsal");
+        assertTrue(presences.get(787L).get(267L), "User2 should be able to be present at the fourth rehearsal"); 
+        
+        rehearsalService.updateReheasalDateAndTime(788L, 33L, null);
+        rehearsalService.updateReheasalDateAndTime(789L, 33L, null);
+        rehearsalService.updateReheasalDateAndTime(790L, 33L, null);
+        rehearsalService.updateReheasalDateAndTime(791L, 33L, null);
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(788L, 266L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(788L, 267L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(789L, 266L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(789L, 267L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(790L, 266L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(791L, 267L, false));
+        
+    }
+
+    @Test
+    public void testConstraintsOnOrtherProjectRehearsals3() {       
+        /**
+         * User 1 (id 266) disponibilities:
+         *  weekday: 0(lundi), start_time: 9h, end_time: 10h
+         *  weekday: 1(mardi), start_time: 14h, end_time: 19h
+         * User 2 (id 267) disponibilities:
+         *  weekday: 1(mardi), start_time: 14h, end_time: 19h
+         *  weekday: 3(jeudi), start_time: 10h, end_time: 12h30   
+         * 
+         * Project:
+         *  id 31, beginning_date: 2025-04-21, ending_date: 2025-04-27
+         *  id 32, beginning_date: 2025-04-28, ending_date: 2025-05-04
+         * 
+         * Rehearsals :
+         *  id 780, 2h rehearsal with both participants, project_id: 31, participants: User1, User2
+         *  id 781, 3h rehearsal with both participants, project_id: 31, participants: User1, User2
+         *  id 782, 1h rehearsal with user 266 only, project_id: 31, participants: User1
+         *  id 783, 2h30 rehearsal with user 267 only, project_id: 31, participants: User2
+         *  id 784, 2h rehearsal with both participants, project_id: 32, participants: User1, User2
+         *  id 785, 3h rehearsal with both participants, project_id: 32, participants: User1, User2
+         *  id 786, 1h rehearsal with user 266 only, project_id: 32, participants: User1
+         *  id 787, 2h30 rehearsal with user 267 only, project_id: 32, participants: User2
+         * 
+         * Res:
+         *  project_id: 31, rehearsal_id 780, beginning_date 2025-04-22 14:00:00 || 17:00:00, User1 and User2 present
+         *  project_id: 31, rehearsal_id 781, beginning_date 2025-04-22 14:00:00 || 16:00:00, User1 and User2 present
+         *  project_id: 31, rehearsal_id 782, beginning_date 2025-04-21 09:00:00, User1 present
+         *  project_id: 31, rehearsal_id 782, beginning_date 2025-04-24 10:00:00, User2 present
+         *  project_id: 32, rehearsal_id 788, beginning_date 2025-04-29 14:00:00 || 17:00:00, User1 and User2 present
+         *  project_id: 32, rehearsal_id 789, beginning_date 2025-04-29 14:00:00 || 16:00:00, User1 and User2 present
+         *  project_id: 32, rehearsal_id 790, beginning_date 2025-04-28 09:00:00, User1 present
+         *  project_id: 32, rehearsal_id 791, beginning_date 2025-05-01 10:00:00, User2 present
+         * 
+         */  
+
+        List<CpResult> results = Utils.getCpResults(31, webTestClient, false);
+        Map<Long, Map<Long, Boolean>> presences = Utils.getCpPresencesResults(31, webTestClient);
+
+        assertEquals(4, results.size(), "There should be 4 rehearsals");
+        for(CpResult res: results){
+            assertTrue(res.getRehearsalId() == 780 || res.getRehearsalId() == 781 || res.getRehearsalId() == 782 || res.getRehearsalId() == 783, "Wrong rehearsal id");
+            assertEquals(31, res.getProjectId(), "Rehearsal " + res.getRehearsalId() + " has the wrong project id");
+            assertFalse(res.isAccepted(), "The result should not be marked as accepted for rehearsal " + res.getRehearsalId());
+            if(res.getRehearsalId() == 780){
+                LocalDateTime expectedBeginningDateTime1 = LocalDateTime.of(2025, 4, 22, 14, 00, 0);
+                LocalDateTime expectedBeginningDateTime2 = LocalDateTime.of(2025, 4, 22, 17, 00, 0);
+                assertTrue(expectedBeginningDateTime1.equals(res.getBeginningDate()) || expectedBeginningDateTime2.equals(res.getBeginningDate()), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 781){
+                LocalDateTime expectedBeginningDateTime1 = LocalDateTime.of(2025, 4, 22, 14, 00, 0);
+                LocalDateTime expectedBeginningDateTime2 = LocalDateTime.of(2025, 4, 22, 16, 00, 0);
+                assertTrue(expectedBeginningDateTime1.equals(res.getBeginningDate()) || expectedBeginningDateTime2.equals(res.getBeginningDate()), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 782){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 21, 9, 00, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            }
+            else if(res.getRehearsalId() == 783){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 24, 10, 00, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            }
+        }
+
+        assertTrue(presences.get(780L).get(266L), "User1 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(781L).get(266L), "User1 should be able to be present at the second rehearsal");
+        assertTrue(presences.get(780L).get(267L), "User2 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(781L).get(267L), "User2 should be able to be present at the second rehearsal");
+        assertTrue(presences.get(782L).get(266L), "User1 should be able to be present at the third rehearsal");
+        assertTrue(presences.get(783L).get(267L), "User2 should be able to be present at the fourth rehearsal"); 
+        
+        webTestClient.put().uri("/api/projects/31/calendarCP/accept")
+            .exchange();
+
+        results = Utils.getCpResults(32, webTestClient, false);
+        presences = Utils.getCpPresencesResults(32, webTestClient);
+
+        assertEquals(4, results.size(), "There should be 4 rehearsals");
+        for(CpResult res: results){
+            assertTrue(res.getRehearsalId() == 784 || res.getRehearsalId() == 785 || res.getRehearsalId() == 786 || res.getRehearsalId() == 787, "Wrong rehearsal id");
+            assertEquals(32, res.getProjectId(), "Rehearsal " + res.getRehearsalId() + " has the wrong project id");
+            assertFalse(res.isAccepted(), "The result should not be marked as accepted for rehearsal " + res.getRehearsalId());
+            if(res.getRehearsalId() == 784){
+                LocalDateTime expectedBeginningDateTime1 = LocalDateTime.of(2025, 4, 29, 14, 00, 0);
+                LocalDateTime expectedBeginningDateTime2 = LocalDateTime.of(2025, 4, 29, 17, 00, 0);
+                assertTrue(expectedBeginningDateTime1.equals(res.getBeginningDate()) || expectedBeginningDateTime2.equals(res.getBeginningDate()), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 785){
+                LocalDateTime expectedBeginningDateTime1 = LocalDateTime.of(2025, 4, 29, 14, 00, 0);
+                LocalDateTime expectedBeginningDateTime2 = LocalDateTime.of(2025, 4, 29, 16, 00, 0);
+                assertTrue(expectedBeginningDateTime1.equals(res.getBeginningDate()) || expectedBeginningDateTime2.equals(res.getBeginningDate()), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            } else if(res.getRehearsalId() == 786){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 4, 28, 9, 00, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            }
+            else if(res.getRehearsalId() == 787){
+                LocalDateTime expectedBeginningDateTime = LocalDateTime.of(2025, 5, 1, 10, 00, 0);
+                assertEquals(expectedBeginningDateTime, res.getBeginningDate(), "Rehearsal " + res.getRehearsalId() + " has the wrong begining date time");
+            }
+        }
+
+        assertTrue(presences.get(784L).get(266L), "User1 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(785L).get(266L), "User1 should be able to be present at the second rehearsal");
+        assertTrue(presences.get(784L).get(267L), "User2 should be able to be present at the first rehearsal");
+        assertTrue(presences.get(785L).get(267L), "User2 should be able to be present at the second rehearsal");
+        assertTrue(presences.get(786L).get(266L), "User1 should be able to be present at the third rehearsal");
+        assertTrue(presences.get(787L).get(267L), "User2 should be able to be present at the fourth rehearsal"); 
+        
+        rehearsalService.updateReheasalDateAndTime(780L, 31L, null);
+        rehearsalService.updateReheasalDateAndTime(781L, 31L, null);
+        rehearsalService.updateReheasalDateAndTime(782L, 31L, null);
+        rehearsalService.updateReheasalDateAndTime(783L, 31L, null);
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(780L, 266L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(780L, 267L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(781L, 266L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(781L, 267L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(782L, 266L, false));
+        rehearsalService.createOrUpdateRehearsalPresence(new RehearsalPresence(783L, 267L, false));
     }
 
 }

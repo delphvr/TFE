@@ -505,4 +505,19 @@ public class RehearsalService {
         return new RehearsalPresencesResponse(present, notPresent);
     }
 
+    /**
+     * Get is the user with id `userId` present at the rehearsal with id `rehearsalId`
+     * @param userId the id of the user
+     * @param rehearsalId the id of the rehearsal
+     * @return the presence of the user at this rehearsal, return null if the presence is unknow 
+     */
+    public RehearsalPresence getUserPresenceAtRehearsal(Long userId, Long rehearsalId){
+        Optional<RehearsalPresence> rehearsalPresence = rehearsalPresenceRepository
+                    .findById(new CpPresenceResultId(rehearsalId, userId));
+        if (!rehearsalPresence.isPresent()) {
+            return null;
+        }
+        return rehearsalPresence.get();
+    }
+
 }

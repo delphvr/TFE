@@ -116,7 +116,7 @@ class _NewDisponibilitiesPageSate extends State<NewDisponibilitiesPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'Modification du Compte',
+                  'Ajout de disponibilités',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 30,
