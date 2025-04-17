@@ -122,13 +122,13 @@ class _CalendarPageState extends State<CalendarPage> {
         final data = json.decode(utf8.decode(response.bodyBytes));
         final bool present = data['present'];
 
-        //final currentPresences = await userPresences!;
+        final currentPresences = await userPresences!;
 
         setState(() {
-          //userPresences = Future.value({
-          //  ...currentPresences,
-          //  rehearsalId: present,
-          //});
+          userPresences = Future.value({
+            ...currentPresences,
+            rehearsalId: present,
+          });
         });
 
         return {rehearsalId: present};
@@ -198,7 +198,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 CalendarList(
                   rehearsals: rehearsals,
                   isCalendar: true,
-                  userPresences: null,
+                  userPresences: userPresences,
                   updatePresences: updateUserpresences,
                 ),
                 const SizedBox(height: 25),

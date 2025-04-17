@@ -399,6 +399,10 @@ public class RehearsalService {
             Rehearsal rehearsal = rehearsalRepository.findById(participation.getRehearsalId()).get();
             res.add(rehearsal);
         }
+        res.sort(Comparator
+                .comparing(Rehearsal::getDate)
+                .thenComparing(Rehearsal::getTime)
+                .thenComparing(Rehearsal::getName));
         return res;
     }
 
@@ -458,7 +462,8 @@ public class RehearsalService {
     }
 
     /**
-     * Get for each rehearsals of the user if he can attempte the rehearsal or not, if the rehearsal has a date and time set.
+     * Get for each rehearsals of the user if he can attempte the rehearsal or not,
+     * if the rehearsal has a date and time set.
      * 
      * @param email the email of the user
      * @return the list of presence of the user
@@ -469,7 +474,7 @@ public class RehearsalService {
         List<Rehearsal> rehearsals = getUserRehearsals(user.getId());
         List<RehearsalPresence> res = new ArrayList<>();
         for (Rehearsal rehearsal : rehearsals) {
-            if(rehearsal.getDate() != null && rehearsal.getTime()!= null){
+            if (rehearsal.getDate() != null && rehearsal.getTime() != null) {
                 Optional<RehearsalPresence> presence = rehearsalPresenceRepository
                         .findById(new CpPresenceResultId(rehearsal.getId(), user.getId()));
                 res.add(presence.get());
@@ -490,7 +495,7 @@ public class RehearsalService {
         Rehearsal rehearsal = getRehearsal(rehearsalId);
         List<User> present = new ArrayList<>();
         List<User> notPresent = new ArrayList<>();
-        if(rehearsal.getDate() == null || rehearsal.getTime() == null){
+        if (rehearsal.getDate() == null || rehearsal.getTime() == null) {
             return new RehearsalPresencesResponse(present, notPresent);
         }
         for (User user : getRehearsalParticipants(rehearsalId)) {
@@ -506,14 +511,17 @@ public class RehearsalService {
     }
 
     /**
-     * Get is the user with id `userId` present at the rehearsal with id `rehearsalId`
-     * @param userId the id of the user
+     * Get is the user with id `userId` present at the rehearsal with id
+     * `rehearsalId`
+     * 
+     * @param userId      the id of the user
      * @param rehearsalId the id of the rehearsal
-     * @return the presence of the user at this rehearsal, return null if the presence is unknow 
+     * @return the presence of the user at this rehearsal, return null if the
+     *         presence is unknow
      */
-    public RehearsalPresence getUserPresenceAtRehearsal(Long userId, Long rehearsalId){
+    public RehearsalPresence getUserPresenceAtRehearsal(Long userId, Long rehearsalId) {
         Optional<RehearsalPresence> rehearsalPresence = rehearsalPresenceRepository
-                    .findById(new CpPresenceResultId(rehearsalId, userId));
+                .findById(new CpPresenceResultId(rehearsalId, userId));
         if (!rehearsalPresence.isPresent()) {
             return null;
         }
