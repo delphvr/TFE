@@ -35,12 +35,14 @@ class Profession {
   int get hashCode => name.hashCode;
 }
 
+/// Register page to create an account.
+/// Ask for last name, first name, email, password and proffesions.
+/// The user is then logged in via Firebase + send to the backend.
 class Register extends StatefulWidget {
   final Function()? onTap;
   final http.Client? client;
   final FirebaseAuth? auth;
   const Register({super.key, required this.onTap, this.client, this.auth});
-
 
   @override
   State<Register> createState() => _RegisterState();
@@ -58,6 +60,7 @@ class _RegisterState extends State<Register> {
   List<MultiSelectItem<Profession>> items = [];
   http.Client get client => widget.client ?? http.Client();
   FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
+   final String errorTitle = 'Erreur lors de la création du compte';
 
   @override
   void initState() {
@@ -65,6 +68,10 @@ class _RegisterState extends State<Register> {
     _loadProfessions();
   }
 
+  /// Get the list of possible professions from the backend.
+  /// 
+  /// [Return] the list of possible professions, 
+  ///          if an error occurs return an empty list and display an error message.
   Future<List<Profession>> getProfessions() async {
     String url = '${dotenv.env['API_BASE_URL']}/professions';
     try {
@@ -76,16 +83,29 @@ class _RegisterState extends State<Register> {
             ? []
             : jsonData.map((json) => Profession.fromJson(json)).toList();
       } else if (response.statusCode == 204) {
-        // No content
         return [];
       } else {
-        throw Exception('Failed to load professions');
+        if (mounted) {
+          Utils.errorMess(
+              errorTitle,
+              "Erreur lors de la récupérations des professions possible",
+              context);
+        }
+        return [];
       }
     } catch (e) {
-      throw Exception('Error: $e');
+      if (mounted) {
+        Utils.errorMess(
+            errorTitle,
+            "Erreur lors de la récupérations des professions possible",
+            context);
+      }
+      return [];
     }
   }
 
+  /// Loads the list of professions from the backend and updates the state to get the seletable items.
+  /// If an error occurs do nothing.
   Future<void> _loadProfessions() async {
     try {
       final fetchedProfessions = await getProfessions();
@@ -103,6 +123,9 @@ class _RegisterState extends State<Register> {
     }
   }
 
+  /// Send the newly created user to the backend. 
+  /// If the backend returns an error, or an error occurs, an error message is displayed on the screen.
+  /// [Return] the id of the user if succesfull, `-1` otherwise.
   Future<int> pushUserToBackend(
       String email, String firstName, String lastName) async {
     try {
@@ -123,49 +146,67 @@ class _RegisterState extends State<Register> {
         return parsedJson["id"];
       } else if (response.statusCode == 409) {
         if (mounted) {
-          Utils.errorMess('Erreur lors de la création du compte',
+          Utils.errorMess(errorTitle,
               "Adresse email déjà utilisé", context);
         }
         return -1;
       } else {
         if (mounted) {
-          Utils.errorMess('Erreur lors de la création du compte',
+          Utils.errorMess(errorTitle,
               "Echecs de l'envoie des données au server", context);
         }
         return -1;
       }
     } catch (e) {
       if (mounted) {
-        Utils.errorMess('Erreur lors de la création du compte',
+        Utils.errorMess(errorTitle,
             "Echecs de l'envoie des données au server", context);
       }
       return -1;
     }
   }
 
+  /// Check the user input for the registration form.
+  /// 
+  /// Checks that:
+  /// - All required fields (email, password, confirm password) are filled.
+  /// - Email format is valid.
+  /// - Password has at least 6 characters.
+  /// - Password and Password confirmation match.
+  /// 
+  /// Displays an error message using if one fails.
+  /// 
+  /// [Return] `1` if all checks  pass, `-1` otherwise.
   int checkInput() {
     if (emailController.text.isEmpty ||
         passwordController.text.isEmpty ||
         confirmpasswordController.text.isEmpty) {
-      Utils.errorMess('Erreur lors de la création du compte',
+      Utils.errorMess(errorTitle,
           'Merci de remplir tous les champs', context);
       return -1;
     } else if (!Utils.isValidEmail(emailController.text)) {
       Utils.errorMess(
-          'Erreur lors de la création du compte', 'Email non valide', context);
+          errorTitle, 'Email non valide', context);
       return -1;
     } else if (passwordController.text.length < 6) {
-      Utils.errorMess('Erreur lors de la création du compte',
+      Utils.errorMess(errorTitle,
           'Le mot de passe doit faire au moins 6 caractères.', context);
       return -1;
     } else if (passwordController.text != confirmpasswordController.text) {
-      Utils.errorMess('Erreur lors de la création du compte',
+      Utils.errorMess(errorTitle,
           'Les mots de passe ne correspondent pas', context);
       return -1;
     }
     return 1;
   }
 
+  /// Create the user account and log him in the application.
+  /// 
+  /// Checks that:
+  /// - All required fields (email, password, confirm password) are filled.
+  /// - Email format is valid.
+  /// - Password has at least 6 characters.
+  /// - Password and Password confirmation match.
   void login() async {
     if (checkInput() == 1) {
       int userId = await pushUserToBackend(
@@ -182,8 +223,8 @@ class _RegisterState extends State<Register> {
             Uri.parse("$url/$userId"),
           );
           if (mounted) {
-            Utils.errorMess(
-              'Erreur lors de la création du compte', "Merci de réessayer plus tard", context);
+            Utils.errorMess(errorTitle,
+                "Merci de réessayer plus tard", context);
           }
         }
       }

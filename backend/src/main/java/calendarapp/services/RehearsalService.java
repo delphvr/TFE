@@ -385,7 +385,7 @@ public class RehearsalService {
     }
 
     /**
-     * Get all the rehearsal the user is a part of.
+     * Get all the rehearsal the user is a part of. Sorted by date, then time, then name.
      * 
      * @param email the email of the user
      * @return the list og all the rehearsal the user is a part of
