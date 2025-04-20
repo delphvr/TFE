@@ -11,6 +11,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+/// Profile Page
+/// Can see the user last name, first name, email and the list of his proffesions
+/// Has acces to a button to modify those information, 
+/// a button to deal with his availabilities 
+/// and a button to delete his account.
 class ProfilPage extends StatefulWidget {
   final FirebaseAuth? auth;
   final http.Client? client;
@@ -43,11 +48,15 @@ class _ProfilPageSate extends State<ProfilPage> {
     initUserProfessions(context);
   }
 
+  /// Get the information of the user from the backend.
+  /// Udates the variables [firstName], [lastName], [email] and [id] with the retreived data.
+  /// 
+  /// If an error occurcs display an error message.
   void initUserData(BuildContext context) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/users?email=${user.email!}';
     try {
-      final response = await client.get(Uri.parse(url));  // Use the client here
+      final response = await client.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final Map<String, dynamic> data =
             json.decode(utf8.decode(response.bodyBytes));
@@ -75,7 +84,7 @@ class _ProfilPageSate extends State<ProfilPage> {
     final String url =
         '${dotenv.env['API_BASE_URL']}/users/${user.email!}/professions';
     try {
-      final response = await client.get(Uri.parse(url));  // Use the client here
+      final response = await client.get(Uri.parse(url)); 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
@@ -96,7 +105,7 @@ class _ProfilPageSate extends State<ProfilPage> {
     try {
       await auth.currentUser!.delete();
       final String url = '${dotenv.env['API_BASE_URL']}/users/${user.email!}';
-      await client.delete(Uri.parse(url));  // Use the client here
+      await client.delete(Uri.parse(url));
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => MyApp(auth: auth, client: client,)),

@@ -60,7 +60,7 @@ class _RegisterState extends State<Register> {
   List<MultiSelectItem<Profession>> items = [];
   http.Client get client => widget.client ?? http.Client();
   FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
-   final String errorTitle = 'Erreur lors de la création du compte';
+  final String errorTitle = 'Erreur lors de la création du compte';
 
   @override
   void initState() {
@@ -69,8 +69,8 @@ class _RegisterState extends State<Register> {
   }
 
   /// Get the list of possible professions from the backend.
-  /// 
-  /// [Return] the list of possible professions, 
+  ///
+  /// [Return] the list of possible professions,
   ///          if an error occurs return an empty list and display an error message.
   Future<List<Profession>> getProfessions() async {
     String url = '${dotenv.env['API_BASE_URL']}/professions';
@@ -123,7 +123,7 @@ class _RegisterState extends State<Register> {
     }
   }
 
-  /// Send the newly created user to the backend. 
+  /// Send the newly created user to the backend.
   /// If the backend returns an error, or an error occurs, an error message is displayed on the screen.
   /// [Return] the id of the user if succesfull, `-1` otherwise.
   Future<int> pushUserToBackend(
@@ -146,62 +146,59 @@ class _RegisterState extends State<Register> {
         return parsedJson["id"];
       } else if (response.statusCode == 409) {
         if (mounted) {
-          Utils.errorMess(errorTitle,
-              "Adresse email déjà utilisé", context);
+          Utils.errorMess(errorTitle, "Adresse email déjà utilisé", context);
         }
         return -1;
       } else {
         if (mounted) {
-          Utils.errorMess(errorTitle,
-              "Echecs de l'envoie des données au server", context);
+          Utils.errorMess(
+              errorTitle, "Echecs de l'envoie des données au server", context);
         }
         return -1;
       }
     } catch (e) {
       if (mounted) {
-        Utils.errorMess(errorTitle,
-            "Echecs de l'envoie des données au server", context);
+        Utils.errorMess(
+            errorTitle, "Echecs de l'envoie des données au server", context);
       }
       return -1;
     }
   }
 
   /// Check the user input for the registration form.
-  /// 
+  ///
   /// Checks that:
   /// - All required fields (email, password, confirm password) are filled.
   /// - Email format is valid.
   /// - Password has at least 6 characters.
   /// - Password and Password confirmation match.
-  /// 
+  ///
   /// Displays an error message using if one fails.
-  /// 
+  ///
   /// [Return] `1` if all checks  pass, `-1` otherwise.
   int checkInput() {
     if (emailController.text.isEmpty ||
         passwordController.text.isEmpty ||
         confirmpasswordController.text.isEmpty) {
-      Utils.errorMess(errorTitle,
-          'Merci de remplir tous les champs', context);
+      Utils.errorMess(errorTitle, 'Merci de remplir tous les champs', context);
       return -1;
     } else if (!Utils.isValidEmail(emailController.text)) {
-      Utils.errorMess(
-          errorTitle, 'Email non valide', context);
+      Utils.errorMess(errorTitle, 'Email non valide', context);
       return -1;
     } else if (passwordController.text.length < 6) {
       Utils.errorMess(errorTitle,
           'Le mot de passe doit faire au moins 6 caractères.', context);
       return -1;
     } else if (passwordController.text != confirmpasswordController.text) {
-      Utils.errorMess(errorTitle,
-          'Les mots de passe ne correspondent pas', context);
+      Utils.errorMess(
+          errorTitle, 'Les mots de passe ne correspondent pas', context);
       return -1;
     }
     return 1;
   }
 
   /// Create the user account and log him in the application.
-  /// 
+  ///
   /// Checks that:
   /// - All required fields (email, password, confirm password) are filled.
   /// - Email format is valid.
@@ -223,8 +220,8 @@ class _RegisterState extends State<Register> {
             Uri.parse("$url/$userId"),
           );
           if (mounted) {
-            Utils.errorMess(errorTitle,
-                "Merci de réessayer plus tard", context);
+            Utils.errorMess(
+                errorTitle, "Merci de réessayer plus tard", context);
           }
         }
       }
