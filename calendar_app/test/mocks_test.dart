@@ -17,6 +17,7 @@ Future<void> setupCommonMocks(
   MockUserCredential mockUserCredential,
 ) async {
   await dotenv.load(fileName: "lib/.env");
+  const String email = 'test1@mail.com';
 
   when(client.get(Uri.parse('${dotenv.env['API_BASE_URL']}/professions')))
       .thenAnswer((_) async => http.Response.bytes(
@@ -30,7 +31,7 @@ Future<void> setupCommonMocks(
           ));
 
   when(client.delete(
-    Uri.parse('${dotenv.env['API_BASE_URL']}/users/test1@mail.com'),
+    Uri.parse('${dotenv.env['API_BASE_URL']}/users/$email'),
   )).thenAnswer((_) async => http.Response('', 204));
 
   when(client.post(
@@ -39,7 +40,7 @@ Future<void> setupCommonMocks(
     body: anyNamed('body'),
   )).thenAnswer((invocation) async {
     final body = jsonDecode(invocation.namedArguments[#body] as String);
-    if (body['email'] == 'test1@mail.com' &&
+    if (body['email'] == email &&
         body['firstName'] == 'Eve' &&
         body['lastName'] == 'Pley') {
       return http.Response(jsonEncode({'id': 1}), 201);
@@ -48,13 +49,13 @@ Future<void> setupCommonMocks(
     }
   });
 
-  when(client.get(Uri.parse(
-          '${dotenv.env['API_BASE_URL']}/users?email=test1@mail.com')))
+  when(client
+          .get(Uri.parse('${dotenv.env['API_BASE_URL']}/users?email=$email')))
       .thenAnswer((_) async => http.Response(
             jsonEncode({
               "firstName": "Eve",
               "lastName": "Pley",
-              "email": "test1@mail.com",
+              "email": email,
               "id": 1
             }),
             200,
@@ -62,10 +63,79 @@ Future<void> setupCommonMocks(
           ));
 
   when(client.get(
-    Uri.parse('${dotenv.env['API_BASE_URL']}/users/test1@mail.com/professions'),
+    Uri.parse('${dotenv.env['API_BASE_URL']}/users/$email/professions'),
     headers: anyNamed('headers'),
   )).thenAnswer((_) async => http.Response.bytes(
         utf8.encode(jsonEncode(["Danseur", "Comédien", "Musicien"])),
+        200,
+        headers: {'content-type': 'application/json; charset=utf-8'},
+      ));
+
+  when(client.get(
+    Uri.parse('${dotenv.env['API_BASE_URL']}/userProjects/organizer/$email'),
+  )).thenAnswer((_) async => http.Response.bytes(
+        utf8.encode(jsonEncode([
+          {
+            'id': 1,
+            'name': 'Aladin',
+            'description': 'Spectacle de danse et de chant',
+            'beginningDate': '2024-04-01',
+            'endingDate': '2024-04-10',
+          },
+          {
+            'id': 2,
+            'name': 'Un project de danse',
+            'description': null,
+            'beginningDate': null,
+            'endingDate': null
+          },
+        ])),
+        200,
+        headers: {'content-type': 'application/json; charset=utf-8'},
+      ));
+
+  when(client.get(
+    Uri.parse('${dotenv.env['API_BASE_URL']}/projects/1'),
+  )).thenAnswer((_) async => http.Response.bytes(
+        utf8.encode(jsonEncode({
+          'id': 1,
+          'name': 'Aladin',
+          'description': 'Spectacle de danse et de chant',
+          'beginningDate': '2024-04-01',
+          'endingDate': '2024-04-10',
+        })),
+        200,
+        headers: {'content-type': 'application/json; charset=utf-8'},
+      ));
+
+  when(client.get(
+    Uri.parse('${dotenv.env['API_BASE_URL']}/projects/2'),
+  )).thenAnswer((_) async => http.Response.bytes(
+        utf8.encode(jsonEncode({
+          'id': 2,
+          'name': 'Un project de danse',
+          'description': null,
+          'beginningDate': null,
+          'endingDate': null
+        })),
+        200,
+        headers: {'content-type': 'application/json; charset=utf-8'},
+      ));
+
+  when(client.get(
+    Uri.parse(
+        '${dotenv.env['API_BASE_URL']}/projects/1/is-organizer?email=$email'),
+  )).thenAnswer((_) async => http.Response.bytes(
+        utf8.encode(jsonEncode({'isOrganizer': true})),
+        200,
+        headers: {'content-type': 'application/json; charset=utf-8'},
+      ));
+
+  when(client.get(
+    Uri.parse(
+        '${dotenv.env['API_BASE_URL']}/projects/2/is-organizer?email=$email'),
+  )).thenAnswer((_) async => http.Response.bytes(
+        utf8.encode(jsonEncode({'isOrganizer': true})),
         200,
         headers: {'content-type': 'application/json; charset=utf-8'},
       ));
@@ -76,6 +146,6 @@ Future<void> setupCommonMocks(
   )).thenAnswer((_) async => mockUserCredential);
 
   final mockUser = MockUser();
-  when(mockUser.email).thenReturn("test1@mail.com");
+  when(mockUser.email).thenReturn(email);
   when(mockAuth.currentUser).thenReturn(mockUser);
 }

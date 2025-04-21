@@ -2,18 +2,28 @@ import 'package:calendar_app/components/button_custom.dart';
 import 'package:calendar_app/organizer/project/new_project.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_app/organizer/project/project_element.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 
+/// List all the project in [projects], if the end date has past those project will be put in a archived section.
+/// The individual projects are clickable, redirect to the information and gestion of the project. [refreshProjects] will be called when comming back to this page after clicking on a project.
+/// If [isOrganizerPage] is set at true then a button is display to getto the page to create a new project.
 class ProjectList extends StatelessWidget {
   final Future<List> projects;
   final VoidCallback refreshProjects;
   final bool isOrganizerPage;
+  final FirebaseAuth? auth;
+  final http.Client? client;
 
   const ProjectList({
     required this.projects,
     required this.refreshProjects,
     required this.isOrganizerPage,
     super.key,
+    this.auth,
+    this.client,
   });
+
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +83,8 @@ class ProjectList extends StatelessWidget {
                       id: project['id'],
                       organizerPage: isOrganizerPage,
                       onUpdate: refreshProjects,
+                      client: client,
+                      auth: auth,
                     )),
               ],
               if (activeProjects.isEmpty && !isOrganizerPage)
@@ -100,6 +112,8 @@ class ProjectList extends StatelessWidget {
                             id: project['id'],
                             organizerPage: isOrganizerPage,
                             onUpdate: refreshProjects,
+                            client: client,
+                            auth: auth,
                           ))
                       .toList(),
                 ),
