@@ -22,6 +22,32 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: cp_presence; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.cp_presence (
+    rehearsal_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    present boolean NOT NULL
+);
+
+
+ALTER TABLE public.cp_presence OWNER TO postgres;
+
+--
+-- Name: cp_presences; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.cp_presences (
+    rehearsal_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    present boolean NOT NULL
+);
+
+
+ALTER TABLE public.cp_presences OWNER TO postgres;
+
+--
 -- Name: cp_results; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -134,6 +160,19 @@ ALTER SEQUENCE public.rehearsals_id_seq OWNED BY public.rehearsals.id;
 
 
 --
+-- Name: rehearsals_participations; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.rehearsals_participations (
+    rehearsal_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    present boolean NOT NULL
+);
+
+
+ALTER TABLE public.rehearsals_participations OWNER TO postgres;
+
+--
 -- Name: rehearsals_precedences; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -144,6 +183,19 @@ CREATE TABLE public.rehearsals_precedences (
 
 
 ALTER TABLE public.rehearsals_precedences OWNER TO postgres;
+
+--
+-- Name: rehearsals_presences; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.rehearsals_presences (
+    rehearsal_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    present boolean NOT NULL
+);
+
+
+ALTER TABLE public.rehearsals_presences OWNER TO postgres;
 
 --
 -- Name: roles; Type: TABLE; Schema: public; Owner: postgres
@@ -265,27 +317,112 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
+-- Data for Name: cp_presence; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.cp_presence (rehearsal_id, user_id, present) FROM stdin;
+771	263	t
+771	264	t
+772	263	t
+773	264	t
+774	263	t
+774	264	t
+775	263	t
+776	264	f
+777	265	t
+778	263	t
+779	264	t
+1	263	t
+2	264	t
+3	263	f
+3	264	f
+4	263	f
+4	264	f
+5	263	f
+5	264	f
+6	263	f
+6	264	f
+7	263	t
+7	264	t
+8	263	t
+8	264	t
+\.
+
+
+--
+-- Data for Name: cp_presences; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.cp_presences (rehearsal_id, user_id, present) FROM stdin;
+777	265	t
+778	263	t
+779	264	t
+1	263	t
+2	264	t
+5	263	f
+5	264	f
+6	263	f
+6	264	f
+7	263	t
+7	264	t
+8	263	t
+8	264	t
+772	263	t
+3	263	f
+3	264	f
+4	263	f
+4	264	f
+776	264	f
+771	264	t
+773	264	t
+774	263	t
+774	264	t
+775	263	t
+771	263	f
+780	266	t
+780	267	t
+781	266	t
+782	266	t
+783	267	t
+781	267	t
+788	266	t
+788	267	t
+789	266	t
+789	267	t
+790	266	t
+791	267	t
+784	266	t
+784	267	t
+785	266	t
+785	267	t
+786	266	t
+787	267	t
+\.
+
+
+--
 -- Data for Name: cp_results; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.cp_results (project_id, rehearsal_id, accepted, beginning_date) FROM stdin;
-23	771	f	2025-04-01 10:00:00
-23	772	f	2025-04-02 14:00:00
-23	773	f	2025-04-03 08:00:00
+23	771	t	2025-04-01 10:00:00
+23	773	t	2025-04-03 08:00:00
+23	772	f	2025-04-01 10:00:00
+28	3	t	2025-04-02 10:00:00
+28	4	t	2025-04-03 22:30:00
+32	784	f	2025-04-29 17:00:00
+32	785	f	2025-04-29 14:00:00
+29	5	f	2025-04-07 07:00:00
+29	6	f	2025-04-07 07:00:00
+32	786	f	2025-04-28 09:00:00
+32	787	f	2025-05-01 10:00:00
 25	777	f	2025-04-13 07:00:00
 26	778	f	2025-04-08 10:00:00
 26	779	f	2025-04-08 11:30:00
 27	1	f	2025-04-08 11:30:00
 27	2	f	2025-04-08 10:00:00
-28	3	t	2025-04-02 10:00:00
-28	4	t	2025-04-03 22:30:00
-29	5	f	2025-04-07 07:00:00
-29	6	f	2025-04-07 07:00:00
 30	7	f	2025-04-08 10:00:00
 30	8	f	2025-04-08 12:00:00
-24	774	f	2025-04-01 10:00:00
-24	775	f	2025-04-02 14:00:00
-24	776	f	2025-04-01 10:00:00
 \.
 
 
@@ -319,6 +456,24 @@ COPY public.participations (rehearsal_id, user_id) FROM stdin;
 7	264
 8	263
 8	264
+780	266
+780	267
+781	266
+781	267
+782	266
+783	267
+784	266
+784	267
+785	266
+785	267
+786	266
+787	267
+788	266
+788	267
+789	266
+789	267
+790	266
+791	267
 \.
 
 
@@ -390,6 +545,9 @@ COPY public.projects (id, beginning_date, description, ending_date, name) FROM s
 28	2025-04-01	A mesmerizing theatrical performance with stunning stage designs, captivating storytelling, and talented actors, perfect for theater enthusiasts.	2025-04-08	Theater Extravaganza
 29	2025-04-06	A vibrant outdoor performance featuring classic plays.	2025-04-28	Outdoor Play
 30	2025-04-06	A captivating dance performance with intricate choreography and beautiful costumes.	2025-04-13	Dance Showcase
+31	2025-04-21	Contemporary dance showcase.	2025-04-27	Modern Moves
+32	2025-04-21	Two-week theater performances.	2025-05-04	Stage Performances
+33	2025-04-28	Week of ballet and drama.	2025-05-04	Still Dancing
 \.
 
 
@@ -398,10 +556,7 @@ COPY public.projects (id, beginning_date, description, ending_date, name) FROM s
 --
 
 COPY public.rehearsals (id, date, description, duration, location, name, project_id, "time") FROM stdin;
-771	\N	Rehearsal description for Rehearsal with both participants	10800000000000	\N	Rehearsal with both participants	23	\N
 772	\N	Rehearsal description for Rehearsal with only first participant	10800000000000	\N	Rehearsal with only first participant	23	\N
-773	\N	Rehearsal description for Rehearsal with only second participant	10800000000000	\N	Rehearsal with only second participant	23	\N
-774	\N	\N	10800000000000	\N	Rehearsal with both participants	24	\N
 777	\N	Rehearsal for New Project	7200000000000	\N	Rehearsal for New Project	25	\N
 778	\N	Rehearsal with only first participant for project 26	5400000000000	\N	Rehearsal with only first participant	26	\N
 779	\N	Rehearsal with only second participant for project 26	5400000000000	\N	Rehearsal with only second participant	26	\N
@@ -413,8 +568,31 @@ COPY public.rehearsals (id, date, description, duration, location, name, project
 6	2025-04-07	Rehearsal with both participants for project 29	10800000000000	\N	Rehearsal with both participants	29	\N
 7	\N	Rehearsal with both participants for project 30	7200000000000	\N	Rehearsal with both participants	30	10:00:00
 8	\N	Rehearsal with both participants for project 30	3600000000000	\N	Rehearsal with both participants	30	12:00:00
+784	\N	2h rehearsal with both participants	7200000000000	\N	Rehearsal with both participants	32	\N
+785	\N	3h rehearsal with both participants	10800000000000	\N	Rehearsal with both participants	32	\N
+786	\N	1h rehearsal with user 266 only	3600000000000	\N	Rehearsal with only first participant	32	\N
+787	\N	2h30 rehearsal with user 267 only	9000000000000	\N	Rehearsal with only second participant	32	\N
+788	\N	2h rehearsal with both participants	7200000000000	\N	Rehearsal with both participants	33	\N
+789	\N	3h rehearsal with both participants	10800000000000	\N	Rehearsal with both participants	33	\N
+790	\N	1h rehearsal with user 266 only	3600000000000	\N	Rehearsal with only first participant	33	\N
+791	\N	2h30 rehearsal with user 267 only	9000000000000	\N	Rehearsal with only second participant	33	\N
+771	\N	Rehearsal description for Rehearsal with both participants	10800000000000	\N	Rehearsal with both participants	23	\N
+780	\N	2h rehearsal with both participants	7200000000000	\N	Rehearsal with both participants	31	\N
+781	\N	3h rehearsal with both participants	10800000000000	\N	Rehearsal with both participants	31	\N
+773	\N	Rehearsal description for Rehearsal with only second participant	10800000000000	\N	Rehearsal with only second participant	23	\N
+782	\N	1h rehearsal with user 266 only	3600000000000	\N	Rehearsal with only first participant	31	\N
+783	\N	2h30 rehearsal with user 267 only	9000000000000	\N	Rehearsal with only second participant	31	\N
+774	\N	\N	10800000000000	\N	Rehearsal with both participants	24	\N
 775	\N	Rehearsal with only first participant	14400000000000	\N	Rehearsal with only first participant	24	\N
 776	\N	Rehearsal with only second participant	14400000000000	\N	Rehearsal with only second participant	24	\N
+\.
+
+
+--
+-- Data for Name: rehearsals_participations; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.rehearsals_participations (rehearsal_id, user_id, present) FROM stdin;
 \.
 
 
@@ -425,6 +603,30 @@ COPY public.rehearsals (id, date, description, duration, location, name, project
 COPY public.rehearsals_precedences (current, previous) FROM stdin;
 779	778
 1	2
+\.
+
+
+--
+-- Data for Name: rehearsals_presences; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.rehearsals_presences (rehearsal_id, user_id, present) FROM stdin;
+776	264	f
+780	266	f
+780	267	f
+781	266	f
+781	267	f
+782	266	f
+783	267	f
+774	263	t
+774	264	t
+775	263	t
+788	266	f
+788	267	f
+789	266	f
+789	267	f
+790	266	f
+791	267	f
 \.
 
 
@@ -489,6 +691,12 @@ COPY public.user_projects (project_id, role, user_id) FROM stdin;
 29	Organizer	264
 30	Organizer	263
 30	Organizer	264
+31	Organizer	266
+32	Organizer	266
+33	Organizer	266
+31	Organizer	267
+32	Organizer	267
+33	Organizer	267
 \.
 
 
@@ -500,6 +708,8 @@ COPY public.users (id, email, first_name, last_name) FROM stdin;
 263	participant1@mail.com	participant1	lastNamep1
 264	participant2@mail.com	participant2	lastNamep2
 265	participant3@mail.com	participant3	lastNamep3
+266	participant4@mail.com	participant4	lastNamep4
+267	participant5@mail.com	participant5	lastNamep5
 \.
 
 
@@ -536,6 +746,10 @@ COPY public.weekly_availabilities (end_time, start_time, user_id, weekday) FROM 
 23:00:00	07:00:00	265	4
 23:00:00	07:00:00	265	5
 23:00:00	07:00:00	265	6
+10:00:00	09:00:00	266	0
+19:00:00	14:00:00	266	1
+19:00:00	14:00:00	267	1
+12:30:00	10:00:00	267	3
 \.
 
 
@@ -543,21 +757,37 @@ COPY public.weekly_availabilities (end_time, start_time, user_id, weekday) FROM 
 -- Name: projects_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.projects_id_seq', 30, true);
+SELECT pg_catalog.setval('public.projects_id_seq', 33, true);
 
 
 --
 -- Name: rehearsals_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.rehearsals_id_seq', 779, true);
+SELECT pg_catalog.setval('public.rehearsals_id_seq', 791, true);
 
 
 --
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 265, true);
+SELECT pg_catalog.setval('public.users_id_seq', 267, true);
+
+
+--
+-- Name: cp_presence cp_presence_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cp_presence
+    ADD CONSTRAINT cp_presence_pkey PRIMARY KEY (rehearsal_id, user_id);
+
+
+--
+-- Name: cp_presences cp_presences_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cp_presences
+    ADD CONSTRAINT cp_presences_pkey PRIMARY KEY (rehearsal_id, user_id);
 
 
 --
@@ -593,6 +823,14 @@ ALTER TABLE ONLY public.projects
 
 
 --
+-- Name: rehearsals_participations rehearsals_participations_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rehearsals_participations
+    ADD CONSTRAINT rehearsals_participations_pkey PRIMARY KEY (rehearsal_id, user_id);
+
+
+--
 -- Name: rehearsals rehearsals_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -606,6 +844,14 @@ ALTER TABLE ONLY public.rehearsals
 
 ALTER TABLE ONLY public.rehearsals_precedences
     ADD CONSTRAINT rehearsals_precedences_pkey PRIMARY KEY (current, previous);
+
+
+--
+-- Name: rehearsals_presences rehearsals_presences_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rehearsals_presences
+    ADD CONSTRAINT rehearsals_presences_pkey PRIMARY KEY (rehearsal_id, user_id);
 
 
 --
@@ -673,11 +919,27 @@ ALTER TABLE ONLY public.participations
 
 
 --
+-- Name: rehearsals_presences fk2nuqo2m9647fe4idnrr09lhxc; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rehearsals_presences
+    ADD CONSTRAINT fk2nuqo2m9647fe4idnrr09lhxc FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: rehearsals_precedences fk32eisr1618hhrfxhaltghyufq; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.rehearsals_precedences
     ADD CONSTRAINT fk32eisr1618hhrfxhaltghyufq FOREIGN KEY (current) REFERENCES public.rehearsals(id) ON DELETE CASCADE;
+
+
+--
+-- Name: rehearsals_participations fk6h0in3w0icm0pseh5q58yovdm; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rehearsals_participations
+    ADD CONSTRAINT fk6h0in3w0icm0pseh5q58yovdm FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
@@ -702,6 +964,46 @@ ALTER TABLE ONLY public.cp_results
 
 ALTER TABLE ONLY public.weekly_availabilities
     ADD CONSTRAINT fk8rkpns02v8vg3yon1ibpercoq FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: cp_presence fkasgecg7rmx2tkn7ji25jf9aif; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cp_presence
+    ADD CONSTRAINT fkasgecg7rmx2tkn7ji25jf9aif FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: rehearsals_presences fkaxoaso9voyu69gclrlbcv04li; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rehearsals_presences
+    ADD CONSTRAINT fkaxoaso9voyu69gclrlbcv04li FOREIGN KEY (rehearsal_id) REFERENCES public.rehearsals(id) ON DELETE CASCADE;
+
+
+--
+-- Name: cp_presences fkb8j1td46pure34wox5b3nojhm; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cp_presences
+    ADD CONSTRAINT fkb8j1td46pure34wox5b3nojhm FOREIGN KEY (rehearsal_id) REFERENCES public.rehearsals(id) ON DELETE CASCADE;
+
+
+--
+-- Name: cp_presences fkg02xhep4555fefd00rxypffy1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cp_presences
+    ADD CONSTRAINT fkg02xhep4555fefd00rxypffy1 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: cp_presence fkiwlaejjgyo5t17km62kmpx8xl; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cp_presence
+    ADD CONSTRAINT fkiwlaejjgyo5t17km62kmpx8xl FOREIGN KEY (rehearsal_id) REFERENCES public.rehearsals(id) ON DELETE CASCADE;
 
 
 --
@@ -750,6 +1052,14 @@ ALTER TABLE ONLY public.rehearsals
 
 ALTER TABLE ONLY public.user_projects
     ADD CONSTRAINT fkof7c4wufgerxtl9moqol6c516 FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
+
+
+--
+-- Name: rehearsals_participations fkqpadkxf9pdk1ekc25yps7jn5f; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rehearsals_participations
+    ADD CONSTRAINT fkqpadkxf9pdk1ekc25yps7jn5f FOREIGN KEY (rehearsal_id) REFERENCES public.rehearsals(id) ON DELETE CASCADE;
 
 
 --
