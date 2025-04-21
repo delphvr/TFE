@@ -33,8 +33,9 @@ class ProfilPage extends StatefulWidget {
 class _ProfilPageSate extends State<ProfilPage> {
   FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
   http.Client get client => widget.client ?? http.Client();
+  late final User user;
 
-  final user = FirebaseAuth.instance.currentUser!;
+  //final user = FirebaseAuth.instance.currentUser!;
   String? firstName;
   String? lastName;
   String? email;
@@ -44,6 +45,7 @@ class _ProfilPageSate extends State<ProfilPage> {
   @override
   void initState() {
     super.initState();
+    user = auth.currentUser!;
     initUserData(context);
     initUserProfessions(context);
   }
@@ -67,12 +69,17 @@ class _ProfilPageSate extends State<ProfilPage> {
           id = data['id'];
         });
       } else {
+        print("users");
+        print(response.body);
+        print(response.statusCode);
         if (context.mounted) {
           Utils.errorMess('Une erreur est survenue',
               'Merci de réessayer plus tard.', context);
         }
       }
     } catch (e) {
+      print("users");
+      print(e);
       if (context.mounted) {
         Utils.errorMess('Une erreur est survenue',
             'Merci de réessayer plus tard.', context);
@@ -80,6 +87,8 @@ class _ProfilPageSate extends State<ProfilPage> {
     }
   }
 
+  /// Get the list professions of the connected user from the backend and update the variable [professions] with this list.
+  /// If an error occurcs display an error message.
   void initUserProfessions(BuildContext context) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/users/${user.email!}/professions';
@@ -94,6 +103,8 @@ class _ProfilPageSate extends State<ProfilPage> {
         professions = Future.value([]);
       }
     } catch (e) {
+      print("professions");
+      print(e);
       if (context.mounted) {
         Utils.errorMess('Une erreur est survenue',
             'Merci de réessayer plus tard.', context);
@@ -101,6 +112,9 @@ class _ProfilPageSate extends State<ProfilPage> {
     }
   }
 
+  /// Delete the acount of the connected user.
+  /// Delete the user from firebase and from the database.
+  /// If an error occurcs display an error message.
   void deleteAcount() async {
     try {
       await auth.currentUser!.delete();

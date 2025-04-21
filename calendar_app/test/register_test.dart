@@ -1,19 +1,13 @@
-import 'package:http/http.dart' as http;
 import 'package:calendar_app/auth/register.dart';
-import 'package:mockito/annotations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:firebase_auth/firebase_auth.dart';
 
-import 'register_test.mocks.dart';
+import 'mocks_test.dart';
+import 'mocks_test.mocks.dart';
 
 //https://docs.flutter.dev/cookbook/testing/unit/mocking
 //https://docs.flutter.dev/cookbook/testing/widget/tap-drag
 
-@GenerateMocks([http.Client, FirebaseAuth, User, UserCredential])
 void main() {
   group('register', () {
     late MockClient client;
@@ -21,45 +15,11 @@ void main() {
     late MockUserCredential mockUserCredential;
 
     setUp(() async {
-      await dotenv.load(fileName: "lib/.env");
       client = MockClient();
       mockAuth = MockFirebaseAuth();
       mockUserCredential = MockUserCredential();
 
-      when(client.get(Uri.parse('${dotenv.env['API_BASE_URL']}/professions')))
-          .thenAnswer((_) async => http.Response.bytes(
-                utf8.encode(jsonEncode([
-                  {"profession": "Danseur"},
-                  {"profession": "Comédien"},
-                  {"profession": "Musicien"},
-                ])),
-                200,
-                headers: {'content-type': 'application/json; charset=utf-8'},
-              ));
-
-      when(client.delete(
-        Uri.parse('${dotenv.env['API_BASE_URL']}/users/test1@mail.com'),
-      )).thenAnswer((_) async => http.Response('', 204));
-
-      when(client.post(
-        Uri.parse('${dotenv.env['API_BASE_URL']}/users'),
-        headers: anyNamed('headers'),
-        body: anyNamed('body'),
-      )).thenAnswer((invocation) async {
-        final body = jsonDecode(invocation.namedArguments[#body] as String);
-        if (body['email'] == 'eve@mail.com' &&
-            body['firstName'] == 'Eve' &&
-            body['lastName'] == 'Pley') {
-          return http.Response(jsonEncode({'id': 1}), 201);
-        } else {
-          return http.Response('Invalid Data', 400);
-        }
-      });
-
-      when(mockAuth.createUserWithEmailAndPassword(
-        email: anyNamed('email'),
-        password: anyNamed('password'),
-      )).thenAnswer((_) async => mockUserCredential);
+      await setupCommonMocks(client, mockAuth, mockUserCredential);
     });
 
     testWidgets('register with incorrect email', (WidgetTester tester) async {
@@ -83,6 +43,7 @@ void main() {
       await tester.tap(find.text('Créer mon compte'));
       await tester.pumpAndSettle();
       expect(find.text('Email non valide'), findsOneWidget);
+      //print("good");
     });
 
     testWidgets('register with incorrect password (at least 7 char)',
@@ -108,6 +69,7 @@ void main() {
       //debugDumpApp();
       expect(find.text('Le mot de passe doit faire au moins 6 caractères.'),
           findsOneWidget);
+      //print("good");
     });
   });
 }
