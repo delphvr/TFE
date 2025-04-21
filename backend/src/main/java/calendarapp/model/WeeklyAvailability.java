@@ -31,6 +31,7 @@ public class WeeklyAvailability {
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
 
+    @Id
     @Column(name = "weekday", nullable = false)
     @Min(0)
     @Max(6)
