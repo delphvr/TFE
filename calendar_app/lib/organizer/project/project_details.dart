@@ -166,12 +166,14 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
     try {
       final response = await http.delete(Uri.parse(url));
 
-      if(response.statusCode == 400){
+      if (response.statusCode == 400) {
         if (mounted) {
-          Utils.errorMess('Une erreur est survenue',
-              'Au moins un organisateur dois rester présent sur le projet.', context);
+          Utils.errorMess(
+              'Une erreur est survenue',
+              'Au moins un organisateur dois rester présent sur le projet.',
+              context);
         }
-      }else if (response.statusCode != 204) {
+      } else if (response.statusCode != 204) {
         if (mounted) {
           Utils.errorMess('Une erreur est survenue',
               'Merci de réessayer plus tard', context);
@@ -183,8 +185,8 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
       }
     } catch (e) {
       if (mounted) {
-        Utils.errorMess('Une erreur est survenue',
-            'Merci de réessayer plus tard', context);
+        Utils.errorMess(
+            'Une erreur est survenue', 'Merci de réessayer plus tard', context);
       }
     }
   }
@@ -193,159 +195,41 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
   Widget build(BuildContext context) {
     return CustomScaffold(
       body: Align(
-          alignment: Alignment.topCenter,
-          child: Column(
-            children: [
-              Text(
-                name ?? '',
-                style: const TextStyle(
-                  fontSize: 30,
-                ),
-              ),
-              const SizedBox(height: 25),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 35),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Description: ${description != null && description != '' ? description : "-"}",
-                        style: const TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Date de début: ${beginningDate != null ? Utils.formatDateString(beginningDate) : "-"}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Date de fin: ${endingDate != null ? Utils.formatDateString(endingDate) : "-"}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                    ],
+        alignment: Alignment.topCenter,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Text(
+                  name ?? '',
+                  style: const TextStyle(
+                    fontSize: 30,
                   ),
                 ),
-              ),
-              const SizedBox(height: 25),
-              if (widget.organizerPage) ...[
-                ButtonCustom(
-                  text: 'Modifier',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => UpdateProjectPage(
-                          id: widget.id,
-                          name: name!,
-                          description: description,
-                          beginningDate: beginningDate,
-                          endingDate: endingDate,
-                        ),
-                      ),
-                    ).then((_) {
-                      if (context.mounted) {
-                        users = getUsersOnProject(context);
-                        getProjectData(context);
-                      }
-                    });
-                  },
-                ),
                 const SizedBox(height: 25),
-                ButtonCustom(
-                  text: "Voir les participants",
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ParticipantsPage(
-                                projectId: widget.id,
-                                name: name!,
-                              )),
-                    );
-                  },
-                ),
-                const SizedBox(height: 25),
-                ButtonCustom(
-                  text: "Voir les répétitions",
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => RehearsalPage(
-                                projectId: widget.id,
-                                projectName: name!,
-                              )),
-                    );
-                  },
-                ),
-                const SizedBox(height: 25),
-                ButtonCustom(
-                  text: "Calculer l'horaire",
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CalendarPropositionPage(projectId: widget.id)),
-                    );
-                  },
-                ),
-                const SizedBox(height: 40),
-                ButtonCustom(
-                  text: 'Supprimer le projet',
-                  onTap: () {
-                    Utils.confirmation(
-                        'Action Irrévesible',
-                        'Êtes-vous sûre de vouloir supprimer le projet ?',
-                        deleteProject,
-                        context);
-                  },
-                ),
-              ],
-              if (!widget.organizerPage) ...[
-                ButtonCustom(
-                  text: 'Voir mes répétitions',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => UserRehearsalPage(
-                          projectId: widget.id,
-                          projectName: name!,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-                ButtonCustom(
-                  text: 'Me retirer du projet',
-                  onTap: () {
-                Utils.confirmation(
-                    'Action Irrévesible',
-                    'Êtes-vous sûre de vouloir vous rétirer du projet ?',
-                    deleteParticipant,
-                    context);
-              },
-                ),
-                const SizedBox(height: 20),
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 35),
+                    padding: const EdgeInsets.symmetric(horizontal: 35),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Mes rôles :",
-                          style: TextStyle(
+                          "Description: ${description != null && description != '' ? description : "-"}",
+                          style: const TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Date de début: ${beginningDate != null ? Utils.formatDateString(beginningDate) : "-"}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Date de fin: ${endingDate != null ? Utils.formatDateString(endingDate) : "-"}',
+                          style: const TextStyle(
                             fontSize: 20,
                           ),
                         ),
@@ -353,10 +237,128 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                Flexible(
-                  //TODO: same as in participant_madification, put in aux file ?
-                  child: FutureBuilder<List>(
+                const SizedBox(height: 25),
+                if (widget.organizerPage) ...[
+                  ButtonCustom(
+                    text: 'Modifier',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UpdateProjectPage(
+                            id: widget.id,
+                            name: name!,
+                            description: description,
+                            beginningDate: beginningDate,
+                            endingDate: endingDate,
+                          ),
+                        ),
+                      ).then((_) {
+                        if (context.mounted) {
+                          users = getUsersOnProject(context);
+                          getProjectData(context);
+                        }
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 25),
+                  ButtonCustom(
+                    text: "Voir les participants",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ParticipantsPage(
+                                  projectId: widget.id,
+                                  name: name!,
+                                )),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 25),
+                  ButtonCustom(
+                    text: "Voir les répétitions",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => RehearsalPage(
+                                  projectId: widget.id,
+                                  projectName: name!,
+                                )),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 25),
+                  ButtonCustom(
+                    text: "Calculer l'horaire",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                CalendarPropositionPage(projectId: widget.id)),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 40),
+                  ButtonCustom(
+                    text: 'Supprimer le projet',
+                    onTap: () {
+                      Utils.confirmation(
+                          'Action Irrévesible',
+                          'Êtes-vous sûre de vouloir supprimer le projet ?',
+                          deleteProject,
+                          context);
+                    },
+                  ),
+                ],
+                if (!widget.organizerPage) ...[
+                  ButtonCustom(
+                    text: 'Voir mes répétitions',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UserRehearsalPage(
+                            projectId: widget.id,
+                            projectName: name!,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  ButtonCustom(
+                    text: 'Me retirer du projet',
+                    onTap: () {
+                      Utils.confirmation(
+                          'Action Irrévesible',
+                          'Êtes-vous sûre de vouloir vous rétirer du projet ?',
+                          deleteParticipant,
+                          context);
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 35),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Mes rôles :",
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  FutureBuilder<List>(
                     future: roles,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -369,7 +371,6 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
                         );
                       } else if (snapshot.hasData) {
                         final roles = snapshot.data!;
-
                         return ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -390,10 +391,12 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
                       }
                     },
                   ),
-                ),
-              ]
-            ],
-          )),
+                ]
+              ],
+            ),
+          ),
+        
+      ),
       selectedIndex: widget.organizerPage ? 1 : 0,
     );
   }

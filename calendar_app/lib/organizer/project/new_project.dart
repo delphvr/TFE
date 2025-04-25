@@ -8,6 +8,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+
+/// page to create a new project
+/// Ask for project name, description (optional), start date, end date.
 class NewProjectPage extends StatefulWidget {
   const NewProjectPage({super.key});
 
@@ -26,6 +29,9 @@ class _NewProjectPageState extends State<NewProjectPage> {
   DateTime? _selectedBeginningDate;
   DateTime? _selectedEndingDate;
 
+  /// save the new project in the backend. 
+  /// Check that the project name, starting date and endig date is set. If not an error message is displayed.
+  /// If an error occurs an error message is displayed.
   void save(BuildContext context) async {
     final projectName = projectNameController.text;
     final description = descriptionController.text;
@@ -126,6 +132,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
             ),
             const SizedBox(height: 25),
             TextFieldcustom(
+              key: const Key('name'),
               labelText: 'Nom du projet*',
               controller: projectNameController,
               obscureText: false,
@@ -135,6 +142,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
             SizedBox(
               width: 250,
               child: TextField(
+                key: const Key('description'),
                 controller: descriptionController,
                 maxLines: null,
                 minLines: 2,
@@ -158,6 +166,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
                   });
                 }),
                 child: AbsorbPointer(
+                  key: const Key('beginningDate'),
                   child: TextField(
                     controller: beginningDateController,
                     readOnly: true,
@@ -184,6 +193,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
                   });
                 }),
                 child: AbsorbPointer(
+                  key: const Key('endingDate'),
                   child: TextField(
                     controller: endingDateController,
                     readOnly: true,

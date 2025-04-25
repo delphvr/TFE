@@ -43,14 +43,37 @@ void main() {
 
     await tester.tap(find.text('Créer mon compte'));
     await tester.pumpAndSettle();
-
     //debugDumpApp();
     await Future.delayed(const Duration(seconds: 2));
 
     expect(find.byType(ProjectOrganizerPage), findsOneWidget);
-    //TODO creer un projet
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Nouveau projet'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('name')), 'Aladin');
+    await tester.enterText(
+        find.byKey(const Key('description')), 'Spectacle de danse et de chant');
+
+    await tester.tap(find.byKey(const Key('beginningDate')), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('1'));
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('endingDate')), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    final endingDate = DateTime.now();
+    await tester.tap(find.text(endingDate.day.toString()));
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    await Future.delayed(const Duration(seconds: 2));
+    await tester.tap(find.text('Enregistrer'));
+    await tester.pumpAndSettle();
+    await Future.delayed(const Duration(seconds: 2));
 
     await tester.tap(find.text('Profil'));
+    await tester.pumpAndSettle();
 
     await Future.delayed(const Duration(seconds: 2));
 
@@ -60,9 +83,12 @@ void main() {
     expect(find.text("Professions : -"), findsOneWidget);
 
     await tester.tap(find.text('Supprimer mon compte'));
+    await tester.pumpAndSettle();
     await Future.delayed(const Duration(seconds: 2));
     await tester.tap(find.text('oui'));
-    expect(find.byType(LoginScreen), findsOneWidget);
+    await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
     await Future.delayed(const Duration(seconds: 2));
+    expect(find.byType(LoginScreen), findsOneWidget);
   });
 }
