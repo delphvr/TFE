@@ -72,6 +72,8 @@ void main() {
     await tester.pumpAndSettle();
     await Future.delayed(const Duration(seconds: 2));
 
+    //TODO delete project
+
     await tester.tap(find.text('Profil'));
     await tester.pumpAndSettle();
 
@@ -92,3 +94,7 @@ void main() {
     expect(find.byType(LoginScreen), findsOneWidget);
   });
 }
+/*
+DELETE FROM users
+WHERE email = 'test1@mail.com';
+*/

@@ -12,14 +12,22 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 /// page to create a new project
 /// Ask for project name, description (optional), start date, end date.
 class NewProjectPage extends StatefulWidget {
-  const NewProjectPage({super.key});
+  final FirebaseAuth? auth;
+  final http.Client? client;
+  const NewProjectPage({
+    super.key,
+    this.auth,
+    this.client,
+  });
 
   @override
   State<NewProjectPage> createState() => _NewProjectPageState();
 }
 
 class _NewProjectPageState extends State<NewProjectPage> {
-  final user = FirebaseAuth.instance.currentUser!;
+  FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
+  http.Client get client => widget.client ?? http.Client();
+  late final User user;
 
   final projectNameController = TextEditingController();
   final descriptionController = TextEditingController();
@@ -28,6 +36,12 @@ class _NewProjectPageState extends State<NewProjectPage> {
 
   DateTime? _selectedBeginningDate;
   DateTime? _selectedEndingDate;
+
+  @override
+  void initState() {
+    super.initState();
+    user = auth.currentUser!;
+  }
 
   /// save the new project in the backend. 
   /// Check that the project name, starting date and endig date is set. If not an error message is displayed.
@@ -85,7 +99,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
     };
 
     try {
-      final response = await http.post(
+      final response = await client.post(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(requestBody),

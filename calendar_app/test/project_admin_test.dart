@@ -6,7 +6,7 @@ import 'mocks_test.dart';
 import 'mocks_test.mocks.dart';
 
 void main() {
-  group('profil', () {
+  group('admin project list', () {
     late MockClient client;
     late MockFirebaseAuth mockAuth;
     late MockUserCredential mockUserCredential;
