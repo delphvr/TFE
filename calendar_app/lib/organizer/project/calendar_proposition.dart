@@ -122,8 +122,6 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
         }
         return {};
       } else {
-        print(response.body);
-        print(response.statusCode);
         if (context.mounted) {
           Utils.errorMess(errorTitle,
               'Une erreur s\'est produite', context);
@@ -164,8 +162,6 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
 
         return parsedData;
       } else {
-        print(response.statusCode);
-        print(response.body);
         if (context.mounted) {
           Utils.errorMess(errorTitle,
               'Une erreur s\'est produite', context);
@@ -173,7 +169,6 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
         return {};
       }
     } catch (e) {
-      print(e);
       if (context.mounted) {
         Utils.errorMess(errorTitle,
             'Une erreur s\'est produite', context);

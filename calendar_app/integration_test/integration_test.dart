@@ -1,5 +1,6 @@
 import 'package:calendar_app/auth/login.dart';
 import 'package:calendar_app/organizer/project/project_admin.dart';
+import 'package:calendar_app/organizer/project/project_details.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:calendar_app/main.dart' as app;
@@ -27,6 +28,7 @@ void main() {
     await tester.pumpAndSettle();
     await Future.delayed(const Duration(seconds: 2));
 
+    //create an account
     expect(find.text('Créer un compte'), findsOneWidget);
 
     await tester.tap(find.text('Créer un compte'));
@@ -50,6 +52,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
+    // create a project
     await tester.tap(find.text('Nouveau projet'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('name')), 'Aladin');
@@ -72,8 +75,27 @@ void main() {
     await tester.pumpAndSettle();
     await Future.delayed(const Duration(seconds: 2));
 
-    //TODO delete project
+    expect(find.byType(ProjectOrganizerPage), findsOneWidget);
+    await tester.tap(find.text('Aladin'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ProjectDetailsPage), findsOneWidget);
+    expect(find.text("Description : Spectacle de danse et de chant"), findsOneWidget);
 
+    //add a participant
+    //await tester.tap(find.text('Voir les participants'));
+    //await tester.pumpAndSettle();
+    //await tester.tap(find.text('Ajouter un participant'));
+    //await tester.pumpAndSettle();
+
+    //delete the project
+    await tester.tap(find.text('Supprimer le projet'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('oui'));
+    await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
+    expect(find.byType(ProjectOrganizerPage), findsOneWidget);
+
+    //Delete the account
     await tester.tap(find.text('Profil'));
     await tester.pumpAndSettle();
 

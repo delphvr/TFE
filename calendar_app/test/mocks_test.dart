@@ -140,6 +140,41 @@ Future<void> setupCommonMocks(
         headers: {'content-type': 'application/json; charset=utf-8'},
       ));
 
+  when(client.get(
+    Uri.parse('${dotenv.env['API_BASE_URL']}/userProjects/1'),
+  )).thenAnswer((_) async => http.Response.bytes(
+        utf8.encode(jsonEncode([
+          {
+            'id': 1,
+            'firstName': 'Eve',
+            'lastName': 'Pley',
+            'email': 'test1@mail.com',
+          },
+          {
+            'id': 2,
+            'firstName': 'Jean',
+            'lastName': 'Bert',
+            'email': 'test2@mail.com',
+          },
+        ])),
+        200,
+        headers: {'content-type': 'application/json; charset=utf-8'},
+      ));
+
+  when(client.get(
+    Uri.parse('${dotenv.env['API_BASE_URL']}/roles'),
+  )).thenAnswer((_) async => http.Response.bytes(
+        utf8.encode(jsonEncode([
+          {'role': 'Organisateur'},
+          {'role': 'Danseur'},
+          {'role': 'Non défini'},
+          {"role": "Comédien"},
+          {"role": "Musicien"},
+        ])),
+        200,
+        headers: {'content-type': 'application/json; charset=utf-8'},
+      ));
+
   when(mockAuth.createUserWithEmailAndPassword(
     email: anyNamed('email'),
     password: anyNamed('password'),

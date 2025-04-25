@@ -1,13 +1,14 @@
 import 'package:calendar_app/organizer/participants/particpipant_modification.dart';
 import 'package:flutter/material.dart';
 
+/// Display the last nama and firts name of a user.
+/// Clickable to get to the information page about the user on this project (name, email, roles).
 class UsersElement extends StatefulWidget {
   final int projectId;
   final int userId;
   final String firstName;
   final String lastName;
   final String email;
-  //final List roles;
   final bool organizerPage;
   final VoidCallback onUpdate;
 
@@ -18,7 +19,6 @@ class UsersElement extends StatefulWidget {
     required this.firstName,
     required this.lastName,
     required this.email,
-    //required this.roles,
     required this.onUpdate,
     this.organizerPage = true,
   });
@@ -29,12 +29,6 @@ class UsersElement extends StatefulWidget {
 
 class _UsersElementState extends State<UsersElement> {
   late List roles;
-
-  @override
-  void initState() {
-    super.initState();
-    //roles = widget.roles;
-  }
 
   @override
   Widget build(BuildContext context) {

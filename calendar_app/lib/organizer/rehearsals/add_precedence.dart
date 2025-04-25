@@ -35,7 +35,6 @@ class _AddPrecedencePageState extends State<AddPrecedencePage> {
       return;
     }
 
-  print(selectedReherasals);
     final List requestBody = selectedReherasals.map((item) => item['rehearsalId']).toList();
 
     try {
@@ -50,8 +49,6 @@ class _AddPrecedencePageState extends State<AddPrecedencePage> {
           Navigator.pop(context);
         }
       } else {
-        print(response.body);
-        print(response.statusCode);
         if (context.mounted) {
           Utils.errorMess('Erreur lors de l\'ajout de la précédence',
               'Merci de réessayez plus tard.', context);

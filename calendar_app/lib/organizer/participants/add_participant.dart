@@ -11,19 +11,29 @@ import 'dart:convert';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+/// Page to add a participant to the project
 class AddParticipant extends StatefulWidget {
   final int projectId;
   final String projectName;
+  final FirebaseAuth? auth;
+  final http.Client? client;
 
-  const AddParticipant(
-      {super.key, required this.projectId, required this.projectName});
+  const AddParticipant({
+    super.key,
+    required this.projectId,
+    required this.projectName,
+    this.auth,
+    this.client,
+  });
 
   @override
   State<AddParticipant> createState() => _AddParticipant();
 }
 
 class _AddParticipant extends State<AddParticipant> {
-  final user = FirebaseAuth.instance.currentUser!;
+  FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
+  http.Client get client => widget.client ?? http.Client();
+  late final User user;
 
   final emailController = TextEditingController();
   List<Role> roles = [];
@@ -33,13 +43,16 @@ class _AddParticipant extends State<AddParticipant> {
   @override
   void initState() {
     super.initState();
+    user = auth.currentUser!;
     _loadRoles();
   }
 
+  /// Get the list of possible roles from the backend.
+  /// If an error occurs, display an error message and returns an empty list.
   Future<List<Role>> getRoles() async {
     String url = '${dotenv.env['API_BASE_URL']}/roles';
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         List<dynamic> jsonData = json.decode(utf8.decode(response.bodyBytes));
@@ -51,13 +64,22 @@ class _AddParticipant extends State<AddParticipant> {
       } else if (response.statusCode == 204) {
         return [];
       } else {
-        throw Exception('Failed to load roles');
+        if (mounted) {
+          Utils.errorMess('Une erreur est survenue',
+              'Merci de réessayer plus tard', context);
+        }
+        return [];
       }
     } catch (e) {
-      throw Exception('Error: $e');
+      if (mounted) {
+        Utils.errorMess(
+            'Une erreur est survenue', 'Merci de réessayer plus tard', context);
+      }
+      return [];
     }
   }
 
+  /// Updates the variable [roles] and [items] with the list of possible roles asked to the backend.
   Future<void> _loadRoles() async {
     try {
       final fetchedRoles = await getRoles();
@@ -75,6 +97,8 @@ class _AddParticipant extends State<AddParticipant> {
     }
   }
 
+  /// Check the the email input is correct.
+  /// [Return] -1 if the email is empty or is not a valid format, 1 otherwise.
   int checkInput() {
     if (emailController.text.isEmpty) {
       Utils.errorMess('Erreur lors de l\'ajout du participant',
@@ -88,6 +112,8 @@ class _AddParticipant extends State<AddParticipant> {
     return 1;
   }
 
+  /// Add a user to the project.
+  /// If an error occurs an error message will be displayed.
   void addUserToProject(BuildContext context) async {
     if (checkInput() == 1) {
       final String url = '${dotenv.env['API_BASE_URL']}/userProjects';
@@ -101,7 +127,7 @@ class _AddParticipant extends State<AddParticipant> {
       };
 
       try {
-        final response = await http.post(
+        final response = await client.post(
           Uri.parse(url),
           headers: {"Content-Type": "application/json"},
           body: jsonEncode(requestBody),
@@ -153,6 +179,7 @@ class _AddParticipant extends State<AddParticipant> {
                   ),
                   const SizedBox(height: 20),
                   TextFieldcustom(
+                    key: const Key('emailField'),
                     labelText: 'Email*',
                     controller: emailController,
                     obscureText: false,

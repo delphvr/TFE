@@ -69,17 +69,12 @@ class _ProfilPageSate extends State<ProfilPage> {
           id = data['id'];
         });
       } else {
-        print("users");
-        print(response.body);
-        print(response.statusCode);
         if (context.mounted) {
           Utils.errorMess('Une erreur est survenue',
               'Merci de réessayer plus tard.', context);
         }
       }
     } catch (e) {
-      print("users");
-      print(e);
       if (context.mounted) {
         Utils.errorMess('Une erreur est survenue',
             'Merci de réessayer plus tard.', context);
@@ -103,8 +98,6 @@ class _ProfilPageSate extends State<ProfilPage> {
         professions = Future.value([]);
       }
     } catch (e) {
-      print("professions");
-      print(e);
       if (context.mounted) {
         Utils.errorMess('Une erreur est survenue',
             'Merci de réessayer plus tard.', context);

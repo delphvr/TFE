@@ -13,6 +13,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+/// Page that show the project informations.
 class ProjectDetailsPage extends StatefulWidget {
   final int id;
   final bool organizerPage;
@@ -45,6 +46,8 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
     roles = getRoles(context);
   }
 
+  /// Get the roles of the user on the project from the backend.
+  /// If an error occurs return an empty list.
   Future<List> getRoles(BuildContext context) async {
     final email = user.email;
     final String url =
@@ -66,12 +69,15 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
     }
   }
 
+  /// Update the value of the variable [roles] with the roles of the user found in the backend.
   void refreshRoles() {
     setState(() {
       roles = getRoles(context);
     });
   }
 
+  /// Get the participants of the project with id [widget.id].
+  /// If an error occurse return an empty list.
   Future<List> getUsersOnProject(BuildContext context) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/userProjects/${widget.id}';
@@ -96,7 +102,9 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
     }
   }
 
-  //TODO: return the value instead and go in aux file ?
+  /// Get the name, description and dates of the project from the backend. 
+  /// Updates the variable [name], [description], [beginningDate] and [endingDate] with the retreived information.
+  /// If an error occurs display an error message.
   void getProjectData(BuildContext context) async {
     final String url = '${dotenv.env['API_BASE_URL']}/projects/${widget.id}';
     try {
@@ -125,17 +133,15 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
     }
   }
 
+  /// Update the variable [users] with the participants that are part of the project.
   void refreshUsers() {
     setState(() {
       users = getUsersOnProject(context);
     });
   }
 
-  void logout(Function onLogoutSuccess) async {
-    await FirebaseAuth.instance.signOut();
-    onLogoutSuccess();
-  }
-
+  /// Delete the project from the backend.
+  /// If an error occurs display an error message.
   void deleteProject() async {
     final String url = '${dotenv.env['API_BASE_URL']}/projects/${widget.id}';
     try {
@@ -159,6 +165,8 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
     }
   }
 
+  /// Delete the current user from the project with id [widget.id].
+  /// If an error occurs an error message is displayed.
   void deleteParticipant() async {
     final email = user.email;
     final String url =
@@ -214,21 +222,21 @@ class _ProjectDetailsPage extends State<ProjectDetailsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Description: ${description != null && description != '' ? description : "-"}",
+                          "Description : ${description != null && description != '' ? description : "-"}",
                           style: const TextStyle(
                             fontSize: 20,
                           ),
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Date de début: ${beginningDate != null ? Utils.formatDateString(beginningDate) : "-"}',
+                          'Date de début : ${beginningDate != null ? Utils.formatDateString(beginningDate) : "-"}',
                           style: const TextStyle(
                             fontSize: 20,
                           ),
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Date de fin: ${endingDate != null ? Utils.formatDateString(endingDate) : "-"}',
+                          'Date de fin : ${endingDate != null ? Utils.formatDateString(endingDate) : "-"}',
                           style: const TextStyle(
                             fontSize: 20,
                           ),
