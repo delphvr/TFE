@@ -66,7 +66,7 @@ Future<void> setupCommonMocks(
     Uri.parse('${dotenv.env['API_BASE_URL']}/users/$email/professions'),
     headers: anyNamed('headers'),
   )).thenAnswer((_) async => http.Response.bytes(
-        utf8.encode(jsonEncode(["Danseur", "Comédien", "Musicien"])),
+        utf8.encode(jsonEncode(["Danseur", "Comédien"])),
         200,
         headers: {'content-type': 'application/json; charset=utf-8'},
       ));

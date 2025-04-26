@@ -1,4 +1,5 @@
 import 'package:calendar_app/profil/profil.dart';
+import 'package:calendar_app/profil/profil_modification.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 
@@ -39,11 +40,56 @@ void main() {
       expect(find.text("Professions :"), findsOneWidget);
       expect(find.text("Danseur"), findsOneWidget);
       expect(find.text("Comédien"), findsOneWidget);
-      expect(find.text("Musicien"), findsOneWidget);
 
       expect(find.text("Modifier"), findsOneWidget);
       expect(find.text("Gérer mes disponibilité"), findsOneWidget);
       expect(find.text("Supprimer mon compte"), findsOneWidget);
+    });
+
+    testWidgets('profil modification wrong email format',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: ProfileModificationPage(
+          id: 1,
+          firstname: "Eve",
+          lastname: "Pley",
+          email: "test1@mail.com",
+          professions: const [],
+          client: client,
+          auth: mockAuth,
+        ),
+      ));
+
+      await tester.pumpAndSettle();
+      expect(find.byType(ProfileModificationPage), findsOneWidget);
+      expect(find.text("Modification du Compte"), findsOneWidget);
+      await tester.enterText(find.byKey(const Key('emailField')), 'del.vr');
+      await tester.tap(find.text('Modifier'));
+      await tester.pumpAndSettle();
+      expect(find.text("Email non valide"), findsOneWidget);
+    });
+
+    testWidgets('profil modification emty email',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: ProfileModificationPage(
+          id: 1,
+          firstname: "Eve",
+          lastname: "Pley",
+          email: "test1@mail.com",
+          professions: const [],
+          client: client,
+          auth: mockAuth,
+        ),
+      ));
+
+      await tester.pumpAndSettle();
+      expect(find.byType(ProfileModificationPage), findsOneWidget);
+      expect(find.text("Modification du Compte"), findsOneWidget);
+      await tester.enterText(find.byKey(const Key('emailField')), '');
+      await tester.tap(find.text('Modifier'));
+      await tester.pumpAndSettle();
+      expect(find.text("Merci de remplir tout les champs"), findsOneWidget);
     });
   });
 }

@@ -11,12 +11,15 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 
+/// Page to update the profile informations (name, email and professions).
 class ProfileModificationPage extends StatefulWidget {
   final int id;
   final String firstname;
   final String lastname;
   final String email;
   final List professions;
+  final FirebaseAuth? auth;
+  final http.Client? client;
 
   const ProfileModificationPage({
     super.key,
@@ -25,6 +28,8 @@ class ProfileModificationPage extends StatefulWidget {
     required this.lastname,
     required this.email,
     required this.professions,
+    this.auth,
+    this.client,
   });
 
   @override
@@ -33,7 +38,9 @@ class ProfileModificationPage extends StatefulWidget {
 }
 
 class _ProfileModificationPageState extends State<ProfileModificationPage> {
-  final user = FirebaseAuth.instance.currentUser!;
+  FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
+  http.Client get client => widget.client ?? http.Client();
+  late final User user;
   final String errorTitle = 'Erreur lors de la modification du profil';
 
   late TextEditingController firstNameController;
@@ -46,6 +53,7 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
   @override
   void initState() {
     super.initState();
+    user = auth.currentUser!;
     firstNameController = TextEditingController(text: widget.firstname);
     lastNameController = TextEditingController(text: widget.lastname);
     emailController = TextEditingController(text: widget.email);
@@ -63,10 +71,12 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
 
   DateTime? selectedDate;
 
+  /// Get the list of possible professions from the backend and update the variables [professions] and [items] with it.
+  /// If an error occurs does nothing.
   Future<void> getProfessions(BuildContext context) async {
     String url = '${dotenv.env['API_BASE_URL']}/professions';
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));
       if (response.statusCode == 200) {
         List<dynamic> jsonData = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
@@ -84,11 +94,13 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
     }
   }
 
+  /// Update the variable [selectedProfessions] with the list of profession linked to the user (given by the backend).
+  /// If an error occurs display an error message.
   void getUserProfessions(BuildContext context) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/users/${user.email!}/professions';
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
@@ -115,6 +127,9 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
     }
   }
 
+  /// Send the updated information (name, email, profssions) about the use to the backend to be saved.
+  /// Check that the names and email field are not empty and that the email is in a valid format.
+  /// If an error occurs an error message will be displayed.
   void update(BuildContext context) async {
     final firstname = firstNameController.text;
     final lastname = lastNameController.text;
@@ -122,6 +137,9 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
 
     if (firstname.isEmpty || lastname.isEmpty || email.isEmpty) {
       Utils.errorMess(errorTitle, 'Merci de remplir tout les champs', context);
+      return;
+    } else if (!Utils.isValidEmail(emailController.text)) {
+      Utils.errorMess(errorTitle, 'Email non valide', context);
       return;
     }
 
@@ -134,7 +152,7 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
       "professions": selectedProfessions.map((p) => p.name).toList(),
     };
     try {
-      final response = await http.put(
+      final response = await client.put(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(requestBody),
@@ -198,6 +216,7 @@ class _ProfileModificationPageState extends State<ProfileModificationPage> {
 
                 //email
                 TextFieldcustom(
+                  key: const Key('emailField'),
                   labelText: 'Email',
                   controller: emailController,
                   obscureText: false,
