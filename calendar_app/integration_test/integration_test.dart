@@ -26,7 +26,7 @@ void main() {
       (WidgetTester tester) async {
     app.main();
     await tester.pumpAndSettle();
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
 
     //create an account
     expect(find.text('Créer un compte'), findsOneWidget);
@@ -41,12 +41,13 @@ void main() {
     await tester.enterText(find.byKey(const Key('passwordField')), 'password');
     await tester.enterText(
         find.byKey(const Key('confirmPasswordField')), 'password');
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
 
     await tester.tap(find.text('Créer mon compte'));
     await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
     //debugDumpApp();
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
 
     expect(find.byType(ProjectOrganizerPage), findsOneWidget);
 
@@ -70,10 +71,10 @@ void main() {
     await tester.tap(find.text(endingDate.day.toString()));
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
     await tester.tap(find.text('Enregistrer'));
     await tester.pumpAndSettle();
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
 
     expect(find.byType(ProjectOrganizerPage), findsOneWidget);
     await tester.tap(find.text('Aladin'));
@@ -82,10 +83,16 @@ void main() {
     expect(find.text("Description : Spectacle de danse et de chant"), findsOneWidget);
 
     //add a participant
-    //await tester.tap(find.text('Voir les participants'));
-    //await tester.pumpAndSettle();
-    //await tester.tap(find.text('Ajouter un participant'));
-    //await tester.pumpAndSettle();
+    await tester.tap(find.text('Voir les participants'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ajouter un participant'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('emailField')), 'del.vr@mail.com');
+    await tester.tap(find.text('Ajouter'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    await Future.delayed(const Duration(seconds: 1));
 
     //delete the project
     await tester.tap(find.text('Supprimer le projet'));
@@ -99,7 +106,7 @@ void main() {
     await tester.tap(find.text('Profil'));
     await tester.pumpAndSettle();
 
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
 
     expect(find.text("Nom : Pley"), findsOneWidget);
     expect(find.text("Prénom : Eve"), findsOneWidget);
@@ -108,11 +115,11 @@ void main() {
 
     await tester.tap(find.text('Supprimer mon compte'));
     await tester.pumpAndSettle();
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
     await tester.tap(find.text('oui'));
     await tester.pumpAndSettle();
     await tester.pumpAndSettle();
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
     expect(find.byType(LoginScreen), findsOneWidget);
   });
 }
