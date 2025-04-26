@@ -178,35 +178,35 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Description: ${description != null && description != '' ? description : "-"}",
+                          "Description : ${description != null && description != '' ? description : "-"}",
                           style: const TextStyle(
                             fontSize: 20,
                           ),
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Date: ${date != null ? Utils.formatDateString(date) : "-"} ${time != null ? Utils.formatTimeString(time) : ""}',
+                          'Date : ${date != null ? Utils.formatDateString(date) : "-"} ${time != null ? Utils.formatTimeString(time) : ""}',
                           style: const TextStyle(
                             fontSize: 20,
                           ),
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Durée: ${duration != null ? Utils.formatDuration(duration!) : "-"}',
+                          'Durée : ${duration != null ? Utils.formatDuration(duration!) : "-"}',
                           style: const TextStyle(
                             fontSize: 20,
                           ),
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Lieu: ${location != null && location != '' ? location : "-"}',
+                          'Lieu : ${location != null && location != '' ? location : "-"}',
                           style: const TextStyle(
                             fontSize: 20,
                           ),
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Participants: ${participantsIds.isEmpty ? "-" : ""}',
+                          'Participants : ${participantsIds.isEmpty ? "-" : ""}',
                           style: const TextStyle(
                             fontSize: 20,
                           ),

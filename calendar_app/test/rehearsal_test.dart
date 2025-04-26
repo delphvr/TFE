@@ -31,8 +31,8 @@ void main() {
       ));
       await tester.pumpAndSettle();
       expect(find.byType(RehearsalPage), findsOneWidget);
-      expect(find.text("Répétition générale"), findsOneWidget);
       expect(find.text("Ajouter une répétition"), findsOneWidget);
+      expect(find.text("Répétition générale"), findsOneWidget);
       expect(find.text("Description : Dernière répétition avec tous le monde"), findsOneWidget);
       expect(find.text("Durée : 5h"), findsOneWidget);
       expect(find.text("Chorégraphie"), findsOneWidget);
@@ -52,7 +52,6 @@ void main() {
       ));
       await tester.pumpAndSettle();
       expect(find.byType(AddRehearsal), findsOneWidget);
-      //await tester.enterText(find.byKey(const Key('nameField')), 'R1');
       expect(find.text("Durée *"), findsOneWidget);
       await tester.tap(find.text('Durée *'), warnIfMissed: false);
       await tester.pumpAndSettle();

@@ -74,6 +74,7 @@ void main() {
     await Future.delayed(const Duration(seconds: 1));
     await tester.tap(find.text('Enregistrer'));
     await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
     await Future.delayed(const Duration(seconds: 1));
 
     expect(find.byType(ProjectOrganizerPage), findsOneWidget);
@@ -90,6 +91,51 @@ void main() {
     await tester.enterText(find.byKey(const Key('emailField')), 'del.vr@mail.com');
     await tester.tap(find.text('Ajouter'));
     await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    await Future.delayed(const Duration(seconds: 1));
+
+    //add a rehearsal
+    await tester.tap(find.text('Voir les répétitions'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ajouter une répétition'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('nameField')), 'R1');
+    await tester.enterText(find.byKey(const Key('descriptionField')), 'Firts rehearsal');
+    expect(find.text("Durée *"), findsOneWidget);
+    await tester.tap(find.text('Durée *'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Participants'));
+    await tester.tap(find.text('Participants'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Eve Pley'));
+    await tester.tap(find.text('Eve Pley'));
+    await tester.tap(find.text('Valider'));
+    await tester.pumpAndSettle();
+    expect(find.text("Ajouter"), findsOneWidget);
+    await tester.ensureVisible(find.text('Ajouter'));
+    await tester.tap(find.text('Ajouter'));
+    await tester.pumpAndSettle();
+    await Future.delayed(const Duration(seconds: 1));
+    expect(find.text("Ajouter une répétition"), findsOneWidget);
+    expect(find.text("R1"), findsOneWidget);
+    expect(find.text("Description : Firts rehearsal"), findsOneWidget);
+    await tester.tap(find.text('R1'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    await Future.delayed(const Duration(seconds: 1));
+    expect(find.text("R1"), findsOneWidget);
+    expect(find.text("Description : Firts rehearsal"), findsOneWidget);
+    expect(find.text("Date : - "), findsOneWidget);
+    expect(find.text("Durée : 2h"), findsOneWidget);
+    expect(find.text("Lieu : -"), findsOneWidget);
+    expect(find.text("Participants : "), findsOneWidget);
+    expect(find.text("Pley Eve"), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    await Future.delayed(const Duration(seconds: 1));
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
     await Future.delayed(const Duration(seconds: 1));

@@ -189,6 +189,7 @@ class _AddRehearsal extends State<AddRehearsal> {
                 SizedBox(
                   width: 250,
                   child: TextField(
+                    key: const Key('descriptionField'),
                     controller: descriptionController,
                     maxLines: null,
                     minLines: 2,
