@@ -24,7 +24,7 @@ class Participant {
   int get hashCode => id.hashCode;
 }
 
-/// Page to add a new rehearsal to the project with id [projectId], by giving a name (mandatory), decription, date, time, duration (mandatory) and a place.
+/// Page to add a new rehearsal to the project with id [projectId], by giving a name (mandatory), decription, date, time, duration (mandatory), place and participants.
 class AddRehearsal extends StatefulWidget {
   final int projectId;
   final String projectName;
@@ -68,7 +68,6 @@ class _AddRehearsal extends State<AddRehearsal> {
   /// Check that the name and duration is not empty. Chack also that the date is not in the past.
   /// If an error occurs an error message will be dispalyed.
   void addRehearsal(BuildContext context) async {
-    print("here");
     final rehearsalName = nameController.text;
     final description = descriptionController.text;
     final date = Utils.formatDateTime(_selectedDate);

@@ -1,4 +1,7 @@
+import 'package:calendar_app/organizer/rehearsals/add_precedence.dart';
 import 'package:calendar_app/organizer/rehearsals/add_rehearsal.dart';
+import 'package:calendar_app/organizer/rehearsals/rehearsal_modification.dart';
+import 'package:calendar_app/organizer/rehearsals/rehearsal_precedence_relatoins.dart';
 import 'package:calendar_app/organizer/rehearsals/rehearsals.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
@@ -84,5 +87,77 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text("Merci de donner une durée à la répétition"), findsOneWidget);
     });
+
+    testWidgets('rehearsal modification with missing name', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: RehearsalModificationPage(
+          projectId: 1,
+          rehearsalId: 1,
+          name: 'R1',
+          description: null,
+          date: null,
+          time: null,
+          duration: 'PT2h',
+          participantsIds: const [],
+          location: null,
+          client: client,
+          auth: mockAuth,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byType(RehearsalModificationPage), findsOneWidget);
+      await tester.enterText(find.byKey(const Key('nameField')), '');
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Modifier'));
+      await tester.tap(find.text('Modifier'));
+      await tester.pumpAndSettle();
+      expect(find.text("Veuillez donner un nom à la répétition."), findsOneWidget);
+    });
+
+    testWidgets('rehearsal precedence display', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: RehearsalPrecedencesPage(
+          projectId: 1,
+          rehearsalId: 1,
+          rehearsalName: 'R1',
+          client: client,
+          auth: mockAuth,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byType(RehearsalPrecedencesPage), findsOneWidget);
+      expect(find.text("Gestion des précédences"), findsOneWidget);
+      expect(find.text("Répétitions qui doivent précèder la répétition \"R1\" :"), findsOneWidget);
+      expect(find.text("Chorégraphie"), findsOneWidget);
+      expect(find.text("Répétitions qui doivent avoir lieu après la répétition \"R1\" :"), findsOneWidget);
+      expect(find.text("Répétition général"), findsOneWidget);
+    });
+
+    testWidgets('add a rehearsal precedence', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: AddPrecedencePage(
+          projectId: 1,
+          rehearsalId: 1,
+          rehearsalName: 'R1',
+          rehearsals: const [{
+              'id': 4,
+              'name': 'Répétition costume',
+              'date': null,
+              'time': null,
+              'duration': 'PT1H',
+              'projectId': 1,
+              'location': null,
+            }],
+          client: client,
+          auth: mockAuth,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byType(AddPrecedencePage), findsOneWidget);
+      await tester.tap(find.text('Répétitions'));
+      await tester.pumpAndSettle();
+      expect(find.text("Répétition costume"), findsOneWidget);
+    });
+
   });
 }

@@ -12,6 +12,7 @@ import 'dart:convert';
 
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 
+/// Page to update a rehearsal informations (name, description, date, time, duration, place and participants)
 class RehearsalModificationPage extends StatefulWidget {
   final int projectId;
   final int rehearsalId;
@@ -22,6 +23,8 @@ class RehearsalModificationPage extends StatefulWidget {
   final String? duration;
   final List participantsIds;
   final String? location;
+  final http.Client? client;
+  final FirebaseAuth? auth;
 
   const RehearsalModificationPage({
     super.key,
@@ -34,6 +37,8 @@ class RehearsalModificationPage extends StatefulWidget {
     required this.duration,
     required this.participantsIds,
     required this.location,
+    this.client,
+    this.auth,
   });
 
   @override
@@ -42,7 +47,9 @@ class RehearsalModificationPage extends StatefulWidget {
 }
 
 class _RehearsalModificationPage extends State<RehearsalModificationPage> {
-  final user = FirebaseAuth.instance.currentUser!;
+  FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
+  http.Client get client => widget.client ?? http.Client();
+  late final User user;
   final String errorTitle = 'Erreur lors de la modification de la répétition';
 
   late TextEditingController nameController;
@@ -61,6 +68,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
   @override
   void initState() {
     super.initState();
+    user = auth.currentUser!;
     nameController = TextEditingController(text: widget.name);
     descriptionController = TextEditingController(text: widget.description);
     dateController = TextEditingController(
@@ -75,9 +83,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
             ? Utils.formatDuration(widget.duration!)
             : null);
     timeController = TextEditingController(text: widget.time);
-    getUsersOnProject(
-        context); //initiate participants list with the participants of the project
-    //init selectedParticipants to user already participating in the rehearsal
+    getUsersOnProject(context);
     getUsersOnRehearsal(context);
   }
 
@@ -91,11 +97,12 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     super.dispose();
   }
 
+  /// Update the variables [participants] and [items] with the list of participants of the project taken from the backend.
   Future<void> getUsersOnProject(BuildContext context) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/userProjects/${widget.projectId}';
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
@@ -115,11 +122,12 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     }
   }
 
+  /// update the variable [selectedParticipants] with the list of user already participating in the rehearsal. Information retreived by the backend.
   void getUsersOnRehearsal(BuildContext context) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/rehearsals/${widget.rehearsalId}/participants';
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
@@ -136,6 +144,9 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     }
   }
 
+  /// Send the updated information to the backend to be saved.
+  /// Check that the name and duration is not empty.
+  /// If an error occurs an error message will be displayed.
   void update(BuildContext context) async {
     final rehearsalName = nameController.text;
     final description = descriptionController.text;
@@ -217,6 +228,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
                   ),
                   const SizedBox(height: 20),
                   TextFieldcustom(
+                    key: const Key('nameField'),
                     labelText: 'Nom de la répétition *',
                     controller: nameController,
                     obscureText: false,

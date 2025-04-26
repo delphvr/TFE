@@ -1,6 +1,8 @@
 import 'package:calendar_app/organizer/participants/participant_rehearsal_detail.dart';
 import 'package:flutter/material.dart';
 
+/// Display the [lastName] and [firstName].
+/// Clickable widget to get to the user (with id [userId]) information on the project.
 class ParticipantElement extends StatefulWidget {
   final int projectId; 
   final int rehearsalId;
@@ -8,7 +10,6 @@ class ParticipantElement extends StatefulWidget {
   final String firstName;
   final String lastName;
   final String email;
-  //final List roles;
   final bool organizerPage;
   final VoidCallback onUpdate;
 
@@ -20,7 +21,6 @@ class ParticipantElement extends StatefulWidget {
     required this.firstName,
     required this.lastName,
     required this.email,
-    //required this.roles,
     required this.onUpdate,
     required this.organizerPage,
   });
@@ -30,13 +30,6 @@ class ParticipantElement extends StatefulWidget {
 }
 
 class _ParticipantElementState extends State<ParticipantElement> {
-  late List roles;
-
-  @override
-  void initState() {
-    super.initState();
-    //roles = widget.roles;
-  }
 
   @override
   Widget build(BuildContext context) {
