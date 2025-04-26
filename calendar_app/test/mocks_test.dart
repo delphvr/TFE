@@ -175,6 +175,48 @@ Future<void> setupCommonMocks(
         headers: {'content-type': 'application/json; charset=utf-8'},
       ));
 
+  when(client.get(
+    Uri.parse('${dotenv.env['API_BASE_URL']}/projects/1/rehearsals'),
+  )).thenAnswer((_) async => http.Response.bytes(
+        utf8.encode(jsonEncode([
+          {
+            'id': 1,
+            'name': 'Répétition générale',
+            'description': 'Dernière répétition avec tous le monde',
+            'date': null,
+            'time': null,
+            'duration': 'PT5H',
+            'projectId': 1,
+            'location': null,
+            'participantsIds': []
+          },
+          {
+            'id': 2,
+            'name': 'Chorégraphie',
+            'description': null,
+            'date': null,
+            'time': null,
+            'duration': 'PT3H',
+            'projectId': 1,
+            'location': null,
+            'participantsIds': []
+          },
+          {
+            'id': 3,
+            'name': 'Petite répétition',
+            'description': null,
+            'date': null,
+            'time': '14:00:00',
+            'duration': 'PT2H',
+            'projectId': 1,
+            'location': null,
+            'participantsIds': []
+          },
+        ])),
+        200,
+        headers: {'content-type': 'application/json; charset=utf-8'},
+      ));
+
   when(mockAuth.createUserWithEmailAndPassword(
     email: anyNamed('email'),
     password: anyNamed('password'),

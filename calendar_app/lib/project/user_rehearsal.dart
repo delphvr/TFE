@@ -44,8 +44,10 @@ class _UserRehearsalPageState extends State<UserRehearsalPage> {
             'name': item['name'],
             'description': item['description'],
             'date': item['date'],
+            'time': item['time'],
             'duration': item['duration'],
             'projectId': item['projectId'],
+            'location': item['location'],
             'participantsIds': item['participantsIds']
           };
         }).toList();
@@ -118,6 +120,7 @@ class _UserRehearsalPageState extends State<UserRehearsalPage> {
                                 time: rehearsals[index]['time'],
                                 duration: rehearsals[index]['duration'],
                                 projectId: rehearsals[index]['projectId'],
+                                location: rehearsals[index]['location'],
                                 participantsIds: rehearsals[index]
                                     ['participantsIds'],
                                 organizerPage: false,

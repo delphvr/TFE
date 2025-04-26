@@ -221,6 +221,7 @@ class _CalendarListState extends State<CalendarList> {
                                                 date: rehearsal['date'],
                                                 time: rehearsal['time'],
                                                 duration: rehearsal['duration'],
+                                                location: rehearsal['location'],
                                                 participantsIds: const [],
                                                 organizerPage: false),
                                       ),

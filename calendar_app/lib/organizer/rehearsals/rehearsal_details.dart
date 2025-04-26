@@ -19,6 +19,7 @@ class RehearsalDetailsPage extends StatefulWidget {
   final String? date;
   final String? time;
   final String? duration;
+  final String? location;
   final List participantsIds;
   final bool organizerPage;
 
@@ -31,6 +32,7 @@ class RehearsalDetailsPage extends StatefulWidget {
     required this.date,
     required this.time,
     required this.duration,
+    required this.location,
     required this.participantsIds, //TODO delete ?
     required this.organizerPage,
   });
@@ -60,8 +62,8 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
     time = widget.time;
     duration = widget.duration;
     participantsIds = widget.participantsIds;
+    location = widget.location;
     users = getUsersOnRehearsal(context);
-    location = null;
     getRehearsal();
   }
 

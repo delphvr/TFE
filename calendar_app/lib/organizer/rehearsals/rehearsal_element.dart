@@ -2,6 +2,8 @@ import 'package:calendar_app/organizer/rehearsals/rehearsal_details.dart';
 import 'package:calendar_app/utils.dart';
 import 'package:flutter/material.dart';
 
+/// Display the information (name, description, date, duration) about the rehearsal with id [rehearsalId].
+/// Clickable widget to get to the details page about the rehearsal.
 class RehearsalElement extends StatefulWidget {
   final int projectId;
   final int rehearsalId;
@@ -10,6 +12,7 @@ class RehearsalElement extends StatefulWidget {
   final String? date;
   final String? time;
   final String? duration;
+  final String? location;
   final List participantsIds;
   final bool organizerPage;
   final VoidCallback onUpdate;
@@ -23,6 +26,7 @@ class RehearsalElement extends StatefulWidget {
     required this.date,
     required this.time,
     required this.duration,
+    required this.location,
     required this.participantsIds,
     required this.organizerPage,
     required this.onUpdate,
@@ -33,23 +37,6 @@ class RehearsalElement extends StatefulWidget {
 }
 
 class _RehearsalElementState extends State<RehearsalElement> {
-  late String name;
-  late String? description;
-  late String? date;
-  late String? duration;
-  late List participantsIds;
-  late Future<List>? users;
-
-  @override
-  void initState() {
-    super.initState();
-    //TODO nécessaire d'être ici ?
-    name = widget.name;
-    description = widget.description;
-    date = widget.date;
-    duration = widget.duration;
-    participantsIds = widget.participantsIds; //TODO nécessaire
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +55,7 @@ class _RehearsalElementState extends State<RehearsalElement> {
                 date: widget.date,
                 time: widget.time,
                 duration: widget.duration,
+                location: widget.location,
                 participantsIds: widget.participantsIds,
                 organizerPage: widget.organizerPage
               ),
@@ -89,7 +77,7 @@ class _RehearsalElementState extends State<RehearsalElement> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name,
+                  widget.name,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -97,33 +85,33 @@ class _RehearsalElementState extends State<RehearsalElement> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                if (description != null && description != "")
+                if (widget.description != null && widget.description != "")
                   Padding(
                     padding: const EdgeInsets.only(bottom: 2.5),
                     child: Text(
-                      'Description : $description',
+                      'Description : ${widget.description}',
                       style: const TextStyle(
                         fontSize: 15,
                         color: Colors.black,
                       ),
                     ),
                   ),
-                if (date != null)
+                if (widget.date != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 2.5),
                     child: Text(
-                      'Date: $date',
+                      'Date : ${widget.date}',
                       style: const TextStyle(
                         fontSize: 15,
                         color: Colors.black,
                       ),
                     ),
                   ),
-                if (duration != null)
+                if (widget.duration != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 2.5),
                     child: Text(
-                      'Durée: ${Utils.formatDuration(duration!)}',
+                      'Durée : ${Utils.formatDuration(widget.duration!)}',
                       style: const TextStyle(
                         fontSize: 15,
                         color: Colors.black,

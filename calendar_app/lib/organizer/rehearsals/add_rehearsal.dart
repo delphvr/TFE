@@ -24,19 +24,25 @@ class Participant {
   int get hashCode => id.hashCode;
 }
 
+/// Page to add a new rehearsal to the project with id [projectId], by giving a name (mandatory), decription, date, time, duration (mandatory) and a place.
 class AddRehearsal extends StatefulWidget {
   final int projectId;
   final String projectName;
+  final http.Client? client;
+  final FirebaseAuth? auth;
 
   const AddRehearsal(
-      {super.key, required this.projectId, required this.projectName});
+      {super.key, required this.projectId, required this.projectName, this.client, this.auth});
 
   @override
   State<AddRehearsal> createState() => _AddRehearsal();
 }
 
 class _AddRehearsal extends State<AddRehearsal> {
-  final user = FirebaseAuth.instance.currentUser!;
+  FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
+  http.Client get client => widget.client ?? http.Client();
+  late final User user;
+  final String errorTitle = 'Erreur lors de la création de la répétition';
 
   TextEditingController nameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
@@ -54,11 +60,15 @@ class _AddRehearsal extends State<AddRehearsal> {
   @override
   void initState() {
     super.initState();
-    getUsersOnProject(
-        context); //initiate participants list with the participants on the project
+    user = auth.currentUser!;
+    getUsersOnProject(context);
   }
 
+  /// Add the rehearsal to the project with id [projectId] by sending it to the backend.
+  /// Check that the name and duration is not empty. Chack also that the date is not in the past.
+  /// If an error occurs an error message will be dispalyed.
   void addRehearsal(BuildContext context) async {
+    print("here");
     final rehearsalName = nameController.text;
     final description = descriptionController.text;
     final date = Utils.formatDateTime(_selectedDate);
@@ -69,12 +79,12 @@ class _AddRehearsal extends State<AddRehearsal> {
 
     //TODO check que la date rentre dans les dates du projet, le passer à select date?
     if (rehearsalName.isEmpty) {
-      Utils.errorMess('Erreur lors de la création de la répétition',
+      Utils.errorMess(errorTitle,
           'Merci de donner un nom à la répétition', context);
       return;
     }
     if (duration.isEmpty) {
-      Utils.errorMess('Erreur lors de la création de la répétition',
+      Utils.errorMess(errorTitle,
           'Merci de donner une durée à la répétition', context);
       return;
     }
@@ -83,7 +93,7 @@ class _AddRehearsal extends State<AddRehearsal> {
       DateTime today = DateTime.now();
       DateTime todayWithoutTime = DateTime(today.year, today.month, today.day);
       if (todayWithoutTime.isAfter(selectedDate)) {
-        Utils.errorMess('Erreur lors de la création de la répétition',
+        Utils.errorMess(errorTitle,
             'La date ne peut pas avoir lieu dans le passé.', context);
         return;
       }
@@ -101,7 +111,7 @@ class _AddRehearsal extends State<AddRehearsal> {
     };
 
     try {
-      final response = await http.post(
+      final response = await client.post(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(requestBody),
@@ -113,23 +123,24 @@ class _AddRehearsal extends State<AddRehearsal> {
         }
       } else {
         if (context.mounted) {
-          Utils.errorMess('Erreur lors de l\'ajout du participant',
+          Utils.errorMess(errorTitle,
               'Merci de réessayez plus tard.', context);
         }
       }
     } catch (e) {
       if (context.mounted) {
-        Utils.errorMess('Erreur lors de l\'ajout du participant',
+        Utils.errorMess(errorTitle,
             'Impossible de se connecter au serveur.', context);
       }
     }
   }
 
+  /// Update the variables [participants] and [items] with the list of participants on the project given by the backend.
   Future<void> getUsersOnProject(BuildContext context) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/userProjects/${widget.projectId}';
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
@@ -168,6 +179,7 @@ class _AddRehearsal extends State<AddRehearsal> {
                 ),
                 const SizedBox(height: 20),
                 TextFieldcustom(
+                  key: const Key('nameField'),
                   labelText: 'Nom de la répétition *',
                   controller: nameController,
                   obscureText: false,

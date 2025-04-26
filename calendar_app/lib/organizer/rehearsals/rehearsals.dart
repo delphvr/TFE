@@ -9,14 +9,20 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+/// Page with the list of rehearsal on the project.
+/// Plus a button to get to the page to add a project.
 class RehearsalPage extends StatefulWidget {
   final int projectId;
   final String projectName;
+  final http.Client? client;
+  final FirebaseAuth? auth;
 
   const RehearsalPage({
     super.key,
     required this.projectId,
     required this.projectName,
+    this.client, 
+    this.auth,
   });
 
   @override
@@ -24,20 +30,25 @@ class RehearsalPage extends StatefulWidget {
 }
 
 class _RehearsalPage extends State<RehearsalPage> {
-  final user = FirebaseAuth.instance.currentUser!;
+  FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
+  http.Client get client => widget.client ?? http.Client();
+  late final User user;
   late Future<List>? rehearsals;
 
   @override
   void initState() {
     super.initState();
+    user = auth.currentUser!;
     rehearsals = getRehearsals(context);
   }
 
+  /// Get the list of rehearsal of the project with id [widget.projectId] from the backend.
+  /// If an error occurs return an empty list.
   Future<List> getRehearsals(BuildContext context) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/rehearsals';
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         final List<dynamic> userProjects = data.map((item) {
@@ -46,8 +57,10 @@ class _RehearsalPage extends State<RehearsalPage> {
             'name': item['name'],
             'description': item['description'],
             'date': item['date'],
+            'time': item['time'],
             'duration': item['duration'],
             'projectId': item['projectId'],
+            'location': item['location'],
             'participantsIds': item['participantsIds']
           };
         }).toList();
@@ -59,6 +72,7 @@ class _RehearsalPage extends State<RehearsalPage> {
     }
   }
 
+  /// Update the variable [rehearsals] with the list of rehearsal on the project with id [widget.projectId].
   void refreshRehearsals() {
     setState(() {
       rehearsals = getRehearsals(context);
@@ -123,6 +137,7 @@ class _RehearsalPage extends State<RehearsalPage> {
                         date: Utils.formatDateString(rehearsals[index]['date']),
                         time: rehearsals[index]['time'],
                         duration: rehearsals[index]['duration'],
+                        location: rehearsals[index]['location'],
                         projectId: rehearsals[index]['projectId'],
                         participantsIds: rehearsals[index]['participantsIds'],
                         organizerPage: true,
