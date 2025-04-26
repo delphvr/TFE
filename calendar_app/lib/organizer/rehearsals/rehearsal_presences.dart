@@ -7,11 +7,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+/// Page that display which user is present and with user is not present at the rehearsal with id [rehearsalId].
 class PresencesPage extends StatefulWidget {
   final int rehearsalId;
   final int projectId;
   final String name;
   final bool isCalendar;
+  final http.Client? client;
+  final FirebaseAuth? auth;
 
   const PresencesPage({
     super.key,
@@ -19,6 +22,8 @@ class PresencesPage extends StatefulWidget {
     required this.projectId,
     required this.name,
     required this.isCalendar,
+    this.client,
+    this.auth,
   });
 
   @override
@@ -26,16 +31,21 @@ class PresencesPage extends StatefulWidget {
 }
 
 class _PresencesPageState extends State<PresencesPage> {
-  final user = FirebaseAuth.instance.currentUser!;
+  FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
+  http.Client get client => widget.client ?? http.Client();
+  late final User user;
   late Future<List> usersPresent = Future.value([]);
   late Future<List> usersNotPresent = Future.value([]);
 
   @override
   void initState() {
     super.initState();
+    user = auth.currentUser!;
     getUsersPresences(context);
   }
 
+  /// Update the variables [usersPresent] and [usersNotPresent] with the list of user that are present and the list of user that are not present, respectively, at the rehearsal with id [widget.rehearsalId].
+  /// If an error occurs an error message will be display.
   Future<void> getUsersPresences(BuildContext context) async {
     String url = "";
     if (widget.isCalendar) {
@@ -46,7 +56,7 @@ class _PresencesPageState extends State<PresencesPage> {
           '${dotenv.env['API_BASE_URL']}/rehearsals/${widget.rehearsalId}/presences';
     }
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data =

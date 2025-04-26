@@ -11,6 +11,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+/// Page with all the detail about the rehearsal with id [rehearsalId].
+/// Show the rehearsal name, description, date, time, duration, location, and participants.
+/// The participants are clickable to get acces to the page with the information about that participant on the project.
+/// Plus a button to delete the rehearsal.
 class RehearsalDetailsPage extends StatefulWidget {
   final int projectId;
   final int rehearsalId;
@@ -67,6 +71,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
     getRehearsal();
   }
 
+  /// Get the list of participants of the rehearsal with id [widget.rehearsalId], taken from the backend.
   Future<List> getUsersOnRehearsal(BuildContext context) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/rehearsals/${widget.rehearsalId}/participants';
@@ -96,21 +101,24 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
     }
   }
 
+  /// Update the variable [users] with the list of user that are participants to the rehearsal.
   void refreshUsers() {
     setState(() {
       users = getUsersOnRehearsal(context);
     });
   }
 
+  /// Delete the rehearsal with id [widget.rehearsalId] from the backend.
+  /// If an error occurs occurs an error message will be display.
   void deleteRehearsal() async {
+    const String errorTitle = 'Erreur lors de la suppression de la répétition';
     final String url =
         '${dotenv.env['API_BASE_URL']}/rehearsals/${widget.rehearsalId}';
     try {
       final response = await http.delete(Uri.parse(url));
-
       if (response.statusCode != 204) {
         if (mounted) {
-          Utils.errorMess('Erreur lors de la suppression de la répétition',
+          Utils.errorMess(errorTitle,
               'Merci de réessayer plus tard', context);
         }
       } else {
@@ -120,12 +128,15 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
       }
     } catch (e) {
       if (mounted) {
-        Utils.errorMess('Erreur lors de la suppression de la répétition',
+        Utils.errorMess(errorTitle,
             'Merci de réessayer plus tard', context);
       }
     }
   }
 
+  /// Get the rehearsal information from the backend for the rehearsal with id [widget.rehearsalId].
+  /// Update the variables [name], [description], [date], [time], [duration] and [location] with the retrieved data from the backend.
+  /// If an error occurs display an error message.
   void getRehearsal() async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/rehearsals/${widget.rehearsalId}';

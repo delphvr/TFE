@@ -2,6 +2,7 @@ import 'package:calendar_app/organizer/rehearsals/add_precedence.dart';
 import 'package:calendar_app/organizer/rehearsals/add_rehearsal.dart';
 import 'package:calendar_app/organizer/rehearsals/rehearsal_modification.dart';
 import 'package:calendar_app/organizer/rehearsals/rehearsal_precedence_relatoins.dart';
+import 'package:calendar_app/organizer/rehearsals/rehearsal_presences.dart';
 import 'package:calendar_app/organizer/rehearsals/rehearsals.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
@@ -157,6 +158,25 @@ void main() {
       await tester.tap(find.text('Répétitions'));
       await tester.pumpAndSettle();
       expect(find.text("Répétition costume"), findsOneWidget);
+    });
+
+    testWidgets('rehearsal presences', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: PresencesPage(
+          projectId: 1,
+          rehearsalId: 1,
+          name: 'R1',
+          isCalendar: false,
+          client: client,
+          auth: mockAuth,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byType(PresencesPage), findsOneWidget);
+      expect(find.text("Participants présent à la répétition \"R1\" :"), findsOneWidget);
+      expect(find.text("Pley Eve"), findsOneWidget);
+      expect(find.text("Participants non présent à la répétition \"R1\" :"), findsOneWidget);
+      expect(find.text("Bert Jean"), findsOneWidget);
     });
 
   });
