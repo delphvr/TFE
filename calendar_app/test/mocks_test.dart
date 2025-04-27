@@ -112,12 +112,12 @@ Future<void> setupCommonMocks(
     Uri.parse('${dotenv.env['API_BASE_URL']}/projects/2'),
   )).thenAnswer((_) async => http.Response.bytes(
         utf8.encode(jsonEncode({
-            'id': 2,
-            'name': 'Un project de danse',
-            'description': 'Danse danse danse...',
-            'beginningDate': '2024-05-05',
-            'endingDate': '2024-05-10'
-          })),
+          'id': 2,
+          'name': 'Un project de danse',
+          'description': 'Danse danse danse...',
+          'beginningDate': '2024-05-05',
+          'endingDate': '2024-05-10'
+        })),
         200,
         headers: {'content-type': 'application/json; charset=utf-8'},
       ));
@@ -304,6 +304,47 @@ Future<void> setupCommonMocks(
             'beginningDate': '2024-05-05',
             'endingDate': '2024-05-10'
           }
+        ])),
+        200,
+        headers: {'content-type': 'application/json; charset=utf-8'},
+      ));
+
+  when(client.get(
+    Uri.parse(
+        '${dotenv.env['API_BASE_URL']}/users/availabilities?email=$email'),
+  )).thenAnswer((_) async => http.Response.bytes(
+        utf8.encode(jsonEncode([
+          {
+            'userId': 1,
+            'startTime': '09:00',
+            'endTime': '12:00',
+            'weekday': 0, // Lundi
+          },
+          {
+            'userId': 1,
+            'startTime': '14:00',
+            'endTime': '18:00',
+            'weekday': 2, // Mercredi
+          },
+        ])),
+        200,
+        headers: {'content-type': 'application/json; charset=utf-8'},
+      ));
+
+  when(client.get(
+    Uri.parse('${dotenv.env['API_BASE_URL']}/users/vacations?email=$email'),
+  )).thenAnswer((_) async => http.Response.bytes(
+        utf8.encode(jsonEncode([
+          {
+            'userId': 1,
+            'startDate': '2024-08-01',
+            'endDate': '2024-08-15',
+          },
+          {
+            'userId': 1,
+            'startDate': '2024-12-20',
+            'endDate': '2025-01-05',
+          },
         ])),
         200,
         headers: {'content-type': 'application/json; charset=utf-8'},

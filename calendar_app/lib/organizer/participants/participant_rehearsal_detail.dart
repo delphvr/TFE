@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+/// Page with the information about the user with id [userId] on the project with id [projectId].
 class ParticpipantRehearsalDetailPage extends StatefulWidget {
   final int projectId;
   final int rehearsalId;
@@ -43,6 +44,7 @@ class _ParticpipantRehearsalDetailPage
     roles = getRoles(context);
   }
 
+  /// Get the list of roles the user with id [widget.userId] is assigned to on the project with id [widget.projectId]
   Future<List> getRoles(BuildContext context) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles';
@@ -59,6 +61,7 @@ class _ParticpipantRehearsalDetailPage
     }
   }
 
+  /// Update the variable [roles] with the list
   void refreshRoles() {
     setState(() {
       roles = getRoles(context);

@@ -8,6 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+/// Page to add availabilities. By giving the strat eand end time plus the day(s) of the week.
 class NewDisponibilitiesPage extends StatefulWidget {
   final Function onpop;
   const NewDisponibilitiesPage({
@@ -29,6 +30,9 @@ class _NewDisponibilitiesPageSate extends State<NewDisponibilitiesPage> {
   TimeOfDay? selectedStartTime;
   TimeOfDay? selectedEndTime;
 
+  /// Save to the backend the new availability.
+  /// Check that all the field are completed and that the end hour is not before the start hour.
+  /// If an error occurs, an error message will be display.
   void save(BuildContext context) async {
     final email = user.email;
     final startTime = startTimeController.text;

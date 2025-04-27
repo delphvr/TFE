@@ -61,7 +61,8 @@ void main() {
     await tester.enterText(
         find.byKey(const Key('description')), 'Spectacle de danse et de chant');
 
-    await tester.tap(find.byKey(const Key('beginningDate')), warnIfMissed: false);
+    await tester.tap(find.byKey(const Key('beginningDate')),
+        warnIfMissed: false);
     await tester.pumpAndSettle();
     await tester.tap(find.text('1'));
     await tester.tap(find.text('OK'));
@@ -82,14 +83,16 @@ void main() {
     await tester.tap(find.text('Aladin'));
     await tester.pumpAndSettle();
     expect(find.byType(ProjectDetailsPage), findsOneWidget);
-    expect(find.text("Description : Spectacle de danse et de chant"), findsOneWidget);
+    expect(find.text("Description : Spectacle de danse et de chant"),
+        findsOneWidget);
 
     //add a participant
     await tester.tap(find.text('Voir les participants'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Ajouter un participant'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byKey(const Key('emailField')), 'del.vr@mail.com');
+    await tester.enterText(
+        find.byKey(const Key('emailField')), 'del.vr@mail.com');
     await tester.tap(find.text('Ajouter'));
     await tester.pumpAndSettle();
     //add a role
@@ -119,7 +122,8 @@ void main() {
     await tester.tap(find.text('Ajouter une répétition'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('nameField')), 'R1');
-    await tester.enterText(find.byKey(const Key('descriptionField')), 'Firts rehearsal');
+    await tester.enterText(
+        find.byKey(const Key('descriptionField')), 'Firts rehearsal');
     expect(find.text("Durée *"), findsOneWidget);
     await tester.tap(find.text('Durée *'), warnIfMissed: false);
     await tester.pumpAndSettle();
@@ -170,7 +174,8 @@ void main() {
     await tester.tap(find.text('Projets'));
     await tester.pumpAndSettle();
     expect(find.text("Aladin"), findsOneWidget);
-    expect(find.text("Description : Spectacle de danse et de chant"), findsOneWidget);
+    expect(find.text("Description : Spectacle de danse et de chant"),
+        findsOneWidget);
     await tester.tap(find.text('Aladin'));
     await tester.pumpAndSettle();
     expect(find.text("Me retirer du projet"), findsOneWidget);
@@ -197,17 +202,61 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(ProjectOrganizerPage), findsOneWidget);
 
-    //Delete the account
+    // see profile
     await tester.tap(find.text('Profil'));
     await tester.pumpAndSettle();
-
     await Future.delayed(const Duration(seconds: 1));
-
     expect(find.text("Nom : Pley"), findsOneWidget);
     expect(find.text("Prénom : Eve"), findsOneWidget);
     expect(find.text("email : test1@mail.com"), findsOneWidget);
     expect(find.text("Professions : -"), findsOneWidget);
 
+    // add vacation and disponibilities
+    await tester.tap(find.text('Gérer mes disponibilité'));
+    await tester.pumpAndSettle();
+    //add an availability
+    await tester.tap(find.text('Ajouter une disponibilité'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Heure de début*'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text("OK"));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Heure de fin*'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text("OK"));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Jours'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Lundi'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Valider'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ajouter'));
+    await tester.pumpAndSettle();
+    expect(find.text('Lundi'), findsOneWidget);
+    //add a vacation
+    expect(find.textContaining('Du '), findsNothing);
+    expect(find.textContaining(' au '), findsNothing);
+
+    await tester.tap(find.text('Ajouter des vacances'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Date de début*'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('1'));
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Date de fin*'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(endingDate.day.toString()));
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ajouter'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Du '), findsOneWidget);
+    expect(find.textContaining(' au '), findsOneWidget);
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    //Delete the account
     await tester.tap(find.text('Supprimer mon compte'));
     await tester.pumpAndSettle();
     await Future.delayed(const Duration(seconds: 1));
@@ -218,7 +267,3 @@ void main() {
     expect(find.byType(LoginScreen), findsOneWidget);
   });
 }
-/*
-DELETE FROM users
-WHERE email = 'test1@mail.com';
-*/

@@ -9,33 +9,44 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+/// Page to deal with the user disponibilities.
+/// Will have the list of availabilities during a typical week and the list of periodes where the user is in vacations.
+/// There will be a cross next to each element to be able to delete that availability or vacation.
+/// There will be two button one to add an availability and one to add a vacation.
 class DisponibilitiesPage extends StatefulWidget {
-  const DisponibilitiesPage({
-    super.key,
-  });
+  final http.Client? client;
+  final FirebaseAuth? auth;
+  const DisponibilitiesPage({super.key, this.client, this.auth});
 
   @override
   State<DisponibilitiesPage> createState() => _DisponibilitiesPageSate();
 }
 
 class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
-  final user = FirebaseAuth.instance.currentUser!;
+  http.Client get client => widget.client ?? http.Client();
+  FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
+  late User user;
   late Future<Map<String, List<dynamic>>>? weeklyAvailabilities;
   late Future<List<dynamic>>? vacations;
 
   @override
   void initState() {
     super.initState();
+    user = auth.currentUser!;
     weeklyAvailabilities = getUserWeeklyAvailabilities(context);
     vacations = getUserVacations(context);
   }
 
+  /// Get the availability of the user for his tipical week from the backend.
+  /// If an error occurs an error message will be displayed.
   Future<Map<String, List<dynamic>>> getUserWeeklyAvailabilities(
       BuildContext context) async {
+    const String errorTitle =
+        'Erreur lors de la récupération des disponibilités de la semaine';
     final String url =
         '${dotenv.env['API_BASE_URL']}/users/availabilities?email=${user.email!}';
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
@@ -85,29 +96,26 @@ class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
         return sortedAvailabilitiesByDay;
       } else {
         if (context.mounted) {
-          Utils.errorMess(
-              'Erreur lors de la récupération des disponibilités de la semaine',
-              'Une erreur s\'est produite',
-              context);
+          Utils.errorMess(errorTitle, 'Une erreur s\'est produite', context);
         }
         return {};
       }
     } catch (e) {
       if (context.mounted) {
-        Utils.errorMess(
-            'Erreur lors de la récupération des disponibilités de la semaine',
-            'Une erreur s\'est produite',
-            context);
+        Utils.errorMess(errorTitle, 'Une erreur s\'est produite', context);
       }
       return {};
     }
   }
 
+  /// Get the list of periodes during wich the user said he was on vacation. The list will be orderd from Monday to Sunday.
+  /// If an error occurs an error message will be displayed.
   Future<List<dynamic>> getUserVacations(BuildContext context) async {
+    const String errorTitle = 'Erreur lors de la récupération des vacances';
     final String url =
         '${dotenv.env['API_BASE_URL']}/users/vacations?email=${user.email!}';
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
@@ -122,24 +130,24 @@ class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
         return vacations;
       } else {
         if (context.mounted) {
-          Utils.errorMess('Erreur lors de la récupération des vacances',
-              'Une erreur s\'est produite', context);
+          Utils.errorMess(errorTitle, 'Une erreur s\'est produite', context);
         }
         return [];
       }
     } catch (e) {
       if (context.mounted) {
-        Utils.errorMess('Erreur lors de la récupération des vacances',
-            'Une erreur s\'est produite', context);
+        Utils.errorMess(errorTitle, 'Une erreur s\'est produite', context);
       }
       return [];
     }
   }
 
+  /// Delete the availability [disponibility] from the backend and update the variable [weeklyAvailabilities].
+  /// If an error occurs, an error message will be displayed.
   void deleteDisponibility(disponibility) async {
     try {
       final String url = '${dotenv.env['API_BASE_URL']}/availabilities';
-      final response = await http.delete(
+      final response = await client.delete(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
@@ -165,10 +173,12 @@ class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
     }
   }
 
+  /// Delete the vacation [vacation] from the backend and update the variable [vacations].
+  /// If an error occurs, an error message will be displayed.
   void deleteVacations(vacation) async {
     try {
       final String url = '${dotenv.env['API_BASE_URL']}/vacations';
-      final response = await http.delete(
+      final response = await client.delete(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
@@ -221,7 +231,8 @@ class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
                     } else if (snapshot.hasError) {
                       return const Text('Erreur de chargement');
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Text('Veuillez indiquer vos disponibilités pour une semaine normale');
+                      return const Text(
+                          'Veuillez indiquer vos disponibilités pour une semaine normale');
                     }
 
                     return Column(
@@ -264,18 +275,19 @@ class _DisponibilitiesPageSate extends State<DisponibilitiesPage> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "${Utils.formatTimeString(disponibility['startTime'])} - ${Utils.formatTimeString(disponibility['endTime'])}",
-                                                style: const TextStyle(
-                                                  fontSize: 16,
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "${Utils.formatTimeString(disponibility['startTime'])} - ${Utils.formatTimeString(disponibility['endTime'])}",
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                  ),
                                                 ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                           GestureDetector(
                                             onTap: () {

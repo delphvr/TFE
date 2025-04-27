@@ -1,3 +1,4 @@
+import 'package:calendar_app/disponibilities/disponibilities.dart';
 import 'package:calendar_app/profil/profil.dart';
 import 'package:calendar_app/profil/profil_modification.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -91,5 +92,27 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text("Merci de remplir tout les champs"), findsOneWidget);
     });
+
+    testWidgets('disponibility page', (WidgetTester tester) async {
+  await tester.pumpWidget(MaterialApp(
+    home: DisponibilitiesPage(
+      client: client,
+      auth: mockAuth,
+    ),
+  ));
+
+  await tester.pumpAndSettle();
+  expect(find.byType(DisponibilitiesPage), findsOneWidget);
+  expect(find.text('Lundi'), findsOneWidget);
+  expect(find.text('09:00 - 12:00'), findsOneWidget);
+  expect(find.text('Mercredi'), findsOneWidget);
+  expect(find.text('14:00 - 18:00'), findsOneWidget);
+  expect(find.text('Ajouter une disponibilité'), findsOneWidget);
+  expect(find.text('Mes vacances'), findsOneWidget);
+  expect(find.text('Du 01-08-2024 au 15-08-2024'), findsOneWidget);
+  expect(find.text('Du 20-12-2024 au 05-01-2025'), findsOneWidget);
+  expect(find.text('Ajouter des vacances'), findsOneWidget);
+});
+
   });
 }

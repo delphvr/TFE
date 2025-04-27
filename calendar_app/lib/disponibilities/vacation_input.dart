@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+/// Page to add a vacation, by giving it a strat and end date.
 class NewVacationsPage extends StatefulWidget {
   final Function onpop;
   const NewVacationsPage({
@@ -27,6 +28,9 @@ class _NewVacationsPageSate extends State<NewVacationsPage> {
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
 
+  /// Save to the backend the new user vacation.
+  /// Check that all the field are completed and that the end date is not before the start date. And that the end date is not in the past.
+  /// If an error occurs, an error message will be display.
   void save(BuildContext context) async {
     final email = user.email;
     final startDate = Utils.formatDateTime(selectedStartDate);
