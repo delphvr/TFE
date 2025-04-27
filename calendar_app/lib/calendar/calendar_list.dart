@@ -4,6 +4,7 @@ import 'package:calendar_app/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+/// display the calendar events.
 class CalendarList extends StatefulWidget {
   final int? projectId;
   final Function? accept;
@@ -41,6 +42,7 @@ class _CalendarListState extends State<CalendarList> {
     Colors.yellow[100],
   ];
 
+  /// Returns the name of the month given its [month] number.
   String getMonthName(int month) {
     const months = [
       "Janvier",
@@ -59,17 +61,20 @@ class _CalendarListState extends State<CalendarList> {
     return months[month - 1];
   }
 
+  /// Returns the name of the day given a [dateTime] string.
   String getDayName(String dateTime) {
     DateTime date = DateTime.parse(dateTime);
     const days = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
     return days[date.weekday % 7];
   }
 
+  /// Get and return the day of the month from a [dateTime] string.
   String getDay(String dateTime) {
     DateTime date = DateTime.parse(dateTime);
     return '${date.day}';
   }
 
+  /// Formats a [dateTime] string into a "HH:mm" time string.
   String formatTime(String dateTime) {
     DateTime date = DateTime.parse(dateTime);
     String hour = date.hour.toString().padLeft(2, '0');
@@ -77,6 +82,7 @@ class _CalendarListState extends State<CalendarList> {
     return "$hour:$minute";
   }
 
+  /// Calculates the end time of a rehearsal given its start [time] and [durationstr].
   String getEndTime(String time, String durationstr) {
     Duration duration = Utils.parseDuration(durationstr);
     List<String> parts = time.split(':');
@@ -89,6 +95,7 @@ class _CalendarListState extends State<CalendarList> {
     return '${endHours.toString().padLeft(2, '0')}:${endMinutes.toString().padLeft(2, '0')}';
   }
 
+    /// Returns the user's participation ratio (e.g., "5/8") for the rehearsal with id [rehearsalId].
   Future<String> getParticipationProportions(int rehearsalId) async {
     if (widget.participations == null) return "";
 
@@ -104,13 +111,13 @@ class _CalendarListState extends State<CalendarList> {
     return "$accepted/$total";
   }
 
+  /// Get if the user is present at the rehearsal with id [rehearsalId] or not.
   Future<bool> isUserPresent(int rehearsalId) async {
     if (widget.userPresences == null) return false;
     final presenceMap = await widget.userPresences!;
     return presenceMap[rehearsalId] ?? false;
   }
 
-  //Done with the help of chatgpt
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, Map<String, List<dynamic>>>>(

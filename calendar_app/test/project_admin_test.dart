@@ -1,4 +1,5 @@
 import 'package:calendar_app/organizer/project/project_admin.dart';
+import 'package:calendar_app/organizer/project/project_modification.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 
@@ -6,7 +7,7 @@ import 'mocks_test.dart';
 import 'mocks_test.mocks.dart';
 
 void main() {
-  group('admin project list', () {
+  group('admin projects', () {
     late MockClient client;
     late MockFirebaseAuth mockAuth;
     late MockUserCredential mockUserCredential;
@@ -41,5 +42,29 @@ void main() {
       expect(find.text("Début: 01-04-2024"), findsOneWidget);
       expect(find.text("Fin: 10-04-2024"), findsOneWidget);
     });
+
+    testWidgets('project modification page missing name', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: UpdateProjectPage(
+          id: 1,
+          name: 'Aladin',
+          description: null,
+          beginningDate: '2024-04-01',
+          endingDate: '2024-04-10',
+          client: client,
+          auth: mockAuth,
+        ),
+      ));
+
+      await tester.pumpAndSettle();
+      expect(find.byType(UpdateProjectPage), findsOneWidget);
+      await tester.enterText(find.byKey(const Key('nameField')), '');
+      await tester.ensureVisible(find.text('Sauvegarder'));
+      await tester.tap(find.text('Sauvegarder'));
+      await tester.pumpAndSettle();
+      expect(find.text("Veuillez donner un nom au project."), findsOneWidget);
+    });
+
+
   });
 }

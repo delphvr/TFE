@@ -8,12 +8,15 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+/// Page to update the informations about a project (name, description (optional field), start date and end date).
 class UpdateProjectPage extends StatefulWidget {
   final int id;
   final String name;
   final String? description;
   final String? beginningDate;
   final String? endingDate;
+  final http.Client? client;
+  final FirebaseAuth? auth;
 
   const UpdateProjectPage({
     super.key,
@@ -22,6 +25,8 @@ class UpdateProjectPage extends StatefulWidget {
     this.description,
     this.beginningDate,
     this.endingDate,
+    this.client,
+    this.auth,
   });
 
   @override
@@ -29,7 +34,10 @@ class UpdateProjectPage extends StatefulWidget {
 }
 
 class _UpdateProjectPageState extends State<UpdateProjectPage> {
-  final user = FirebaseAuth.instance.currentUser!;
+  FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
+  http.Client get client => widget.client ?? http.Client();
+  late final User user;
+  final String errorTitle = 'Erreur lors de la modification du project';
 
   late TextEditingController titleController;
   late TextEditingController descriptionController;
@@ -41,6 +49,7 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
   @override
   void initState() {
     super.initState();
+    user = auth.currentUser!;
     titleController = TextEditingController(text: widget.name);
     descriptionController = TextEditingController(text: widget.description);
     beginningDateController = TextEditingController(
@@ -69,6 +78,9 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
     super.dispose();
   }
 
+  /// Send to the backend the updated information about the project with id [widget.id] to be saved
+  /// Check that the name and dates of the project are not empty. And check that the end dateis not before the start date.
+  /// If an error occurs an error message will be display.
   void update(BuildContext context) async {
     final projectName = titleController.text;
     final description = descriptionController.text;
@@ -76,15 +88,26 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
     final endingDate = Utils.formatDateTime(_selectedEndingDate);
 
     if (projectName.isEmpty) {
-      Utils.errorMess('Erreur lors de la modification du project',
-          'Veuillez donner un nom au project.', context);
+      Utils.errorMess(
+          errorTitle, 'Veuillez donner un nom au project.', context);
+      return;
+    }
+
+    if (beginningDate.isEmpty){
+      Utils.errorMess('Erreur lors de la création du project',
+          'Veuillez donner une date de début au project.', context);
+      return;
+    }
+    if(endingDate.isEmpty){
+      Utils.errorMess('Erreur lors de la création du project',
+          'Veuillez donner une date de fin au project.', context);
       return;
     }
 
     if (beginningDate.isNotEmpty && endingDate.isNotEmpty) {
       if (DateTime.parse(beginningDate).isAfter(DateTime.parse(endingDate))) {
         Utils.errorMess(
-            'Erreur lors de la modification du project',
+            errorTitle,
             'La date de fin du projet ne peut pas avoir lieu avant la date de début.',
             context);
         return;
@@ -101,7 +124,7 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
     };
 
     try {
-      final response = await http.put(
+      final response = await client.put(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(requestBody),
@@ -119,15 +142,15 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
       } else {
         if (context.mounted) {
           Utils.errorMess(
-              'Erreur lors de la modification du project',
+              errorTitle,
               'Erreur lors de la modification du projet. Merci de réessayez plus tard.',
               context);
         }
       }
     } catch (e) {
       if (context.mounted) {
-        Utils.errorMess('Erreur lors de la modification du project',
-            'Impossible de se connecter au serveur.', context);
+        Utils.errorMess(
+            errorTitle, 'Impossible de se connecter au serveur.', context);
       }
     }
   }
@@ -151,6 +174,7 @@ class _UpdateProjectPageState extends State<UpdateProjectPage> {
               ),
               const SizedBox(height: 25),
               TextFieldcustom(
+                key: const Key('nameField'),
                 labelText: 'Nom du projet*',
                 controller: titleController,
                 obscureText: false,

@@ -8,6 +8,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+/// For the project with id [projectId] ask the backend for the calendar proposotion and display it.
+/// With a button to validate or recompute the rehearsals not accepted yet.
 class CalendarPropositionPage extends StatefulWidget {
   final int projectId;
 
@@ -33,6 +35,9 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
     fetchData(false);
   }
 
+  /// Update the variables [rehearsals] and [participations] with the data retreived from the backend for the calendar proposition.
+  /// [rehearsals] the proposed rehearsals time slots, [participations] who is available for which rehearsal.
+  /// If [recompute] is true, the server will recalculate a new proposition, keeping the already accepted time slots.
   void fetchData(bool recompute) async {
     setState(() {
       rehearsals = getPropositions(context, recompute);
@@ -43,6 +48,8 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
     });
   }
 
+  /// Get informtion about the rehearsal with id [id], from the backend.
+  /// If an error occurs an error message will be displayed.
   dynamic getRehearsal(int id) async {
     final String url = '${dotenv.env['API_BASE_URL']}/rehearsals/$id';
     try {
@@ -66,6 +73,9 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
     }
   }
 
+  /// Get the proposal planning from the backend. The rehearsals will be sorted by dates.
+  /// If an error occurs an error message will be display.
+  /// [Return] a map organized by [monthYear] -> [day] -> [list of rehearsals].
   Future<Map<String, Map<String, List<dynamic>>>> getPropositions(
       BuildContext context, bool recompute) async {
     String url =
@@ -137,6 +147,9 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
     }
   }
 
+  /// Get for each rehearsal how are the users that are present and who are not.
+  /// If an error occurs an error message will be display.
+  /// [Return] a map [rehearsalId] -> [userId] -> [bool available].
   Future<Map<int, Map<int, bool>>> getParticipation(
       BuildContext context) async {
     String url =
@@ -177,6 +190,7 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
     }
   }
 
+  /// Returns the name of the month given its [month] number.
   String getMonthName(int month) {
     const months = [
       "Janvier",
@@ -195,16 +209,20 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
     return months[month - 1];
   }
 
+  /// Get the month year from a [dateTime] string.
   String getMonthYear(String dateTime) {
     DateTime date = DateTime.parse(dateTime);
     return '${getMonthName(date.month)} ${date.year}';
   }
 
+  /// Get and return the day of the month from a [dateTime] string.
   String getDay(String dateTime) {
     DateTime date = DateTime.parse(dateTime);
     return '${date.day}';
   }
 
+  /// Notify the backend that the accptance state of the rehearsal [rehearsal] has changed.
+  /// If an error occurs an error message will be display.
   void accept(Map rehearsal) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/rehearsals/${rehearsal['rehearsalId']}/accepted?accepted=${!rehearsal['accepted']}';
@@ -229,6 +247,8 @@ class _CalendarPropositionPageState extends State<CalendarPropositionPage> {
     }
   }
 
+  /// Accepte the calendar proposition made.
+  /// If an error occurs, an error message will be displayed.
   void acceptAll() async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/calendarCP/accept';

@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+/// Display the rehearsal of the user that has a date and time.
+/// Display a V if the user is available for that rehearsal and X if not.
 class CalendarPage extends StatefulWidget {
   const CalendarPage({
     super.key,
@@ -28,6 +30,8 @@ class _CalendarPageState extends State<CalendarPage> {
     userPresences = getUserpresences(context);
   }
 
+  /// Get all the rehearsal the user is part of. Only returns the ones that has a date and time set.
+  /// If an error occurs an error message will be display.
   Future<Map<String, Map<String, List<dynamic>>>> getUserRehearsals(
       BuildContext context) async {
     final String url =
@@ -79,6 +83,8 @@ class _CalendarPageState extends State<CalendarPage> {
     }
   }
 
+  /// Get for which rehearsal the user is present.
+  /// If an error occurs will display an error message.
   Future<Map<int, bool>> getUserpresences(BuildContext context) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/users/${user.email!}/presences';
@@ -111,6 +117,8 @@ class _CalendarPageState extends State<CalendarPage> {
     }
   }
 
+  /// Send to the backend that the user presence for the rehearsal with id rehearsalId has changed.
+  /// /// If an error occurs will display an error message.
   Future<Map<int, bool>> updateUserpresences(
       BuildContext context, int rehearsalId, bool presence) async {
     final String url =
@@ -148,6 +156,7 @@ class _CalendarPageState extends State<CalendarPage> {
     }
   }
 
+  /// Returns the name of the month given its [month] number.
   String getMonthName(int month) {
     const months = [
       "Janvier",
@@ -166,11 +175,13 @@ class _CalendarPageState extends State<CalendarPage> {
     return months[month - 1];
   }
 
+  /// Get the month year from a [dateTime] string.
   String getMonthYear(String dateTime) {
     DateTime date = DateTime.parse(dateTime);
     return '${getMonthName(date.month)} ${date.year}';
   }
 
+  /// Get and return the day of the month from a [dateTime] string.
   String getDay(String dateTime) {
     DateTime date = DateTime.parse(dateTime);
     return '${date.day}';

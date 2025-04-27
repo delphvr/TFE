@@ -46,6 +46,7 @@ void main() {
     await tester.tap(find.text('Créer mon compte'));
     await tester.pumpAndSettle();
     await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
     //debugDumpApp();
     await Future.delayed(const Duration(seconds: 1));
 
@@ -140,7 +141,27 @@ void main() {
     await tester.pumpAndSettle();
     await Future.delayed(const Duration(seconds: 1));
 
+    //calendar proposition
+    await tester.tap(find.text('Calculer l\'horaire'));
+    await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
+    await Future.delayed(const Duration(seconds: 1));
+    expect(find.text("R1"), findsOneWidget);
+    expect(find.text("0/1"), findsOneWidget);
+    await tester.tap(find.text('Tout valider'));
+    await tester.pumpAndSettle();
+    await Future.delayed(const Duration(seconds: 1));
+
+    //See the calendar
+    await tester.tap(find.text('Calendrier'));
+    await tester.pumpAndSettle();
+    expect(find.text("R1"), findsOneWidget);
+
     //delete the project
+    await tester.tap(find.text('Organisateurs'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aladin'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Supprimer le projet'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('oui'));
