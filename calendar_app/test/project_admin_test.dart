@@ -40,8 +40,8 @@ void main() {
       expect(find.text("Description : Spectacle de danse et de chant"), findsOneWidget);
       expect(find.text("Aladin"), findsOneWidget);
       expect(find.text("Un project de danse"), findsOneWidget);
-      expect(find.text("Début: 01-04-2024"), findsOneWidget);
-      expect(find.text("Fin: 10-04-2024"), findsOneWidget);
+      expect(find.text("Début : 01-04-2024"), findsOneWidget);
+      expect(find.text("Fin : 10-04-2024"), findsOneWidget);
     });
 
     testWidgets('project modification page missing name', (WidgetTester tester) async {

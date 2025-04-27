@@ -48,7 +48,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.pumpAndSettle();
     //debugDumpApp();
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 3));
 
     expect(find.byType(ProjectOrganizerPage), findsOneWidget);
 
@@ -93,7 +93,6 @@ void main() {
     await tester.tap(find.text('Ajouter'));
     await tester.pumpAndSettle();
     //add a role
-    await Future.delayed(const Duration(seconds: 1));
     await tester.tap(find.text('Pley Eve'));
     await tester.pumpAndSettle();
     expect(find.text("Organisateur"), findsOneWidget);
@@ -143,7 +142,6 @@ void main() {
     expect(find.text("Description : Firts rehearsal"), findsOneWidget);
     await tester.tap(find.text('R1'), warnIfMissed: false);
     await tester.pumpAndSettle();
-    await Future.delayed(const Duration(seconds: 1));
     expect(find.text("R1"), findsOneWidget);
     expect(find.text("Description : Firts rehearsal"), findsOneWidget);
     expect(find.text("Date : - "), findsOneWidget);
@@ -154,10 +152,8 @@ void main() {
 
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
-    await Future.delayed(const Duration(seconds: 1));
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
-    await Future.delayed(const Duration(seconds: 1));
 
     //calendar proposition
     await tester.tap(find.text('Calculer l\'horaire'));
@@ -169,6 +165,20 @@ void main() {
     await tester.tap(find.text('Tout valider'));
     await tester.pumpAndSettle();
     await Future.delayed(const Duration(seconds: 1));
+
+    //user project page
+    await tester.tap(find.text('Projets'));
+    await tester.pumpAndSettle();
+    expect(find.text("Aladin"), findsOneWidget);
+    expect(find.text("Description : Spectacle de danse et de chant"), findsOneWidget);
+    await tester.tap(find.text('Aladin'));
+    await tester.pumpAndSettle();
+    expect(find.text("Me retirer du projet"), findsOneWidget);
+    await tester.tap(find.text('Voir mes répétitions'));
+    await tester.pumpAndSettle();
+    await Future.delayed(const Duration(seconds: 1));
+    expect(find.text("R1"), findsOneWidget);
+    expect(find.text("Description : Firts rehearsal"), findsOneWidget);
 
     //See the calendar
     await tester.tap(find.text('Calendrier'));

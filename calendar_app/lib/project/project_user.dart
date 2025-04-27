@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 
+/// Page with the list of projects for which the user connected is a part of
 class ProjectsUserPage extends StatefulWidget {
   final http.Client? client;
   final FirebaseAuth? auth;
@@ -21,6 +22,7 @@ class _ProjectsUserPageState extends State<ProjectsUserPage> {
   http.Client get client => widget.client ?? http.Client();
   FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
   late User user;
+  final String errorTitle = 'Erreur lors de la récupérations des projects';
 
   @override
   void initState() {
@@ -29,6 +31,8 @@ class _ProjectsUserPageState extends State<ProjectsUserPage> {
     projects = getProjects(context);
   }
 
+  /// Get the list of project the user is a part of from the backend.
+  /// If an error occurs an error message will be display.
   Future<List> getProjects(BuildContext context) async {
     final email = user.email;
     final String url = '${dotenv.env['API_BASE_URL']}/projects/user/$email';
@@ -49,20 +53,21 @@ class _ProjectsUserPageState extends State<ProjectsUserPage> {
         return userProjects;
       } else {
         if (context.mounted) {
-          Utils.errorMess('Erreur lors de la récupérations des projects',
+          Utils.errorMess(errorTitle,
               'Une erreur c\'est produite', context);
         }
         return [];
       }
     } catch (e) {
       if (context.mounted) {
-        Utils.errorMess('Erreur lors de la récupérations des projects',
+        Utils.errorMess(errorTitle,
             'Une erreur c\'est produite', context);
       }
       return [];
     }
   }
 
+  /// Update the variable [projects] with list of project the user is a part of.
   Future<void> refreshProjects() async {
     setState(() {
       projects = getProjects(context);
@@ -82,6 +87,8 @@ class _ProjectsUserPageState extends State<ProjectsUserPage> {
                   projects: projects!,
                   refreshProjects: refreshProjects,
                   isOrganizerPage: false,
+                  auth: widget.auth,
+                  client: widget.client,
                 ),
               ),
             ),

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
+/// display the [name].
+/// If [onUpdate] is provided and the [name] is not "Non défini",  an icon button will be shown to be able to delete of the element (role).
 class RoleOrParticipantElement extends StatefulWidget {
   final int? projectId;
   final int? userId;
@@ -23,7 +25,11 @@ class RoleOrParticipantElement extends StatefulWidget {
 }
 
 class _RoleOrParticipantElementState extends State<RoleOrParticipantElement> {
+
+  /// Delete the role [name] from the user with id [widget.userId] in the project [widget.projectId].
+  /// If an error occurs an error message will be display
   void _deleteRole() async {
+    const String errorTitle = 'Erreur lors de la supression du role';
     final String url =
         '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles/${widget.name == "Organisateur" ? "Organizer" : widget.name}';
     try {
@@ -31,14 +37,14 @@ class _RoleOrParticipantElementState extends State<RoleOrParticipantElement> {
       if (response.statusCode == 400) {
         if (mounted) {
           Utils.errorMess(
-              'Erreur lors de la supression du role',
+              errorTitle,
               'Il doit rester au moins un organisateur sur le projet.',
               context);
         }
       } else if (response.statusCode != 204) {
         if (mounted) {
           Utils.errorMess(
-              'Erreur lors de la supression du role',
+              errorTitle,
               'Erreur lors de la suppression. Merci de réessayez plus tard.',
               context);
         }

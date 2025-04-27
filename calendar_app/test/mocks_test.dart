@@ -112,12 +112,12 @@ Future<void> setupCommonMocks(
     Uri.parse('${dotenv.env['API_BASE_URL']}/projects/2'),
   )).thenAnswer((_) async => http.Response.bytes(
         utf8.encode(jsonEncode({
-          'id': 2,
-          'name': 'Un project de danse',
-          'description': null,
-          'beginningDate': null,
-          'endingDate': null
-        })),
+            'id': 2,
+            'name': 'Un project de danse',
+            'description': 'Danse danse danse...',
+            'beginningDate': '2024-05-05',
+            'endingDate': '2024-05-10'
+          })),
         200,
         headers: {'content-type': 'application/json; charset=utf-8'},
       ));
@@ -289,6 +289,22 @@ Future<void> setupCommonMocks(
     Uri.parse('${dotenv.env['API_BASE_URL']}/projects/1/users/1/roles'),
   )).thenAnswer((_) async => http.Response.bytes(
         utf8.encode(jsonEncode(["Organizer", "Danseur", "Acteur"])),
+        200,
+        headers: {'content-type': 'application/json; charset=utf-8'},
+      ));
+
+  when(client.get(
+    Uri.parse('${dotenv.env['API_BASE_URL']}/projects/user/$email'),
+  )).thenAnswer((_) async => http.Response.bytes(
+        utf8.encode(jsonEncode([
+          {
+            'id': 2,
+            'name': 'Un project de danse',
+            'description': 'Danse danse danse...',
+            'beginningDate': '2024-05-05',
+            'endingDate': '2024-05-10'
+          }
+        ])),
         200,
         headers: {'content-type': 'application/json; charset=utf-8'},
       ));

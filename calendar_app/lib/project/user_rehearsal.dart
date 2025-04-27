@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+/// See the information of the user rehearsals when not on organizer page.
 class UserRehearsalPage extends StatefulWidget {
   final int projectId;
   final String projectName;
@@ -31,6 +32,7 @@ class _UserRehearsalPageState extends State<UserRehearsalPage> {
     rehearsals = getRehearsals(context);
   }
 
+  /// Get the list of rehearsal of the user for the project with id [widget.projectId].
   Future<List> getRehearsals(BuildContext context) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/users/${user.email}/projects/${widget.projectId}/rehearsals';
@@ -59,6 +61,7 @@ class _UserRehearsalPageState extends State<UserRehearsalPage> {
     }
   }
 
+  /// Update the variable [rehearsals] with the list of rehearsal the user is asign to in the project with id [widget.projectId].
   void refreshRehearsals() {
     setState(() {
       rehearsals = getRehearsals(context);

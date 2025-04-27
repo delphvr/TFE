@@ -54,7 +54,6 @@ class ProjectList extends StatelessWidget {
             return endingDate != null &&
                 endingDate.isBefore(DateTime(now.year, now.month, now.day));
           }).toList();
-
           return ListView(
             children: [
               if (isOrganizerPage) ...[

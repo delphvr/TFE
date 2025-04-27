@@ -169,14 +169,14 @@ class _ProjectElementState extends State<ProjectElement> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Début: ${beginningDate != null ? Utils.formatDateString(beginningDate) : "-"}',
+                        'Début : ${beginningDate != null ? Utils.formatDateString(beginningDate) : "-"}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black54,
                         ),
                       ),
                       Text(
-                        'Fin: ${endingDate != null ? Utils.formatDateString(endingDate) : "-"}',
+                        'Fin : ${endingDate != null ? Utils.formatDateString(endingDate) : "-"}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black54,
