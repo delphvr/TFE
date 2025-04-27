@@ -92,6 +92,24 @@ void main() {
     await tester.enterText(find.byKey(const Key('emailField')), 'del.vr@mail.com');
     await tester.tap(find.text('Ajouter'));
     await tester.pumpAndSettle();
+    //add a role
+    await Future.delayed(const Duration(seconds: 1));
+    await tester.tap(find.text('Pley Eve'));
+    await tester.pumpAndSettle();
+    expect(find.text("Organisateur"), findsOneWidget);
+    await tester.tap(find.text('Modifier les rôles'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Roles'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Artiste de cirque'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Valider'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Modifier'));
+    await tester.pumpAndSettle();
+    expect(find.text("Artiste de cirque"), findsOneWidget);
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
     await Future.delayed(const Duration(seconds: 1));

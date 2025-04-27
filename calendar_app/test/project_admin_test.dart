@@ -1,3 +1,4 @@
+import 'package:calendar_app/organizer/participants/particpipant_modification.dart';
 import 'package:calendar_app/organizer/project/project_admin.dart';
 import 'package:calendar_app/organizer/project/project_modification.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -65,6 +66,27 @@ void main() {
       expect(find.text("Veuillez donner un nom au project."), findsOneWidget);
     });
 
+    testWidgets('participant information page', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: ParticpipantModificationPage(
+          userId: 1,
+          projectId: 1,
+          firstName: "Eve",
+          lastName: "Pley",
+          email: "test1@mail.com",
+          client: client,
+          auth: mockAuth,
+        ),
+      ));
+
+      await tester.pumpAndSettle();
+      expect(find.byType(ParticpipantModificationPage), findsOneWidget);
+      expect(find.text("Organisateur"), findsOneWidget);
+      expect(find.text("Acteur"), findsOneWidget);
+      expect(find.text("Danseur"), findsOneWidget);
+      expect(find.text("Modifier les rôles"), findsOneWidget);
+      expect(find.text("Supprimer le participant"), findsOneWidget);
+    });
 
   });
 }

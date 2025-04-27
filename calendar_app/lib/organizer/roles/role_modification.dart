@@ -30,6 +30,7 @@ class Role {
   int get hashCode => name.hashCode;
 }
 
+/// Page to update the role of the participant with id [userId] on the project with id [projectId].
 class RoleModificationPage extends StatefulWidget {
   final int projectId;
   final int userId;
@@ -62,6 +63,7 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
     getUserRoles();
   }
 
+  /// Update the variable [selectedRoles] with the list of role assign to the user with id [widget.userId] on the project with id [widget.projectId] from the backend.
   void getUserRoles() async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles';
@@ -81,7 +83,8 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
     }
   }
 
-  //TODO mettre roles dans fichier aux ?
+  /// Get the list of possible roles from the backend.
+  /// If an error occurs an error message will be displayed.
   Future<List<Role>> getRoles() async {
     String url = '${dotenv.env['API_BASE_URL']}/roles';
     try {
@@ -97,13 +100,22 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
       } else if (response.statusCode == 204) {
         return [];
       } else {
-        throw Exception('Failed to load roles');
+        if (mounted) {
+          Utils.errorMess('Une erreur est survenue',
+              'Merci de réessayer plus tard', context);
+        }
+        return [];
       }
     } catch (e) {
-      throw Exception('Error: $e');
+      if (mounted) {
+        Utils.errorMess(
+            'Une erreur est survenue', 'Merci de réessayer plus tard', context);
+      }
+      return [];
     }
   }
 
+  /// Update the variables [roles] and [items] with the possible roles retreived from the backend.
   Future<void> _loadRoles() async {
     try {
       final fetchedRoles = await getRoles();
@@ -121,7 +133,10 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
     }
   }
 
+  /// Push to the backend the updated roles assigne to the user with id [widget.userId] on the project with id [widget.projectId].
+  /// If an error occurs an error message will be display.
   void addUserRole(BuildContext context) async {
+    const String errorTitle = 'Erreur la modification des rôles du participant';
     final String url =
         '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles';
 
@@ -144,19 +159,19 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
       } else if (response.statusCode == 400) {
         if (context.mounted) {
           Utils.errorMess(
-              'Erreur la modification des rôles du participant',
+              errorTitle,
               'Il doit rester au moins un organisateur sur le projet.',
               context);
         }
       } else {
         if (context.mounted) {
-          Utils.errorMess('Erreur la modification des rôles du participant',
+          Utils.errorMess(errorTitle,
               'Merci de réessayez plus tard.', context);
         }
       }
     } catch (e) {
       if (context.mounted) {
-        Utils.errorMess('Erreur la modification des rôles du participant',
+        Utils.errorMess(errorTitle,
             'Impossible de se connecter au serveur.', context);
       }
     }
@@ -197,7 +212,7 @@ class _RoleModificationPageState extends State<RoleModificationPage> {
                   ),
                   const SizedBox(height: 10),
                   ButtonCustom(
-                    text: 'Valider',
+                    text: 'Modifier',
                     onTap: () {
                       addUserRole(context);
                     },

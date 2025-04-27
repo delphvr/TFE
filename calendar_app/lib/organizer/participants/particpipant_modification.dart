@@ -9,12 +9,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+/// Page diplaying the information about the participant with id [userId] on the project with id [projectId].
+/// There is a button to delete the user from the project and a button to modify it role.
 class ParticpipantModificationPage extends StatefulWidget {
   final int projectId;
   final int userId;
   final String firstName;
   final String lastName;
   final String email;
+  final FirebaseAuth? auth;
+  final http.Client? client;
 
   const ParticpipantModificationPage({
     super.key,
@@ -23,6 +27,8 @@ class ParticpipantModificationPage extends StatefulWidget {
     required this.firstName,
     required this.lastName,
     required this.email,
+    this.auth,
+    this.client,
   });
 
   @override
@@ -32,21 +38,25 @@ class ParticpipantModificationPage extends StatefulWidget {
 
 class _ParticpipantModificationPage
     extends State<ParticpipantModificationPage> {
-  final user = FirebaseAuth.instance.currentUser!;
+  FirebaseAuth get auth => widget.auth ?? FirebaseAuth.instance;
+  http.Client get client => widget.client ?? http.Client();
+  late final User user;
 
   late Future<List>? roles;
 
   @override
   void initState() {
     super.initState();
+    user = auth.currentUser!;
     roles = getRoles(context);
   }
 
+  /// Get the list of role assign to the user with id [widget.userId] on the project with id [widget.projectId] from the backend.
   Future<List> getRoles(BuildContext context) async {
     final String url =
         '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}/roles';
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await client.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
@@ -61,6 +71,7 @@ class _ParticpipantModificationPage
     }
   }
 
+  /// Update the variable [roles] with the list of role assign to the user with id [widget.userId] on the project with id [widget.projectId].
   void refreshRoles() {
     setState(() {
       roles = getRoles(context);
@@ -68,14 +79,15 @@ class _ParticpipantModificationPage
   }
 
   void deleteParticipant() async {
+    const String errorTitle = 'Erreur lors de la suppression du participant';
     final String url =
         '${dotenv.env['API_BASE_URL']}/projects/${widget.projectId}/users/${widget.userId}';
     try {
-      final response = await http.delete(Uri.parse(url));
+      final response = await client.delete(Uri.parse(url));
 
       if (response.statusCode != 204) {
         if (mounted) {
-          Utils.errorMess('Erreur lors de la suppression du participant',
+          Utils.errorMess(errorTitle,
               'Merci de réessayer plus tard', context);
         }
       } else {
@@ -85,7 +97,7 @@ class _ParticpipantModificationPage
       }
     } catch (e) {
       if (mounted) {
-        Utils.errorMess('Erreur lors de la suppression du participant',
+        Utils.errorMess(errorTitle,
             'Merci de réessayer plus tard', context);
       }
     }
