@@ -43,7 +43,7 @@ public class VacationController {
 
     @Operation(summary = "Delete a vacation")
 	@DeleteMapping("/vacations")
-    public ResponseEntity<HttpStatus> deleteWeeklyAvailability(@RequestBody Vacation vacation) {
+    public ResponseEntity<HttpStatus> deleteVacation(@RequestBody Vacation vacation) {
         vacationService.deleteVacation(vacation);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

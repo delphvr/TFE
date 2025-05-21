@@ -42,7 +42,6 @@ public class RehearsalPrecedenceService {
      */
     public List<RehearsalPrecedence> createRehearsalPrecedences(Long rehearsalId, List<Long> precedingRehearsalsId) {
         rehearsalService.isRehearsal(rehearsalId);
-        System.out.println("precedingRehearsalsId " + precedingRehearsalsId);
         List<RehearsalPrecedence> res = new ArrayList<>();
         for (Long precedingRehearsalId : precedingRehearsalsId) {
             rehearsalService.isRehearsal(precedingRehearsalId);
