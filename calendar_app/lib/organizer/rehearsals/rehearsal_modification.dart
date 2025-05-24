@@ -153,6 +153,7 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
     final date = Utils.formatDateTime(selectedDate);
     final time = timeController.text;
     final duration = isoDuration;
+    final location = locationController.text;
 
     if (rehearsalName.isEmpty) {
       Utils.errorMess(
@@ -179,7 +180,8 @@ class _RehearsalModificationPage extends State<RehearsalModificationPage> {
       "time": time,
       "duration": duration,
       "participantsIds": selectedParticipants.map((item) => item.id).toList(),
-      "projectId": widget.projectId
+      "projectId": widget.projectId,
+      "location": location
     };
 
     try {
