@@ -385,8 +385,8 @@ public class RehearsalControllerTest {
         String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project =  Utils.pushProject(projectJson, webTestClient);
 
-        String userProjectJson1 = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
-                + ", 'roles':  ['Danseur']}".replace('\'', '"');
+        String userProjectJson1 = ("{ 'userEmail': 'eve.ld@mail.com', 'projectId': '"  + project.getId()
+                + "', 'roles':  ['Danseur']}").replace('\'', '"');
         Utils.pushParticipantToProject(userProjectJson1, webTestClient);
         String userProjectJson2 = "{ 'userEmail': 'jean.rv@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
                 + ", 'roles':  ['Danseur']}".replace('\'', '"');
@@ -1062,8 +1062,8 @@ public class RehearsalControllerTest {
         String futureEndingDate = LocalDate.now().plusDays(15).toString();
         String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project =  Utils.pushProject(projectJson, webTestClient);
-        String userProjectJson1 = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
-                + ", 'roles':  ['Danseur']}".replace('\'', '"');
+        String userProjectJson1 = ("{ 'userEmail': 'eve.ld@mail.com', 'projectId': '" + project.getId()
+                + "', 'roles':  ['Danseur']}").replace('\'', '"');
         Utils.pushParticipantToProject(userProjectJson1, webTestClient);
 
         String rehearsalDate1 = LocalDate.now().plusDays(3).toString();
@@ -1140,8 +1140,8 @@ public class RehearsalControllerTest {
         String projectJson = ("{ 'name': 'Christmas show', 'description': 'Winter show with santa...', 'beginningDate': '" + beginningDate+ "', 'endingDate': '" + futureEndingDate + "', 'organizerEmail': 'del.vr@mail.com'}").replace('\'', '"');
         Project project =  Utils.pushProject(projectJson, webTestClient);
 
-        String userProjectJson1 = "{ 'userEmail': 'eve.ld@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
-                + ", 'roles':  ['Danseur']}".replace('\'', '"');
+        String userProjectJson1 = ("{ 'userEmail': 'eve.ld@mail.com', 'projectId': '" + project.getId()
+                + "', 'roles':  ['Danseur']}").replace('\'', '"');
         Utils.pushParticipantToProject(userProjectJson1, webTestClient);
         String userProjectJson2 = "{ 'userEmail': 'jean.rv@mail.com', 'projectId': ".replace('\'', '"') + project.getId()
                 + ", 'roles':  ['Danseur']}".replace('\'', '"');

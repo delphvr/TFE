@@ -58,7 +58,7 @@ public class CalendarCPService {
     private int maxHour;
 
     final int periode_begining = 0;
-    final LinearExpr oneDayInHour = LinearExpr.constant(24 * 60);
+    final LinearExpr oneDayInMinutes = LinearExpr.constant(24 * 60);
 
     class RehearsalData {
         Long id;
@@ -178,12 +178,12 @@ public class CalendarCPService {
         // on day)
         IntVar hourStart = model.newIntVar(0, 1439, "modulo_start_" + rehearsalId);
         // hour_start = schedule.start % 1440
-        model.addModuloEquality(hourStart, rehearsalVariables.start, oneDayInHour);
+        model.addModuloEquality(hourStart, rehearsalVariables.start, oneDayInMinutes);
         model.addGreaterOrEqual(hourStart, minHour * 60);
         model.addLessOrEqual(hourStart, maxHour * 60);
         // model.addLessOrEqual(schedule.end % 1440, maxHour*60)
         IntVar hourEnd = model.newIntVar(0, 1439, "modulo_end_" + rehearsalId);
-        model.addModuloEquality(hourEnd, rehearsalVariables.end, oneDayInHour);
+        model.addModuloEquality(hourEnd, rehearsalVariables.end, oneDayInMinutes);
         model.addGreaterOrEqual(hourEnd, minHour * 60);
         model.addLessOrEqual(hourEnd, maxHour * 60);
         // debut avant fin sinon sur deux jour et donc la nuit
@@ -264,7 +264,7 @@ public class CalendarCPService {
                     // on day)
                     IntVar hourStart = model.newIntVar(0, 1439, "modulo_define_start_" + rehearsal.id);
                     // hour_start = schedule.start % 1440
-                    model.addModuloEquality(hourStart, start, oneDayInHour);
+                    model.addModuloEquality(hourStart, start, oneDayInMinutes);
                     model.addEquality(hourStart, rehearsal.time.toSecondOfDay() / 60);
                 }
             }
