@@ -263,7 +263,7 @@ class _ProfilPageSate extends State<ProfilPage> {
             ),
             const SizedBox(height: 15),
             ButtonCustom(
-              text: 'Gérer mes disponibilité',
+              text: 'Gérer mes disponibilités',
               onTap: () {
                         Navigator.push(
                           context,

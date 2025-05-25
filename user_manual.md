@@ -8,8 +8,15 @@ Les participants auront accès à toutes les informations nécessaires concernan
 
 ## Table des matière
 1. [Créer un compte](#créer-un-compte)
-2. [Créer un projet](#créer-un-projet)
-3. [Modifier un projet](#modifier-un-projet)
+2. [S'identifier](#sidentifier)
+3. [Accéder au profil](#accéder-au-profil)
+4. [Modifier les informations de votre profil](#modifier-les-informations-de-votre-profil)
+5. [Gérer vos disponibilités](#gérer-vos-disponibilités)
+    1. [Ajouter une disponibilité dans votre semaine type](#ajouter-une-disponibilité-dans-votre-semaine-type)
+    2. [Ajouter une période de non-disponibilité](#ajouter-une-période-de-non-disponibilité)
+6. [Se déconnecter](#se-déconnecter)
+7. [Créer un projet](#créer-un-projet)
+8. [Modifier un projet](#modifier-un-projet)
     1. [Modifier les informations de base du projet](#modifier-les-informations-de-base-du-projet)
     2. [Gérer les participants du projet](#gérer-les-participants-du-projet)
         1. [Ajouter un participant](#ajouter-un-participant)
@@ -20,11 +27,12 @@ Les participants auront accès à toutes les informations nécessaires concernan
         2. [Modifier les informations d'une répétition](#modifier-les-informations-dune-répétition)
         3. [Supprimer une répétition](#supprimer-une-répétition)
         4. [Ajouter un ordre entre les répétitions](#ajouter-un-ordre-entre-les-répétitions)
-4. [Accéder aux présences](#accéder-aux-présences)
-5. [Supprimer un projet](#supprimer-un-projet)
-6. [Accéder à la liste des projets dont vous êtes organisateur](#accéder-à-la-liste-des-projets-dont-vous-êtes-organisateur)
-7. [Accéder à la liste des projets auxquels vous participez](#accéder-à-la-liste-des-projets-auxquels-vous-participez)
-8. [Accéder au projet archivés](#accéder-au-projet-archivés)
+9. [Accéder aux présences](#accéder-aux-présences)
+10. [Supprimer un projet](#supprimer-un-projet)
+11. [Calculer l'horaire des répétitions](#calculer-lhoraire-des-répétitions)
+12. [Accéder à la liste des projets dont vous êtes organisateur](#accéder-à-la-liste-des-projets-dont-vous-êtes-organisateur)
+13. [Accéder à la liste des projets auxquels vous participez](#accéder-à-la-liste-des-projets-auxquels-vous-participez)
+14. [Accéder au projet archivés](#accéder-au-projet-archivés)
 
 ## Créer un compte
 Si vous êtes sur l'écran d'accueil de l'application, vous pouvez créer un compte en cliquant sur le texte "Créer un compte".
@@ -34,6 +42,56 @@ Si vous êtes sur l'écran d'accueil de l'application, vous pouvez créer un com
 Cela vous redirigera vers la page dédiée pour entrer les informations nécessaires à la création du compte, comme montré sur la capture d’écran ci-dessous :
 
 <p align="center"><img src="images/createAccount2.jpg" width="200"></p>
+
+## S'identifier
+L’écran d’accueil de l’application vous permet de vous identifier avec votre adresse email et votre mot de passe.
+
+Si vous avez oublié votre mot de passe, appuyez sur "Mot de passe oublié ?" et entrez votre adresse email.
+Un email de réinitialisation vous sera envoyé, à condition qu’un compte existe avec cette adresse email.
+
+## Accéder au profil
+Pour accéder à votre profil, sélectionnez l’onglet "Profil" dans la barre de navigation.
+
+<p align="center"><img src="images/profil.svg" width="200"></p>
+
+## Modifier les informations de votre profil
+Sur la page du profil, appuyez sur "Modifier" pour modifier vos informations personnelles.
+
+<p align="center"><img src="images/profilModification1.svg" width="200"> <img src="images/profilModification2.jpg" width="200">
+</p>
+
+## Gérer vos disponibilités
+Les disponibilités se définissent de deux façons :
+ - En ajoutant des créneaux disponibles sur une semaine type,
+ - En indiquant des périodes d’indisponibilité.
+
+Pour accéder à la page de gestion des disponibilités, allez dans votre profil et appuyez sur "Gérer mes disponibilités".
+
+<p align="center"><img src="images//availability1.svg" width="200">
+</p>
+
+
+### Ajouter une disponibilité dans votre semaine type
+Une fois sur la page, appuyez sur "Ajouter une disponibilité".
+Vous pourrez ensuite définir une heure de début et une heure de fin, ainsi que sélectionner les jours de la semaine où cette disponibilité s’applique.
+
+Pour supprimer un créneau, appuyez sur la croix située à droite du créneau.
+
+<p align="center"><img src="images/availability2.svg" width="200"> <img src="images/availability3.jpg" width="200">
+</p>
+
+### Ajouter une période de non-disponibilité
+Pour ajouter une période d’indisponibilité, appuyez sur "Ajouter des vacances".
+
+Vous pouvez supprimer une période en appuyant sur la croix à côté de la période que vous souhaitez retirer.
+
+<p align="center"><img src="images/availability4.svg" width="200"> <img src="images/availability5.jpg" width="200">
+</p>
+
+## Se déconnecter
+Pour vous déconnecter, appuyez sur l’icône de déconnexion située en haut à droite de l’écran (visible sur toutes les pages de l’application).
+
+<p align="center"><img src="images/logout.svg" width="200"></p>
 
 
 ## Créer un projet
@@ -175,6 +233,8 @@ Pour lancer le calcul de l’horaire :
 
 Vous verrez alors une proposition d’horaire s’afficher.
 
+L’horaire généré respectera les contraintes définies (ordre des répétitions, durée, etc.) tout en maximisant le taux de présence des participants aux répétitions.
+
 Les créneaux en vert indiquent les répétitions considérées comme acceptées.
 Dans le cas d’un premier calcul, cela correspond aux répétitions qui avaient déjà une date et une heure définies. Et les créneaux en rouge indiquent les répétitions considérées comme pas encore acceptées.
 
@@ -191,6 +251,8 @@ Si aucun horaire ne convient pas, vous pouvez appuyer sur "Recalculer". Les cré
 Une fois que l’horaire vous convient, appuyez sur "Tout valider".
 Cela fixera la date et l’heure de chaque répétition concernée.
 Ces horaires seront ensuite visibles dans le calendrier des participants.
+
+Sur chaque créneau proposé, une fraction indique la proportion de participants disponibles. En appuyant dessus, vous pouvez voir la liste détaillée des personnes disponibles ou non pour ce créneau.
 
 <p align="center"><img src="images/updateProject1.svg" width="200"> <img src="images/computeProjectSchedule1.svg" width="200"> <img src="images/computeProjectSchedule2.jpg" width="200">
 </p>

@@ -212,7 +212,7 @@ void main() {
     expect(find.text("Professions : -"), findsOneWidget);
 
     // add vacation and disponibilities
-    await tester.tap(find.text('Gérer mes disponibilité'));
+    await tester.tap(find.text('Gérer mes disponibilités'));
     await tester.pumpAndSettle();
     //add an availability
     await tester.tap(find.text('Ajouter une disponibilité'));

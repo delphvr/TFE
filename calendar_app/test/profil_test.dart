@@ -43,7 +43,7 @@ void main() {
       expect(find.text("Comédien"), findsOneWidget);
 
       expect(find.text("Modifier"), findsOneWidget);
-      expect(find.text("Gérer mes disponibilité"), findsOneWidget);
+      expect(find.text("Gérer mes disponibilités"), findsOneWidget);
       expect(find.text("Supprimer mon compte"), findsOneWidget);
     });
 
