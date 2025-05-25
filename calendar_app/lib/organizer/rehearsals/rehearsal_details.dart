@@ -118,8 +118,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
       final response = await http.delete(Uri.parse(url));
       if (response.statusCode != 204) {
         if (mounted) {
-          Utils.errorMess(errorTitle,
-              'Merci de réessayer plus tard', context);
+          Utils.errorMess(errorTitle, 'Merci de réessayer plus tard', context);
         }
       } else {
         if (mounted) {
@@ -128,8 +127,7 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
       }
     } catch (e) {
       if (mounted) {
-        Utils.errorMess(errorTitle,
-            'Merci de réessayer plus tard', context);
+        Utils.errorMess(errorTitle, 'Merci de réessayer plus tard', context);
       }
     }
   }
@@ -170,122 +168,144 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-        body: Align(
-            alignment: Alignment.topCenter,
-            child: Column(
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 30,
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: SingleChildScrollView(
+          // Wrap the content in a scrollable view
+          child: Column(
+            children: [
+              Text(
+                name,
+                style: const TextStyle(fontSize: 30),
+              ),
+              const SizedBox(height: 25),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 35),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Description : ${description != null && description != '' ? description : "-"}",
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Date : ${date != null ? Utils.formatDateString(date) : "-"} ${time != null ? Utils.formatTimeString(time) : ""}',
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Durée : ${duration != null ? Utils.formatDuration(duration!) : "-"}',
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Lieu : ${location != null && location != '' ? location : "-"}',
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Participants : ${participantsIds.isEmpty ? "-" : ""}',
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                    ],
                   ),
                 ),
+              ),
+              const SizedBox(height: 10),
+              FutureBuilder<List>(
+                future: users,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text("Erreur: ${snapshot.error}"));
+                  } else if (snapshot.hasData) {
+                    final users = snapshot.data!;
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics:
+                          const NeverScrollableScrollPhysics(), // Avoid nested scrolling
+                      itemCount: users.length,
+                      itemBuilder: (context, index) {
+                        return ParticipantElement(
+                          projectId: widget.projectId,
+                          rehearsalId: widget.rehearsalId,
+                          userId: users[index]['id'],
+                          firstName: users[index]['firstName'],
+                          lastName: users[index]['lastName'],
+                          email: users[index]['email'],
+                          organizerPage: widget.organizerPage,
+                          onUpdate: refreshUsers,
+                        );
+                      },
+                    );
+                  } else {
+                    return const Center(
+                        child: Text('Aucun participant trouvé'));
+                  }
+                },
+              ),
+              if (widget.organizerPage) ...[
                 const SizedBox(height: 25),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 35),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Description : ${description != null && description != '' ? description : "-"}",
-                          style: const TextStyle(
-                            fontSize: 20,
-                          ),
+                ButtonCustom(
+                  text: 'Modifier',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RehearsalModificationPage(
+                          rehearsalId: widget.rehearsalId,
+                          projectId: widget.projectId,
+                          name: name,
+                          description: description,
+                          date: date,
+                          time: time,
+                          duration: duration,
+                          participantsIds: participantsIds,
+                          location: location,
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Date : ${date != null ? Utils.formatDateString(date) : "-"} ${time != null ? Utils.formatTimeString(time) : ""}',
-                          style: const TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Durée : ${duration != null ? Utils.formatDuration(duration!) : "-"}',
-                          style: const TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Lieu : ${location != null && location != '' ? location : "-"}',
-                          style: const TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Participants : ${participantsIds.isEmpty ? "-" : ""}',
-                          style: const TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    ).then((_) {
+                      getRehearsal();
+                      refreshUsers();
+                    });
+                  },
                 ),
-                const SizedBox(height: 10),
-                Flexible(
-                  child: FutureBuilder<List>(
-                    future: users,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Center(
-                          child: Text("Erreur: ${snapshot.error}"),
-                        );
-                      } else if (snapshot.hasData) {
-                        final users = snapshot.data!;
-
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: users.length,
-                          itemBuilder: (context, index) {
-                            return ParticipantElement(
-                              projectId: widget.projectId,
-                              rehearsalId: widget.rehearsalId,
-                              userId: users[index]['id'],
-                              firstName: users[index]['firstName'],
-                              lastName: users[index]['lastName'],
-                              email: users[index]['email'],
-                              //roles: users[index]['roles'],
-                              organizerPage: widget.organizerPage,
-                              onUpdate: refreshUsers,
-                            );
-                          },
-                        );
-                      } else {
-                        return const Center(
-                          child: Text('Aucun participant trouvé'),
-                        );
-                      }
-                    },
-                  ),
+                const SizedBox(height: 20),
+                ButtonCustom(
+                  text: 'Ordre des répétitions',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RehearsalPrecedencesPage(
+                          rehearsalId: widget.rehearsalId,
+                          projectId: widget.projectId,
+                          rehearsalName: name,
+                        ),
+                      ),
+                    ).then((_) {
+                      getRehearsal();
+                      refreshUsers();
+                    });
+                  },
                 ),
-                if (widget.organizerPage) ...[
-                  const SizedBox(height: 25),
+                const SizedBox(height: 20),
+                if (date != null && time != null)
                   ButtonCustom(
-                    text: 'Modifier',
+                    text: 'Afficher les présences',
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => RehearsalModificationPage(
+                          builder: (context) => PresencesPage(
                             rehearsalId: widget.rehearsalId,
                             projectId: widget.projectId,
                             name: name,
-                            description: description,
-                            date: date,
-                            time: time,
-                            duration: duration,
-                            participantsIds: participantsIds,
-                            location: location,
+                            isCalendar: false,
                           ),
                         ),
                       ).then((_) {
@@ -294,60 +314,25 @@ class _RehearsalDetailsPage extends State<RehearsalDetailsPage> {
                       });
                     },
                   ),
-                  const SizedBox(height: 20),
-                  ButtonCustom(
-                    text: 'Ordre des répétitions',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RehearsalPrecedencesPage(
-                            rehearsalId: widget.rehearsalId,
-                            projectId: widget.projectId,
-                            rehearsalName: name,
-                          ),
-                        ),
-                      ).then((_) {
-                        getRehearsal();
-                        refreshUsers();
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  if (date != null && time != null)
-                    ButtonCustom(
-                      text: 'Afficher les présences',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PresencesPage(
-                              rehearsalId: widget.rehearsalId,
-                              projectId: widget.projectId,
-                              name: name,
-                              isCalendar: false,
-                            ),
-                          ),
-                        ).then((_) {
-                          getRehearsal();
-                          refreshUsers();
-                        });
-                      },
-                    ),
-                  const SizedBox(height: 20),
-                  ButtonCustom(
-                    text: 'Supprimer la répétition',
-                    onTap: () {
-                      Utils.confirmation(
-                          'Action Irrévesible',
-                          'Êtes-vous sûre de vouloir supprimer la répétition ?',
-                          deleteRehearsal,
-                          context);
-                    },
-                  ),
-                ],
+                const SizedBox(height: 20),
+                ButtonCustom(
+                  text: 'Supprimer la répétition',
+                  onTap: () {
+                    Utils.confirmation(
+                      'Action Irrévesible',
+                      'Êtes-vous sûre de vouloir supprimer la répétition ?',
+                      deleteRehearsal,
+                      context,
+                    );
+                  },
+                ),
               ],
-            )),
-        selectedIndex: widget.organizerPage ? 1 : 0);
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+      selectedIndex: widget.organizerPage ? 1 : 0,
+    );
   }
 }

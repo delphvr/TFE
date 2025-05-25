@@ -118,7 +118,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   /// Send to the backend that the user presence for the rehearsal with id rehearsalId has changed.
-  /// /// If an error occurs will display an error message.
+  /// If an error occurs will display an error message.
   Future<Map<int, bool>> updateUserpresences(
       BuildContext context, int rehearsalId, bool presence) async {
     final String url =

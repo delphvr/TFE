@@ -385,7 +385,8 @@ public class RehearsalService {
     }
 
     /**
-     * Get all the rehearsal the user is a part of. Sorted by date, then time, then name.
+     * Get all the rehearsal the user is a part of. Sorted by date, then time, then
+     * name.
      * 
      * @param email the email of the user
      * @return the list og all the rehearsal the user is a part of
@@ -400,9 +401,9 @@ public class RehearsalService {
             res.add(rehearsal);
         }
         res.sort(Comparator
-                .comparing(Rehearsal::getDate)
-                .thenComparing(Rehearsal::getTime)
-                .thenComparing(Rehearsal::getName));
+                .comparing(Rehearsal::getDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(Rehearsal::getTime, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(Rehearsal::getName, Comparator.nullsLast(Comparator.naturalOrder())));
         return res;
     }
 
