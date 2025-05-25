@@ -20,7 +20,11 @@ Les participants auront accès à toutes les informations nécessaires concernan
         2. [Modifier les informations d'une répétition](#modifier-les-informations-dune-répétition)
         3. [Supprimer une répétition](#supprimer-une-répétition)
         4. [Ajouter un ordre entre les répétitions](#ajouter-un-ordre-entre-les-répétitions)
-4. [Accéder au projet archivés](#accéder-au-projet-archivés)
+4. [Accéder aux présences](#accéder-aux-présences)
+5. [Supprimer un projet](#supprimer-un-projet)
+6. [Accéder à la liste des projets dont vous êtes organisateur](#accéder-à-la-liste-des-projets-dont-vous-êtes-organisateur)
+7. [Accéder à la liste des projets auxquels vous participez](#accéder-à-la-liste-des-projets-auxquels-vous-participez)
+8. [Accéder au projet archivés](#accéder-au-projet-archivés)
 
 ## Créer un compte
 Si vous êtes sur l'écran d'accueil de l'application, vous pouvez créer un compte en cliquant sur le texte "Créer un compte".
@@ -45,6 +49,8 @@ Lors de la création du projet, vous devrez renseigner plusieurs informations, d
 <p align="center"><img src="images/createProject1.svg" width="200"></p>
 
 ## Modifier un projet
+Vous pouvez modifier un projet seulement si vous avez le rôle d'organisateur sur ce projet.
+
 Pour accéder à la page de modification d’un projet :
 1. Appuyer sur l’onglet "Organisateurs".
 2. Appuyer sur le projet désiré dans la liste des projets.
@@ -136,13 +142,41 @@ Pour définir un ordre de précédence entre les répétitions :
 <p align="center"><img src="images/rehearsalOrder1.svg" width="200"> <img src="images/rehearsalOrder2.svg" width="200"> <img src="images/rehearsalOrder3.svg" width="200"> <img src="images/rehearsalOrder4.jpg" width="200">
 </p>
 
-## Accéder au présences
+## Accéder aux présences
+Vous pouvez accéder aux présences d’une répétition uniquement si vous avez le rôle d’organisateur sur le projet auquel la répétition appartient.
+
+Lorsqu’une répétition a une date et une heure définies, il est possible de consulter les disponibilités des participants.
+Pour cela :
+1. Sélectionnez la répétition concernée dans la liste,
+2. Appuyez sur le bouton "Afficher les présences".
+
+<p align="center"><img src="images/rehearsalPresences1.svg" width="200"> <img src="images/rehearsalPresences2.jpg" width="200">
+</p>
+
 
 ## Supprimer un projet
+La suppression d’un projet est uniquement possible si vous avez le rôle d’organisateur sur ce projet.
 
-## Accéder à la liste des projet pour lesquels je suis un organisateur
+Pour supprimer un projet :
+1. Appuyez sur l’onglet "Organisateurs",
+2. Sélectionnez le projet dans la liste,
+3. Appuyez sur le bouton "Supprimer le projet".
 
-## Accéder à la liste des projets auxquels je participe
+<p align="center"><img src="images/updateProject1.svg" width="200"> <img src="images/deleteProject2.svg" width="200">
+</p>
+
+## Accéder à la liste des projets dont vous êtes organisateur
+Pour voir la liste des projets sur lesquels vous êtes organisateur, appuyez sur l’onglet "Organisateurs".
+Les projets affichés dans cette section sont ceux sur lesquels vous avez un rôle d’organisation.
+
+<p align="center"><img src="images/listOrg.svg" width="200">
+</p>
+
+## Accéder à la liste des projets auxquels vous participez
+Pour consulter les projets auxquels vous participez (sans nécessairement être organisateur), appuyez sur l’onglet "Projets".
+
+<p align="center"><img src="images/listPart.svg" width="200">
+</p>
 
 ## Accéder au projet archivés
 Les projets dont la date de fin est passée sont placés dans les projets archivés. Ils peuvent être retrouvés dans l'onglet "Projets archivés", situé en dessous de la liste des projets actifs.
