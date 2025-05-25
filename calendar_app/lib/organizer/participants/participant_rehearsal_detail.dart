@@ -53,7 +53,10 @@ class _ParticpipantRehearsalDetailPage
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-        return data;
+        List<String> modifiedRoles = data.map((role) {
+          return role == "Organizer" ? "Organisateur" : role as String;
+        }).toList();
+        return modifiedRoles;
       }
       return [];
     } catch (e) {

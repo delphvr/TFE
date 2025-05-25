@@ -15,8 +15,9 @@ Les participants auront accès à toutes les informations nécessaires concernan
     1. [Ajouter une disponibilité dans votre semaine type](#ajouter-une-disponibilité-dans-votre-semaine-type)
     2. [Ajouter une période de non-disponibilité](#ajouter-une-période-de-non-disponibilité)
 6. [Se déconnecter](#se-déconnecter)
-7. [Créer un projet](#créer-un-projet)
-8. [Modifier un projet](#modifier-un-projet)
+7. [Supprimer votre compte](#supprimer-votre-compte)
+8. [Créer un projet](#créer-un-projet)
+9. [Modifier un projet](#modifier-un-projet)
     1. [Modifier les informations de base du projet](#modifier-les-informations-de-base-du-projet)
     2. [Gérer les participants du projet](#gérer-les-participants-du-projet)
         1. [Ajouter un participant](#ajouter-un-participant)
@@ -27,12 +28,17 @@ Les participants auront accès à toutes les informations nécessaires concernan
         2. [Modifier les informations d'une répétition](#modifier-les-informations-dune-répétition)
         3. [Supprimer une répétition](#supprimer-une-répétition)
         4. [Ajouter un ordre entre les répétitions](#ajouter-un-ordre-entre-les-répétitions)
-9. [Accéder aux présences](#accéder-aux-présences)
-10. [Supprimer un projet](#supprimer-un-projet)
-11. [Calculer l'horaire des répétitions](#calculer-lhoraire-des-répétitions)
-12. [Accéder à la liste des projets dont vous êtes organisateur](#accéder-à-la-liste-des-projets-dont-vous-êtes-organisateur)
-13. [Accéder à la liste des projets auxquels vous participez](#accéder-à-la-liste-des-projets-auxquels-vous-participez)
-14. [Accéder au projet archivés](#accéder-au-projet-archivés)
+10. [Accéder aux présences](#accéder-aux-présences)
+11. [Supprimer un projet](#supprimer-un-projet)
+12. [Calculer l'horaire des répétitions](#calculer-lhoraire-des-répétitions)
+13. [Accéder à la liste des projets dont vous êtes organisateur](#accéder-à-la-liste-des-projets-dont-vous-êtes-organisateur)
+14. [Accéder à la liste des projets auxquels vous participez](#accéder-à-la-liste-des-projets-auxquels-vous-participez)
+15. [Accéder au projet archivés](#accéder-au-projet-archivés)
+16. [Voir la liste des répétitions auxquelles vous participez dans un projet](#voir-la-liste-des-répétitions-auxquelles-vous-participez-dans-un-projet)
+17. [Voir les détails d’une répétition à laquelle vous participez](#voir-les-détails-dune-répétition-à-laquelle-vous-participez)
+18. [Voir mon calendrier](#voir-mon-calendrier)
+19. [Changer votre statut de disponibilité à une répétition](#changer-votre-statut-de-disponibilité-à-une-répétition)
+20. [Vous retirer d’un projet](#vous-retirer-dun-projet)
 
 ## Créer un compte
 Si vous êtes sur l'écran d'accueil de l'application, vous pouvez créer un compte en cliquant sur le texte "Créer un compte".
@@ -93,6 +99,10 @@ Pour vous déconnecter, appuyez sur l’icône de déconnexion située en haut �
 
 <p align="center"><img src="images/logout.svg" width="200"></p>
 
+## Supprimer votre compte
+Dans l’onglet Profil, il est possible de supprimer votre compte en appuyant sur le bouton "Supprimer mon compte".
+
+<p align="center"><img src="images/deleteAccount.svg" width="200"></p>
 
 ## Créer un projet
 Pour créer un nouveau projet :
@@ -276,3 +286,57 @@ Les projets dont la date de fin est passée sont placés dans les projets archiv
 <p align="center"><img src="images/projetsArchives1.svg" width="200"> <img src="images/projetsArchives2.jpg" width="200">
 </p>
 
+## Voir la liste des répétitions auxquelles vous participez dans un projet
+Pour voir la liste des répétitions auxquelles vous participez dans un projet :
+1. Dans l’onglet "Projets",
+2. Sélectionnez le projet désiré dans la liste,
+3. Appuyez sur "Voir mes répétitions".
+
+<p align="center"><img src="images/listRehearsal1.svg" width="200"> <img src="images/listRehearsal2.svg" width="200"> <img src="images/listRehearsal3.jpg" width="200">
+</p>
+
+
+## Voir les détails d’une répétition à laquelle vous participez
+Pour voir les détails d’une répétition à laquelle vous participez :
+1. Dans l’onglet "Projets",
+2. Sélectionnez le projet désiré dans la liste,
+3. Appuyez sur "Voir mes répétitions",
+4. Sélectionnez la répétition désirée dans la liste.
+
+Sur cette page, vous pouvez voir le titre de la répétition, sa description, sa date, son heure, ainsi que la liste des participants.
+
+Vous pouvez également accéder à cette page en appuyant directement sur une répétition dans votre calendrier.
+
+<p align="center"><img src="images/listRehearsal1.svg" width="200"> <img src="images/listRehearsal2.svg" width="200"> <img src="images/rehearsalInfo1.svg" width="200"> <img src="images/rehearsalInfo2.jpg" width="200">
+</p>
+
+En appuyant sur le nom d’un participant, vous pourrez consulter ses rôles dans le projet ainsi que son adresse e-mail.
+
+<p align="center"><img src="images/pInfo1.svg" width="200"> <img src="images/pInfo2.jpg" width="200"> 
+</p>
+
+## Voir mon calendrier
+Pour consulter votre calendrier contenant toutes vos répétitions, sélectionnez l’onglet "Calendrier".
+
+<p align="center"><img src="images/calendrier.svg" width="200">
+</p>
+
+## Changer votre statut de disponibilité à une répétition
+Dans l’onglet "Calendrier", un check (✓) à côté d’une répétition signifie que vous êtes marqué comme disponible.
+Une croix (✕) indique que vous êtes marqué comme non disponible.
+
+Pour modifier ce statut, il suffit d’appuyer sur l’icône. Le statut s’inversera automatiquement.
+
+<p align="center"><img src="images/presences.svg" width="200">
+</p>
+
+## Vous retirer d’un projet
+Pour vous retirer d’un projet :
+1. Dans l’onglet "Projets",
+2. Sélectionnez le projet désiré dans la liste,
+3. Appuyez sur "Me retirer du projet".
+
+Si vous êtes le seul organisateur du projet, vous ne pourrez pas vous retirer du projet.
+
+<p align="center"><img src="images/listRehearsal1.svg" width="200"> <img src="images/removeFromProject.svg" width="200"> 
+</p>
