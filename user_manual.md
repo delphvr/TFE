@@ -165,6 +165,36 @@ Pour supprimer un projet :
 <p align="center"><img src="images/updateProject1.svg" width="200"> <img src="images/deleteProject2.svg" width="200">
 </p>
 
+## Calculer l'horaire des répétitions
+Le calcul de l’horaire des répétitions est uniquement possible si vous avez le rôle d’organisateur sur le projet.
+
+Pour lancer le calcul de l’horaire :
+1. Appuyez sur l’onglet "Organisateurs",
+2. Sélectionnez le projet dans la liste,
+3. Appuyez sur le bouton "Calculer l'horaire".
+
+Vous verrez alors une proposition d’horaire s’afficher.
+
+Les créneaux en vert indiquent les répétitions considérées comme acceptées.
+Dans le cas d’un premier calcul, cela correspond aux répétitions qui avaient déjà une date et une heure définies. Et les créneaux en rouge indiquent les répétitions considérées comme pas encore acceptées.
+
+Vous pouvez modifier manuellement le statut des créneaux en appuyant sur leur icône :
+ - Si un créneau affiche une croix (✕), cela signifie qu’il est actuellement non accepté. 
+ \
+ En appuyant dessus, il passera à l’état accepté (✓).
+ - Si un créneau affiche un ✓, cela signifie qu’il est accepté. 
+ \
+ En appuyant dessus, il repassera à l’état non accepté (✕).
+
+Si aucun horaire ne convient pas, vous pouvez appuyer sur "Recalculer". Les créneaux déjà approuvés conserveront leur valeur. Et les autres seront changer.
+
+Une fois que l’horaire vous convient, appuyez sur "Tout valider".
+Cela fixera la date et l’heure de chaque répétition concernée.
+Ces horaires seront ensuite visibles dans le calendrier des participants.
+
+<p align="center"><img src="images/updateProject1.svg" width="200"> <img src="images/computeProjectSchedule1.svg" width="200"> <img src="images/computeProjectSchedule2.jpg" width="200">
+</p>
+
 ## Accéder à la liste des projets dont vous êtes organisateur
 Pour voir la liste des projets sur lesquels vous êtes organisateur, appuyez sur l’onglet "Organisateurs".
 Les projets affichés dans cette section sont ceux sur lesquels vous avez un rôle d’organisation.
