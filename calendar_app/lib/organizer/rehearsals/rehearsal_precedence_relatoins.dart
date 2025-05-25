@@ -173,7 +173,7 @@ class _RehearsalPrecedencesPageState extends State<RehearsalPrecedencesPage> {
                     final notConstraintRehearsals = data['notConstraint'] ?? [];
 
                     return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         if (notConstraintRehearsals.isNotEmpty) ...[
                           ButtonCustom(
