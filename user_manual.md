@@ -30,23 +30,29 @@ Cela vous redirigera vers la page dédiée pour entrer les informations nécessa
 
 
 ## Créer un projet
-Pour créer un projet, il faut sélectionner l'onglet "Organisateurs" dans la barre de navigation, puis cliquer sur le bouton "Nouveau projet".
+Pour créer un nouveau projet :
+1. Sélectionnez l’onglet "Organisateurs" dans la barre de navigation.
+2. Cliquez sur le bouton "Nouveau projet".
 
 Lors de la création du projet, vous devrez renseigner plusieurs informations, dont un nom, une date de début, une date de fin, et une description (facultative).
 
-Une fois le projet créé, il apparaîtra dans la liste des projets en dessous du bouton "Nouveau projet".
+(3.) Une fois le projet créé, il apparaîtra dans la liste des projets en dessous du bouton "Nouveau projet".
 
 
 <p align="center"><img src="images/createProject1.svg" width="200"></p>
 
 ## Modifier un projet
-Pour modifier un projet, cliquez sur le projet désiré dans la liste des projets, sous l'onglet "Organisateurs". Cela vous amènera à une page vous permettant de modifier :
-1. Les informations enregistrées lors de la création du projet (nom, description et dates),
-2. Les participants liés au projet,
-3. Les répétitions liées au projet.
+Pour accéder à la page de modification d’un projet :
+1. Cliquez sur l’onglet "Organisateurs".
+2. Cliquez sur le projet désiré dans la liste des projets.
 
 <p align="center"><img src="images/updateProject1.svg" width="200"> <img src="images/updateProject2.jpg" width="200">
 </p>
+
+Depuis cette page, vous pouvez modifier :
+- Les informations enregistrées lors de la création du projet (nom, description et dates),
+- Les participants liés au projet,
+- Les répétitions liées au projet.
 
 ### Modifier les informations de base du projet
 Pour modifier les informations fournis lors de la création du projet il vous suffiras d'appuyer sur le bouton "Modifier".
