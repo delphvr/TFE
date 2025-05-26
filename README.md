@@ -12,10 +12,6 @@ spring.jpa.show-sql = false
 spring.jpa.hibernate.ddl-auto = update
 spring.jpa.hibernate.naming.implicit-strategy = org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
 spring.jpa.properties.hibernate.format_sql=true
-
-#config data
-calendar.rehearsal.min-hour=7
-calendar.rehearsal.max-hour=23
 ```
 
 Add a directory `resources` in the `test` directory with a file name `application-test.properties` and content:
