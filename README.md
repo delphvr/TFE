@@ -1,3 +1,7 @@
+## What This Project Does
+
+This repository contains the code for a mobile application designed to help organize show rehearsals. It centralizes all relevant information for participants and allows organizers to automatically create an optimized rehearsal schedule. Each participant enter their availability, and organizers enter rehearsal requirements such as duration and the order of rehearsals to be respected (if any). The generation of the schedule will maximize participant availability at each rehearsal while respecting all the given constraints.
+
 ## User Manual
 
 The user manual is available in French: [User Manual (FR)](./user_manual.md).  
