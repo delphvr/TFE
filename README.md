@@ -7,8 +7,18 @@ Note: The application is currently only available in French.
 
 Before running the application, you must set up a few configuration files.
 
-1. [Backend Configuration](#backend-configuration)
-2. [Frontend Configuration](#frontend-configuration)
+1. [Frontend Configuration](#frontend-configuration)
+2. [Backend Configuration](#backend-configuration)
+    1. [Main Application](#main-application)
+    2. [Test Environment](#test-environment)
+
+### Frontend Configuration
+The frontend is located in the `calendar_app` directory.
+You need to create a `.env` file inside the `calendar_app/lib` directory containing the backend URL followed by `/api` like this:
+```
+API_BASE_URL=http://{ip_adress}:{port}/api
+```
+Replace `{ip_address}` and `{port}` with the actual address and port where your backend is running.
 
 ### Backend Configuration
 
@@ -94,11 +104,3 @@ You can load it into your test database using the following command:
 psql -U postgres -d {your_cp_test_db} -f test_db.sql
 ```
 Replace `{your_cp_test_db}` with the name of the database configured in `application-calendar_cp_test.properties`.
-
-### Frontend Configuration
-The frontend is located in the `calendar_app` directory.
-You need to create a `.env` file inside the `calendar_app/lib` directory containing the backend URL followed by `/api` like this:
-```
-API_BASE_URL=http://{ip_adress}:{port}/api
-```
-Replace `{ip_address}` and `{port}` with the actual address and port where your backend is running.
