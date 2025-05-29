@@ -105,6 +105,6 @@ In the `backend/src` directory, you will find a file named `test_db.sql`, which 
 \
 You can load it into your test database using the following command:
 ```bash
-psql -U postgres -d {your_cp_test_db} -f test_db.sql
+psql -U {username} -d {your_cp_test_db} -f test_db.sql
 ```
-Replace `{your_cp_test_db}` with the name of the database configured in `application-calendar_cp_test.properties`.
+Replace `{username}` with your PostgreSQL username, and replace `{your_cp_test_db}` with the name of the database configured in `application-calendar_cp_test.properties`.
