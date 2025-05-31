@@ -57,7 +57,7 @@ public class CalendarCPService {
     @Value("${calendar.rehearsal.max-hour}")
     private int maxHour;
 
-    final int periode_begining = 0;
+    final int periode_beginning = 0;
     final LinearExpr oneDayInMinutes = LinearExpr.constant(24 * 60);
 
     class RehearsalData {
@@ -233,8 +233,8 @@ public class CalendarCPService {
             }
             // rehearsal has a specific date but not time
             else if (rehearsal.date != null && rehearsal.time == null) {
-                LocalDateTime stratDateTime = rehearsal.date.atTime(LocalTime.of(minHour, 0));
-                Long startTime = getDateTimeValue(project, stratDateTime);
+                LocalDateTime startDateTime = rehearsal.date.atTime(LocalTime.of(minHour, 0));
+                Long startTime = getDateTimeValue(project, startDateTime);
                 LocalDateTime endDateTime = rehearsal.date.atTime(LocalTime.of(maxHour, 0));
                 Long endTime = getDateTimeValue(project, endDateTime);
                 IntVar start = model.newIntVar(startTime, endTime - rehearsal.duration,
@@ -247,9 +247,9 @@ public class CalendarCPService {
                 rehearsals.put(rehearsal.id,
                         new RehearsalVariables(start, end, duration, interval, null, null, null, usersPresence));
             } else {
-                IntVar start = model.newIntVar(periode_begining, periode_end - rehearsal.duration,
+                IntVar start = model.newIntVar(periode_beginning, periode_end - rehearsal.duration,
                         "start_rehearsal_" + rehearsal.id);
-                IntVar end = model.newIntVar(periode_begining + rehearsal.duration, periode_end,
+                IntVar end = model.newIntVar(periode_beginning + rehearsal.duration, periode_end,
                         "end_rehearsal_" + rehearsal.id);
                 IntVar duration = model.newIntVar(rehearsal.duration, rehearsal.duration,
                         "duration_rehearsal_" + rehearsal.id);

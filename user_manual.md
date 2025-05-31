@@ -52,8 +52,12 @@ Cela vous redirigera vers la page dédiée pour entrer les informations nécessa
 ## S'identifier
 L’écran d’accueil de l’application vous permet de vous identifier avec votre adresse email et votre mot de passe.
 
-Si vous avez oublié votre mot de passe, appuyez sur "Mot de passe oublié ?" et entrez votre adresse email.
-Un email de réinitialisation vous sera envoyé, à condition qu’un compte existe avec cette adresse email.
+## Réinitialiser son mot de passe
+
+Il est possible de réinitialiser votre mot de passe en appuyant sur "Mot de passe oublié ?" depuis la page de connexion, puis en entrant votre adresse e-mail.
+Un e-mail de réinitialisation vous sera envoyé, à condition qu’un compte existe avec cette adresse email.
+
+<p align="center"><img src="images/password.svg" width="200"></p>
 
 ## Accéder au profil
 Pour accéder à votre profil, sélectionnez l’onglet "Profil" dans la barre de navigation.
@@ -81,18 +85,18 @@ Pour accéder à la page de gestion des disponibilités, allez dans votre profil
 Une fois sur la page, appuyez sur "Ajouter une disponibilité".
 Vous pourrez ensuite définir une heure de début et une heure de fin, ainsi que sélectionner les jours de la semaine où cette disponibilité s’applique.
 
-Pour supprimer un créneau, appuyez sur la croix située à droite du créneau.
-
 <p align="center"><img src="images/availability2.svg" width="200"> <img src="images/availability3.jpg" width="200">
 </p>
+
+Pour supprimer un créneau, appuyez sur la croix située à droite du créneau.
 
 ### Ajouter une période de non-disponibilité
 Pour ajouter une période d’indisponibilité, appuyez sur "Ajouter des vacances".
 
-Vous pouvez supprimer une période en appuyant sur la croix à côté de la période que vous souhaitez retirer.
-
 <p align="center"><img src="images/availability4.svg" width="200"> <img src="images/availability5.jpg" width="200">
 </p>
+
+Vous pouvez supprimer une période en appuyant sur la croix à côté de la période que vous souhaitez retirer.
 
 ## Se déconnecter
 Pour vous déconnecter, appuyez sur l’icône de déconnexion située en haut à droite de l’écran (visible sur toutes les pages de l’application).
@@ -132,7 +136,7 @@ Depuis cette page, vous pouvez modifier :
 - Les répétitions liées au projet.
 
 ### Modifier les informations de base du projet
-Pour modifier les informations fournis lors de la création du projet il vous suffiras d'appuyer sur le bouton "Modifier".
+Pour modifier les informations fournies lors de la création du projet il vous suffira d'appuyer sur le bouton "Modifier".
 
 <p align="center"><img src="images/updateProjectInfo1.svg" width="200"> <img src="images/updateProjectInfo2.jpg" width="200">
 </p>
@@ -165,7 +169,7 @@ Vous pouvez également supprimer un rôle en cliquant sur la croix située à c�
 <p align="center"><img src="images/updateParticipant1.svg" width="200"> <img src="images/updateParticipant2.svg" width="200"> <img src="images/updateParticipant3.jpg" width="200">
 </p>
 
-#### Supprimer un utilisateur de la liste des participant au projet
+#### Supprimer un utilisateur de la liste des participants au projet
 Pour supprimer un participant :
 1. Sélectionnez-le dans la liste,
 2. Appuyer sur le buton "Supprimer le participant".
@@ -246,7 +250,7 @@ Vous verrez alors une proposition d’horaire s’afficher.
 L’horaire généré respectera les contraintes définies (ordre des répétitions, durée, etc.) tout en maximisant le taux de présence des participants aux répétitions.
 
 Les créneaux en vert indiquent les répétitions considérées comme acceptées.
-Dans le cas d’un premier calcul, cela correspond aux répétitions qui avaient déjà une date et une heure définies. Et les créneaux en rouge indiquent les répétitions considérées comme pas encore acceptées.
+Dans le cas d’un premier calcul, cela correspond aux répétitions qui avaient déjà une date et une heure définies. Et les créneaux en rouge indiquent les répétitions considérées comme n'ayant pas encore été acceptées.
 
 Vous pouvez modifier manuellement le statut des créneaux en appuyant sur leur icône :
  - Si un créneau affiche une croix (✕), cela signifie qu’il est actuellement non accepté. 
